@@ -33,6 +33,7 @@ import {
 import DeleteIcon from '@mui/icons-material/Delete'
 import SearchIcon from '@mui/icons-material/Search'
 import SortIcon from '@mui/icons-material/Sort'
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd'
 
 function App() {
   const [todos, setTodos] = useState([])
@@ -47,6 +48,23 @@ function App() {
   const [noteInput, setNoteInput] = useState('')
   const [sortDirection, setSortDirection] = useState('asc')
   const [taskStatus, setTaskStatus] = useState('not-started')
+  const [columns, setColumns] = useState({
+    'not-started': {
+      title: 'Not Started',
+      items: [],
+      color: '#ff9800'
+    },
+    'in-progress': {
+      title: 'In Progress',
+      items: [],
+      color: '#2196f3'
+    },
+    'completed': {
+      title: 'Complete',
+      items: [],
+      color: '#4caf50'
+    }
+  });
 
   useEffect(() => {
     fetchTodos()
@@ -261,6 +279,35 @@ function App() {
       console.error("Error updating status:", error)
     }
   }
+
+  const onDragEnd = async (result) => {
+    if (!result.destination) return;
+    
+    const { source, destination } = result;
+    
+    // Get the task that was moved
+    const sourceColumn = columns[source.droppableId];
+    const destColumn = columns[destination.droppableId];
+    const [movedTask] = sourceColumn.items.splice(source.index, 1);
+    destColumn.items.splice(destination.index, 0, movedTask);
+    
+    // Update state
+    setColumns({
+      ...columns,
+      [source.droppableId]: sourceColumn,
+      [destination.droppableId]: destColumn
+    });
+
+    // Update Firebase
+    try {
+      const todoRef = doc(db, 'todos', movedTask.id);
+      await updateDoc(todoRef, {
+        status: destination.droppableId
+      });
+    } catch (error) {
+      console.error("Error updating task status:", error);
+    }
+  };
 
   return (
     <div style={{ 
@@ -511,87 +558,76 @@ function App() {
                 </Typography>
 
                 {/* Kanban Board */}
-                <Card sx={{ 
-                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                  mb: 3,
-                  border: '1px solid rgba(255, 255, 255, 0.2)'
-                }}>
-                  <CardContent>
-                    <Typography variant="h6" sx={{ mb: 2 }}>
-                      Task Status
-                    </Typography>
-                    <FormControl fullWidth>
-                      <Select
-                        value={selectedTodo.status || 'not-started'}
-                        onChange={(e) => handleStatusChange(selectedTodo.id, e.target.value)}
-                        sx={{
-                          color: 'white',
-                          '.MuiOutlinedInput-notchedOutline': {
-                            borderColor: 'rgba(255, 255, 255, 0.3)',
-                          },
-                          '&:hover .MuiOutlinedInput-notchedOutline': {
-                            borderColor: 'rgba(255, 255, 255, 0.5)',
-                          },
-                          '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                            borderColor: 'white',
-                          },
-                          '.MuiSvgIcon-root': {
-                            color: 'white',
-                          }
+                <DragDropContext onDragEnd={onDragEnd}>
+                  <div style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
+                    {Object.entries(columns).map(([columnId, column]) => (
+                      <div
+                        key={columnId}
+                        style={{
+                          display: 'flex',
+                          flexDirection: 'column',
+                          flex: 1,
                         }}
                       >
-                        <MenuItem value="not-started">Not Yet Started</MenuItem>
-                        <MenuItem value="in-progress">Work in Progress</MenuItem>
-                        <MenuItem value="completed">Complete</MenuItem>
-                      </Select>
-                    </FormControl>
-
-                    {/* Status Indicators */}
-                    <div style={{ 
-                      display: 'flex', 
-                      justifyContent: 'space-between',
-                      marginTop: '20px',
-                      padding: '10px'
-                    }}>
-                      <div style={{ textAlign: 'center' }}>
-                        <div style={{
-                          width: '20px',
-                          height: '20px',
-                          borderRadius: '50%',
-                          backgroundColor: selectedTodo.status === 'not-started' ? '#ff9800' : 'rgba(255, 152, 0, 0.3)',
-                          margin: '0 auto 5px'
-                        }} />
-                        <Typography variant="caption">
-                          Not Started
+                        <Typography
+                          variant="subtitle1"
+                          sx={{
+                            color: column.color,
+                            mb: 1,
+                            fontWeight: 'bold'
+                          }}
+                        >
+                          {column.title}
                         </Typography>
+                        <Droppable droppableId={columnId}>
+                          {(provided, snapshot) => (
+                            <div
+                              ref={provided.innerRef}
+                              {...provided.droppableProps}
+                              style={{
+                                background: snapshot.isDraggingOver
+                                  ? 'rgba(255, 255, 255, 0.1)'
+                                  : 'rgba(255, 255, 255, 0.05)',
+                                padding: '8px',
+                                borderRadius: '4px',
+                                minHeight: '100px'
+                              }}
+                            >
+                              {column.items.map((item, index) => (
+                                <Draggable
+                                  key={item.id}
+                                  draggableId={item.id}
+                                  index={index}
+                                >
+                                  {(provided, snapshot) => (
+                                    <div
+                                      ref={provided.innerRef}
+                                      {...provided.draggableProps}
+                                      {...provided.dragHandleProps}
+                                      style={{
+                                        userSelect: 'none',
+                                        padding: '8px',
+                                        margin: '0 0 8px 0',
+                                        backgroundColor: snapshot.isDragging
+                                          ? 'rgba(255, 255, 255, 0.2)'
+                                          : 'rgba(255, 255, 255, 0.1)',
+                                        borderRadius: '4px',
+                                        ...provided.draggableProps.style
+                                      }}
+                                    >
+                                      {item.text}
+                                    </div>
+                                  )}
+                                </Draggable>
+                              ))}
+                              {provided.placeholder}
+                            </div>
+                          )}
+                        </Droppable>
                       </div>
-                      <div style={{ textAlign: 'center' }}>
-                        <div style={{
-                          width: '20px',
-                          height: '20px',
-                          borderRadius: '50%',
-                          backgroundColor: selectedTodo.status === 'in-progress' ? '#2196f3' : 'rgba(33, 150, 243, 0.3)',
-                          margin: '0 auto 5px'
-                        }} />
-                        <Typography variant="caption">
-                          In Progress
-                        </Typography>
-                      </div>
-                      <div style={{ textAlign: 'center' }}>
-                        <div style={{
-                          width: '20px',
-                          height: '20px',
-                          borderRadius: '50%',
-                          backgroundColor: selectedTodo.status === 'completed' ? '#4caf50' : 'rgba(76, 175, 80, 0.3)',
-                          margin: '0 auto 5px'
-                        }} />
-                        <Typography variant="caption">
-                          Complete
-                        </Typography>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
+                    ))}
+                  </div>
+                </DragDropContext>
 
                 {/* Return to List button (if archived) */}
                 {selectedTodo.archived === true && (
