@@ -213,10 +213,11 @@ function App() {
                       secondary={todo.archived ? '(Archived)' : '(Active)'}
                       sx={{
                         '& .MuiListItemText-primary': {
-                          color: 'white'
+                          color: todo.archived ? '#ff4444' : 'white',
+                          textDecoration: todo.archived ? 'line-through' : 'none'
                         },
                         '& .MuiListItemText-secondary': {
-                          color: 'rgba(255, 255, 255, 0.7)'
+                          color: todo.archived ? '#ff4444' : 'rgba(255, 255, 255, 0.7)'
                         }
                       }}
                     />
