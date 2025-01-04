@@ -1,6 +1,6 @@
 // Test auto-commit - this comment should be saved automatically
 //works bru
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { db } from './firebase'
 import { 
   collection, 
@@ -179,10 +179,9 @@ function App() {
     message: '',
     severity: 'success'
   });
-  const [mode, setMode] = React.useState('dark');
+  const [mode, setMode] = useState('dark');
 
-  // Create theme based on mode
-  const theme = React.useMemo(
+  const theme = useMemo(
     () =>
       createTheme({
         palette: {
@@ -202,6 +201,9 @@ function App() {
       }),
     [mode],
   );
+
+  // Add a console.log to debug
+  console.log('Current theme mode:', mode);
 
   // Define sidebar width constants
   const SIDEBAR_WIDTH = 240;
@@ -981,9 +983,9 @@ function App() {
             '& .MuiDrawer-paper': {
               width: sidebarOpen ? SIDEBAR_WIDTH : SIDEBAR_WIDTH_COLLAPSED,
               boxSizing: 'border-box',
-              backgroundColor: '#1E1E1E',
-              color: 'white',
-              borderRight: '1px solid rgba(255, 255, 255, 0.12)'
+              backgroundColor: theme.palette.background.paper,
+              color: theme.palette.text.primary,
+              borderRight: `1px solid ${theme.palette.divider}`
             },
           }}
         >
@@ -1129,6 +1131,7 @@ function App() {
         <Box component="main" sx={{ 
           flexGrow: 1, 
           p: 3,
+          bgcolor: theme.palette.background.default,
           transition: 'margin 225ms cubic-bezier(0.4, 0, 0.6, 1)',
           marginLeft: `${sidebarOpen ? 0 : -175}px`,
         }}>
