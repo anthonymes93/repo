@@ -22,7 +22,8 @@ import {
   Paper,
   Typography,
   CircularProgress,
-  InputBase
+  InputBase,
+  Drawer
 } from '@mui/material'
 import DeleteIcon from '@mui/icons-material/Delete'
 import SearchIcon from '@mui/icons-material/Search'
@@ -35,6 +36,8 @@ function App() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [searchResults, setSearchResults] = useState([])
+  const [selectedTodo, setSelectedTodo] = useState(null)
+  const [drawerOpen, setDrawerOpen] = useState(false)
 
   useEffect(() => {
     fetchTodos()
@@ -156,6 +159,11 @@ function App() {
     }
   }
 
+  const handleItemClick = (todo) => {
+    setSelectedTodo(todo)
+    setDrawerOpen(true)
+  }
+
   return (
     <div style={{ 
       minHeight: '100vh',
@@ -213,8 +221,13 @@ function App() {
                   <ListItem 
                     key={todo.id}
                     sx={{
-                      borderBottom: '1px solid rgba(255, 255, 255, 0.1)'
+                      borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+                      cursor: 'pointer',
+                      '&:hover': {
+                        backgroundColor: 'rgba(255, 255, 255, 0.05)'
+                      }
                     }}
+                    onClick={() => handleItemClick(todo)}
                   >
                     <ListItemText
                       primary={todo.text}
@@ -335,6 +348,31 @@ function App() {
               </ListItem>
             ))}
           </List>
+
+          <Drawer
+            anchor="right"
+            open={drawerOpen}
+            onClose={() => setDrawerOpen(false)}
+            PaperProps={{
+              sx: {
+                width: '33%',
+                backgroundColor: '#1a1a1a',
+                color: 'white',
+                padding: '20px'
+              }
+            }}
+          >
+            {selectedTodo && (
+              <div>
+                <Typography variant="h5" sx={{ mb: 2 }}>
+                  {selectedTodo.text}
+                </Typography>
+                <Typography variant="body1" sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
+                  Created: {new Date(selectedTodo.timestamp).toLocaleString()}
+                </Typography>
+              </div>
+            )}
+          </Drawer>
         </Container>
       </div>
     </div>
