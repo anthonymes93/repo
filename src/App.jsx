@@ -37,7 +37,13 @@ import {
   Box,
   Chip,
   Stack,
-  InputAdornment
+  InputAdornment,
+  Fade,
+  Collapse,
+  LinearProgress,
+  SpeedDial,
+  SpeedDialAction,
+  SpeedDialIcon
 } from '@mui/material'
 import DeleteIcon from '@mui/icons-material/Delete'
 import SearchIcon from '@mui/icons-material/Search'
@@ -51,6 +57,41 @@ import AccessTimeIcon from '@mui/icons-material/AccessTime'
 import { alpha } from '@mui/material/styles'
 import NotesIcon from '@mui/icons-material/Notes'
 import ViewKanbanIcon from '@mui/icons-material/ViewKanban'
+import { styled, keyframes } from '@mui/material/styles'
+import { 
+  AttachFile as AttachFileIcon,
+  DateRange as DateRangeIcon,
+  Label as LabelIcon,
+  PriorityHigh as PriorityHighIcon,
+  Add as AddIcon
+} from '@mui/icons-material'
+
+const fadeIn = keyframes`
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+`;
+
+const AnimatedSection = styled(Box)(({ theme }) => ({
+  animation: `${fadeIn} 0.3s ease-out`,
+}));
+
+const ProgressWrapper = styled(Box)(({ theme }) => ({
+  position: 'relative',
+  padding: theme.spacing(2),
+  backgroundColor: alpha('#FFFFFF', 0.03),
+  borderRadius: '8px',
+  transition: 'transform 0.2s ease',
+  '&:hover': {
+    transform: 'translateY(-2px)',
+    backgroundColor: alpha('#FFFFFF', 0.05),
+  },
+}));
 
 function App() {
   const [todos, setTodos] = useState([])
@@ -84,6 +125,9 @@ function App() {
   });
   const [kanbanInput, setKanbanInput] = useState('');
   const [subtasks, setSubtasks] = useState({});
+  const [activeSection, setActiveSection] = useState('details'); // or 'attachments' or 'timeline'
+  const [showSpeedDial, setShowSpeedDial] = useState(false);
+  const [progress, setProgress] = useState(0);
 
   useEffect(() => {
     fetchTodos()
@@ -125,6 +169,17 @@ function App() {
       setNoteInput(selectedTodo.notes || '');
     }
   }, [selectedTodo, subtasks]);
+
+  useEffect(() => {
+    if (selectedTodo) {
+      // Calculate progress based on completed subtasks
+      const total = columns['not-started'].items.length + 
+                   columns['in-progress'].items.length + 
+                   columns['completed'].items.length;
+      const completed = columns['completed'].items.length;
+      setProgress(total > 0 ? (completed / total) * 100 : 0);
+    }
+  }, [columns, selectedTodo]);
 
   const fetchTodos = async () => {
     try {
@@ -586,6 +641,14 @@ function App() {
     </DragDropContext>
   );
 
+  // Add SpeedDial actions
+  const actions = [
+    { icon: <AttachFileIcon />, name: 'Add Attachment' },
+    { icon: <DateRangeIcon />, name: 'Set Due Date' },
+    { icon: <LabelIcon />, name: 'Add Label' },
+    { icon: <PriorityHighIcon />, name: 'Set Priority' },
+  ];
+
   return (
     <div style={{ 
       minHeight: '100vh',
@@ -872,217 +935,272 @@ function App() {
           >
             {selectedTodo && (
               <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-                {/* Enhanced Header */}
-                <Box sx={{ 
-                  p: 3, 
-                  background: 'linear-gradient(45deg, #2C2C2C 0%, #1E1E1E 100%)',
-                  borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
-                  position: 'relative',
-                  overflow: 'hidden',
-                }}>
-                  <Box
-                    sx={{
-                      position: 'absolute',
-                      top: 0,
-                      left: 0,
-                      right: 0,
-                      height: '4px',
-                      background: 'linear-gradient(90deg, #4CAF50 0%, #81C784 100%)'
-                    }}
-                  />
-                  <Stack direction="row" spacing={2} alignItems="center" sx={{ mb: 3 }}>
-                    <Avatar 
-                      sx={{ 
-                        bgcolor: 'transparent',
-                        width: 60,
-                        height: 60,
-                        fontSize: '24px',
-                        border: '2px solid #4CAF50',
-                        background: alpha('#4CAF50', 0.2),
-                        color: '#4CAF50'
-                      }}
-                    >
-                      {selectedTodo.text[0].toUpperCase()}
-                    </Avatar>
-                    <Box sx={{ flex: 1 }}>
-                      <Typography variant="h5" sx={{ 
-                        fontWeight: 600,
-                        letterSpacing: '-0.5px',
-                        mb: 0.5
-                      }}>
-                        {selectedTodo.text}
-                      </Typography>
-                      <Stack direction="row" spacing={1} alignItems="center">
-                        <AccessTimeIcon sx={{ fontSize: 14, color: 'rgba(255, 255, 255, 0.6)' }} />
-                        <Typography variant="body2" sx={{ 
-                          color: 'rgba(255, 255, 255, 0.6)',
-                          fontSize: '0.875rem'
-                        }}>
-                          {new Date(selectedTodo.timestamp).toLocaleDateString(undefined, {
-                            month: 'short',
-                            day: 'numeric',
-                            year: 'numeric'
-                          })}
-                        </Typography>
-                      </Stack>
-                    </Box>
-                  </Stack>
-
-                  <Stack direction="row" spacing={1}>
-                    <Chip 
-                      label={selectedTodo.isActive ? "Active" : "Inactive"}
-                      color={selectedTodo.isActive ? "success" : "default"}
-                      size="small"
+                {/* Enhanced Header with Progress */}
+                <Fade in timeout={500}>
+                  <Box sx={{ 
+                    p: 3, 
+                    background: 'linear-gradient(45deg, #2C2C2C 0%, #1E1E1E 100%)',
+                    borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+                    position: 'relative',
+                    overflow: 'hidden',
+                  }}>
+                    <Box
                       sx={{
-                        borderRadius: '6px',
-                        '& .MuiChip-label': {
-                          fontWeight: 500
-                        }
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        height: '4px',
+                        background: 'linear-gradient(90deg, #4CAF50 0%, #81C784 100%)'
                       }}
                     />
-                    <Chip 
-                      label={selectedTodo.completed ? "Completed" : "In Progress"}
-                      color={selectedTodo.completed ? "primary" : "warning"}
-                      size="small"
-                      sx={{
-                        borderRadius: '6px',
-                        '& .MuiChip-label': {
-                          fontWeight: 500
-                        }
-                      }}
-                    />
-                  </Stack>
-                </Box>
-
-                {/* Enhanced Content */}
-                <Box sx={{ 
-                  flex: 1, 
-                  overflowY: 'auto',
-                  '&::-webkit-scrollbar': {
-                    width: '8px',
-                  },
-                  '&::-webkit-scrollbar-track': {
-                    background: 'transparent',
-                  },
-                  '&::-webkit-scrollbar-thumb': {
-                    background: 'rgba(255, 255, 255, 0.1)',
-                    borderRadius: '4px',
-                  },
-                }}>
-                  {/* Contact Section */}
-                  <Box sx={{ p: 3 }}>
-                    <Typography variant="h6" sx={{ 
-                      mb: 3,
-                      fontWeight: 600,
-                      fontSize: '1.1rem',
-                      color: 'rgba(255, 255, 255, 0.9)'
-                    }}>
-                      Contact Information
-                    </Typography>
-                    <Stack spacing={2} sx={{ mb: 4 }}>
-                      <TextField
-                        fullWidth
-                        label="Phone Number"
-                        value={selectedTodo.phone || ''}
-                        onChange={(e) => handleContactUpdate(selectedTodo.id, 'phone', e.target.value)}
-                        InputProps={{
-                          startAdornment: (
-                            <InputAdornment position="start">
-                              <PhoneIcon sx={{ color: '#4CAF50' }} />
-                            </InputAdornment>
-                          ),
+                    <Stack direction="row" spacing={2} alignItems="center" sx={{ mb: 3 }}>
+                      <Avatar 
+                        sx={{ 
+                          bgcolor: 'transparent',
+                          width: 60,
+                          height: 60,
+                          fontSize: '24px',
+                          border: '2px solid #4CAF50',
+                          background: alpha('#4CAF50', 0.2),
+                          color: '#4CAF50'
                         }}
+                      >
+                        {selectedTodo.text[0].toUpperCase()}
+                      </Avatar>
+                      <Box sx={{ flex: 1 }}>
+                        <Typography variant="h5" sx={{ 
+                          fontWeight: 600,
+                          letterSpacing: '-0.5px',
+                          mb: 0.5
+                        }}>
+                          {selectedTodo.text}
+                        </Typography>
+                        <Stack direction="row" spacing={1} alignItems="center">
+                          <AccessTimeIcon sx={{ fontSize: 14, color: 'rgba(255, 255, 255, 0.6)' }} />
+                          <Typography variant="body2" sx={{ 
+                            color: 'rgba(255, 255, 255, 0.6)',
+                            fontSize: '0.875rem'
+                          }}>
+                            {new Date(selectedTodo.timestamp).toLocaleDateString(undefined, {
+                              month: 'short',
+                              day: 'numeric',
+                              year: 'numeric'
+                            })}
+                          </Typography>
+                        </Stack>
+                      </Box>
+                    </Stack>
+
+                    <Stack direction="row" spacing={1}>
+                      <Chip 
+                        label={selectedTodo.isActive ? "Active" : "Inactive"}
+                        color={selectedTodo.isActive ? "success" : "default"}
+                        size="small"
                         sx={{
-                          '& .MuiOutlinedInput-root': {
-                            backgroundColor: alpha('#FFFFFF', 0.03),
-                            borderRadius: '8px',
-                            '&:hover': {
-                              backgroundColor: alpha('#FFFFFF', 0.05),
-                            },
-                            '& fieldset': {
-                              borderColor: 'rgba(255, 255, 255, 0.1)',
-                            },
-                          },
-                          '& .MuiInputLabel-root': {
-                            color: 'rgba(255, 255, 255, 0.7)',
-                          },
-                          '& .MuiInputBase-input': {
-                            color: 'white',
+                          borderRadius: '6px',
+                          '& .MuiChip-label': {
+                            fontWeight: 500
                           }
                         }}
                       />
-                      <TextField
-                        fullWidth
-                        label="Email"
-                        value={selectedTodo.email || ''}
-                        onChange={(e) => handleContactUpdate(selectedTodo.id, 'email', e.target.value)}
-                        InputProps={{
-                          startAdornment: (
-                            <InputAdornment position="start">
-                              <EmailIcon sx={{ color: '#4CAF50' }} />
-                            </InputAdornment>
-                          ),
-                        }}
+                      <Chip 
+                        label={selectedTodo.completed ? "Completed" : "In Progress"}
+                        color={selectedTodo.completed ? "primary" : "warning"}
+                        size="small"
                         sx={{
-                          '& .MuiOutlinedInput-root': {
-                            backgroundColor: alpha('#FFFFFF', 0.03),
-                            borderRadius: '8px',
-                            '&:hover': {
-                              backgroundColor: alpha('#FFFFFF', 0.05),
-                            },
-                            '& fieldset': {
-                              borderColor: 'rgba(255, 255, 255, 0.1)',
-                            },
-                          },
-                          '& .MuiInputLabel-root': {
-                            color: 'rgba(255, 255, 255, 0.7)',
-                          },
-                          '& .MuiInputBase-input': {
-                            color: 'white',
+                          borderRadius: '6px',
+                          '& .MuiChip-label': {
+                            fontWeight: 500
                           }
                         }}
                       />
                     </Stack>
 
-                    {/* Notes Section */}
-                    <Typography variant="h6" sx={{ 
-                      mb: 3,
-                      fontWeight: 600,
-                      fontSize: '1.1rem',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 1,
-                      color: 'rgba(255, 255, 255, 0.9)'
-                    }}>
-                      <NotesIcon sx={{ color: '#4CAF50' }} />
-                      Notes
-                    </Typography>
-                    <TextField
-                      multiline
-                      rows={6}
-                      fullWidth
-                      value={noteInput}
-                      onChange={(e) => setNoteInput(e.target.value)}
-                      onBlur={() => handleNoteUpdate(selectedTodo.id, noteInput)}
-                      placeholder="Add your notes here..."
-                      sx={{
-                        '& .MuiOutlinedInput-root': {
-                          backgroundColor: alpha('#FFFFFF', 0.03),
-                          borderRadius: '8px',
-                          '&:hover': {
-                            backgroundColor: alpha('#FFFFFF', 0.05),
-                          },
-                          '& fieldset': {
-                            borderColor: 'rgba(255, 255, 255, 0.1)',
-                          },
-                        },
-                        '& .MuiInputBase-input': {
-                          color: 'white',
-                        }
+                    {/* Add Progress Section */}
+                    <ProgressWrapper sx={{ mt: 2 }}>
+                      <Stack direction="row" spacing={2} alignItems="center">
+                        <CircularProgress
+                          variant="determinate"
+                          value={progress}
+                          size={40}
+                          sx={{
+                            color: '#4CAF50',
+                            '& .MuiCircularProgress-circle': {
+                              strokeLinecap: 'round',
+                            },
+                          }}
+                        />
+                        <Box sx={{ flex: 1 }}>
+                          <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
+                            Overall Progress
+                          </Typography>
+                          <LinearProgress
+                            variant="determinate"
+                            value={progress}
+                            sx={{
+                              mt: 1,
+                              height: 6,
+                              borderRadius: 3,
+                              backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                              '& .MuiLinearProgress-bar': {
+                                borderRadius: 3,
+                                backgroundColor: '#4CAF50',
+                              },
+                            }}
+                          />
+                        </Box>
+                      </Stack>
+                    </ProgressWrapper>
+                  </Box>
+                </Fade>
+
+                {/* Content with Animations */}
+                <Box sx={{ flex: 1, overflowY: 'auto' }}>
+                  <Fade in timeout={700}>
+                    <Box sx={{ p: 3 }}>
+                      {/* Contact Section */}
+                      <Box sx={{ p: 3 }}>
+                        <Typography variant="h6" sx={{ 
+                          mb: 3,
+                          fontWeight: 600,
+                          fontSize: '1.1rem',
+                          color: 'rgba(255, 255, 255, 0.9)'
+                        }}>
+                          Contact Information
+                        </Typography>
+                        <Stack spacing={2} sx={{ mb: 4 }}>
+                          <TextField
+                            fullWidth
+                            label="Phone Number"
+                            value={selectedTodo.phone || ''}
+                            onChange={(e) => handleContactUpdate(selectedTodo.id, 'phone', e.target.value)}
+                            InputProps={{
+                              startAdornment: (
+                                <InputAdornment position="start">
+                                  <PhoneIcon sx={{ color: '#4CAF50' }} />
+                                </InputAdornment>
+                              ),
+                            }}
+                            sx={{
+                              '& .MuiOutlinedInput-root': {
+                                backgroundColor: alpha('#FFFFFF', 0.03),
+                                borderRadius: '8px',
+                                '&:hover': {
+                                  backgroundColor: alpha('#FFFFFF', 0.05),
+                                },
+                                '& fieldset': {
+                                  borderColor: 'rgba(255, 255, 255, 0.1)',
+                                },
+                              },
+                              '& .MuiInputLabel-root': {
+                                color: 'rgba(255, 255, 255, 0.7)',
+                              },
+                              '& .MuiInputBase-input': {
+                                color: 'white',
+                              }
+                            }}
+                          />
+                          <TextField
+                            fullWidth
+                            label="Email"
+                            value={selectedTodo.email || ''}
+                            onChange={(e) => handleContactUpdate(selectedTodo.id, 'email', e.target.value)}
+                            InputProps={{
+                              startAdornment: (
+                                <InputAdornment position="start">
+                                  <EmailIcon sx={{ color: '#4CAF50' }} />
+                                </InputAdornment>
+                              ),
+                            }}
+                            sx={{
+                              '& .MuiOutlinedInput-root': {
+                                backgroundColor: alpha('#FFFFFF', 0.03),
+                                borderRadius: '8px',
+                                '&:hover': {
+                                  backgroundColor: alpha('#FFFFFF', 0.05),
+                                },
+                                '& fieldset': {
+                                  borderColor: 'rgba(255, 255, 255, 0.1)',
+                                },
+                              },
+                              '& .MuiInputLabel-root': {
+                                color: 'rgba(255, 255, 255, 0.7)',
+                              },
+                              '& .MuiInputBase-input': {
+                                color: 'white',
+                              }
+                            }}
+                          />
+                        </Stack>
+
+                        {/* Notes Section */}
+                        <Typography variant="h6" sx={{ 
+                          mb: 3,
+                          fontWeight: 600,
+                          fontSize: '1.1rem',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 1,
+                          color: 'rgba(255, 255, 255, 0.9)'
+                        }}>
+                          <NotesIcon sx={{ color: '#4CAF50' }} />
+                          Notes
+                        </Typography>
+                        <TextField
+                          multiline
+                          rows={6}
+                          fullWidth
+                          value={noteInput}
+                          onChange={(e) => setNoteInput(e.target.value)}
+                          onBlur={() => handleNoteUpdate(selectedTodo.id, noteInput)}
+                          placeholder="Add your notes here..."
+                          sx={{
+                            '& .MuiOutlinedInput-root': {
+                              backgroundColor: alpha('#FFFFFF', 0.03),
+                              borderRadius: '8px',
+                              '&:hover': {
+                                backgroundColor: alpha('#FFFFFF', 0.05),
+                              },
+                              '& fieldset': {
+                                borderColor: 'rgba(255, 255, 255, 0.1)',
+                              },
+                            },
+                            '& .MuiInputBase-input': {
+                              color: 'white',
+                            }
+                          }}
+                        />
+                      </Box>
+                    </Box>
+                  </Fade>
+                </Box>
+
+                {/* Speed Dial for Quick Actions */}
+                <SpeedDial
+                  ariaLabel="Task actions"
+                  sx={{
+                    position: 'absolute',
+                    bottom: 16,
+                    right: 16,
+                  }}
+                  icon={<SpeedDialIcon />}
+                  onClose={() => setShowSpeedDial(false)}
+                  onOpen={() => setShowSpeedDial(true)}
+                  open={showSpeedDial}
+                >
+                  {actions.map((action) => (
+                    <SpeedDialAction
+                      key={action.name}
+                      icon={action.icon}
+                      tooltipTitle={action.name}
+                      onClick={() => {
+                        // Handle action click
+                        setShowSpeedDial(false);
                       }}
                     />
-                  </Box>
-                </Box>
+                  ))}
+                </SpeedDial>
               </Box>
             )}
           </Drawer>
