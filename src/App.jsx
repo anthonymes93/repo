@@ -108,6 +108,10 @@ import Brightness4Icon from '@mui/icons-material/Brightness4';
 import Brightness7Icon from '@mui/icons-material/Brightness7';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
+import NotificationsIcon from '@mui/icons-material/Notifications';
+import Badge from '@mui/material/Badge';
+import AppBar from '@mui/material/AppBar';
+import Toolbar from '@mui/material/Toolbar';
 
 const fadeIn = keyframes`
   from {
@@ -180,6 +184,7 @@ function App() {
     severity: 'success'
   });
   const [mode, setMode] = useState('dark');
+  const [notificationCount, setNotificationCount] = useState(0);
 
   const theme = useMemo(
     () =>
@@ -1054,6 +1059,15 @@ function App() {
     setMode((prevMode) => (prevMode === 'light' ? 'dark' : 'light'));
   };
 
+  const showNotification = (message, severity = 'success') => {
+    setNotification({
+      open: true,
+      message,
+      severity,
+    });
+    setNotificationCount(prev => prev + 1);
+  };
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
@@ -1211,13 +1225,40 @@ function App() {
           </Box>
         </SideNav>
 
-        {/* Updated Main Content */}
+        {/* Add Header/AppBar */}
+        <AppBar 
+          position="fixed" 
+          sx={{ 
+            width: `calc(100% - ${sidebarOpen ? SIDEBAR_WIDTH : SIDEBAR_WIDTH_COLLAPSED}px)`,
+            ml: `${sidebarOpen ? SIDEBAR_WIDTH : SIDEBAR_WIDTH_COLLAPSED}px`,
+            background: '#1E1E1E linear-gradient(rgb(82 82 82 / 15%), rgb(0 0 0 / 15%))',
+            borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+            boxShadow: 'none'
+          }}
+        >
+          <Toolbar sx={{ justifyContent: 'flex-end' }}>
+            <IconButton 
+              color="inherit"
+              onClick={() => {
+                // Handle notification click
+                setNotificationCount(0); // Reset count when clicked
+              }}
+            >
+              <Badge badgeContent={notificationCount} color="error">
+                <NotificationsIcon />
+              </Badge>
+            </IconButton>
+          </Toolbar>
+        </AppBar>
+
+        {/* Add margin top to main content to account for header */}
         <Box component="main" sx={{ 
           flexGrow: 1, 
           p: 3,
           bgcolor: theme.palette.background.default,
           transition: 'margin 225ms cubic-bezier(0.4, 0, 0.6, 1)',
           marginLeft: `${sidebarOpen ? 0 : -175}px`,
+          mt: '64px', // Add this line for header spacing
         }}>
           {console.log('Current Page:', currentPage)}
 
