@@ -1719,11 +1719,11 @@ function App() {
                 Active Tasks Gallery
               </Typography>
               
-              <Grid container spacing={2}>
+              <Grid container spacing={2} sx={{ mt: 5 }}> {/* Added 40px margin top to the container */}
                 {displayedTodos
                   .filter(todo => todo.isActive !== false)
                   .map(todo => (
-                    <Grid item xs={12} sm={6} md={4} key={todo.id}>
+                    <Grid item xs={12} sm={6} md={4} key={todo.id} sx={{ mt: 5 }}> {/* Added 40px margin top to each item */}
                       <Paper
                         sx={{
                           p: 2,
@@ -1732,9 +1732,9 @@ function App() {
                           cursor: 'pointer',
                           transition: 'all 0.2s ease',
                           border: '1px solid rgba(255, 255, 255, 0.12)',
-                          height: '100%', // Make all papers take full height of grid item
-                          display: 'flex', // Enable flexbox
-                          flexDirection: 'column', // Stack children vertically
+                          height: '100%',
+                          display: 'flex',
+                          flexDirection: 'column',
                           '&:hover': {
                             transform: 'translateY(-2px)',
                             bgcolor: 'rgba(255, 255, 255, 0.15)',
