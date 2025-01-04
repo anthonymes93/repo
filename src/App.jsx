@@ -1,7 +1,4 @@
 // Test auto-commit - this comment should be saved automatically
-// Testing auto-commit again - [current time]
-//it works
-//broooooooooo
 import { useState, useEffect } from 'react'
 import { db } from './firebase'
 import { 
@@ -25,28 +22,20 @@ import {
   Paper,
   Typography,
   CircularProgress,
-  InputBase,
-  Drawer,
-  Box,
-  Divider
+  InputBase
 } from '@mui/material'
 import DeleteIcon from '@mui/icons-material/Delete'
 import SearchIcon from '@mui/icons-material/Search'
-import CloseIcon from '@mui/icons-material/Close'
-import { format } from 'date-fns'
 
 function App() {
   const [todos, setTodos] = useState([])
-  const [allTodos, setAllTodos] = useState([])
+  const [allTodos, setAllTodos] = useState([])  // New state for all todos
   const [inputValue, setInputValue] = useState('')
   const [searchQuery, setSearchQuery] = useState('')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [searchResults, setSearchResults] = useState([])
-  const [selectedTodo, setSelectedTodo] = useState(null)
-  const [drawerOpen, setDrawerOpen] = useState(false)
 
-  // Fetch active todos on component mount
   useEffect(() => {
     fetchTodos()
   }, [])
@@ -90,6 +79,39 @@ function App() {
     setSearchResults(filteredResults)
   }
 
+  const archiveTodo = async (id) => {
+    try {
+      setLoading(true)
+      const todoRef = doc(db, 'todos', id)
+      
+      await updateDoc(todoRef, {
+        archived: true,
+        archivedAt: new Date().getTime()
+      })
+
+      // Update both todos and allTodos
+      setTodos(prevTodos => prevTodos.filter(todo => todo.id !== id))
+      setAllTodos(prevAll => prevAll.map(todo => 
+        todo.id === id ? { ...todo, archived: true } : todo
+      ))
+
+      // Update search results if there's an active search
+      if (searchQuery) {
+        setSearchResults(prevResults => prevResults.map(todo =>
+          todo.id === id ? { ...todo, archived: true } : todo
+        ))
+      }
+
+      console.log("Todo archived successfully")
+      
+    } catch (error) {
+      console.error("Error archiving todo:", error)
+      setError(error.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault()
     if (inputValue.trim() !== '') {
@@ -126,217 +148,147 @@ function App() {
     }
   }
 
-  const toggleTodo = async (id) => {
-    try {
-      const todoToToggle = todos.find(todo => todo.id === id)
-      await updateDoc(doc(db, 'todos', id), {
-        completed: !todoToToggle.completed
-      })
-      
-      setTodos(todos.map(todo => 
-        todo.id === id ? { ...todo, completed: !todo.completed } : todo
-      ))
-    } catch (error) {
-      console.error("Error toggling todo:", error)
-    }
-  }
-
-  const archiveTodo = async (id) => {
-    try {
-      setLoading(true)
-      const todoRef = doc(db, 'todos', id)
-      
-      await updateDoc(todoRef, {
-        archived: true,
-        archivedAt: new Date().getTime()
-      })
-
-      // Update both todos and allTodos
-      setTodos(prevTodos => prevTodos.filter(todo => todo.id !== id))
-      setAllTodos(prevAll => prevAll.map(todo => 
-        todo.id === id ? { ...todo, archived: true } : todo
-      ))
-
-      // Update search results if there's an active search
-      if (searchQuery) {
-        setSearchResults(prevResults => prevResults.map(todo =>
-          todo.id === id ? { ...todo, archived: true } : todo
-        ))
-      }
-
-      console.log("Todo archived successfully")
-      
-    } catch (error) {
-      console.error("Error archiving todo:", error)
-      setError(error.message)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const handleTodoClick = (todo) => {
-    setSelectedTodo(todo)
-    setDrawerOpen(true)
-  }
-
-  const handleDrawerClose = () => {
-    setDrawerOpen(false)
-    setSelectedTodo(null)
-  }
-
   return (
     <div style={{ 
       minHeight: '100vh',
       background: 'linear-gradient(to right, #0f2027, #203a43, #2c5364)',
       position: 'relative'
     }}>
-      <Container maxWidth="sm" style={{
+      <div style={{ 
         position: 'absolute',
         top: '50%',
         left: '50%',
         transform: 'translate(-50%, -50%)',
-        width: '100%'
+        width: '100%',
+        maxWidth: '500px'
       }}>
-        {/* Search field */}
-        <Paper
-          component="form"
-          sx={{
-            p: '2px 4px',
-            display: 'flex',
-            alignItems: 'center',
-            width: '100%',
-            mb: 3,
-            backgroundColor: 'rgba(255, 255, 255, 0.1)'
-          }}
-        >
-          <IconButton sx={{ p: '10px', color: 'white' }}>
-            <SearchIcon />
-          </IconButton>
-          <InputBase
-            sx={{ 
-              ml: 1, 
-              flex: 1, 
-              color: 'white',
-              '&::placeholder': {
-                color: 'rgba(255, 255, 255, 0.7)'
-              }
-            }}
-            placeholder="Search todos..."
-            value={searchQuery}
-            onChange={(e) => handleSearch(e.target.value)}
-          />
-        </Paper>
-
-        {/* Search Results */}
-        {searchQuery && (
-          <Paper 
-            sx={{ 
-              width: '100%', 
-              mb: 3, 
-              backgroundColor: 'rgba(255, 255, 255, 0.1)',
-              color: 'white'
-            }}
-          >
-            <List>
-              {searchResults.map(todo => (
-                <ListItem 
-                  key={todo.id}
-                  sx={{
-                    borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
-                    cursor: 'pointer',
-                    '&:hover': {
-                      backgroundColor: 'rgba(255, 255, 255, 0.05)'
-                    }
-                  }}
-                  onClick={() => handleTodoClick(todo)}
-                >
-                  <ListItemText
-                    primary={todo.text}
-                    secondary={todo.archived ? '(Archived)' : '(Active)'}
-                    sx={{
-                      '& .MuiListItemText-primary': {
-                        color: 'white'
-                      },
-                      '& .MuiListItemText-secondary': {
-                        color: 'rgba(255, 255, 255, 0.7)'
-                      }
-                    }}
-                  />
-                </ListItem>
-              ))}
-            </List>
-          </Paper>
-        )}
-
-        <Typography variant="h4" component="h1" gutterBottom sx={{ color: 'white', textAlign: 'center' }}>
-          Todo List
-        </Typography>
-
-        <form onSubmit={handleSubmit} style={{ 
-          display: 'flex', 
-          gap: '10px', 
-          marginBottom: '20px',
-          width: '100%',
-          justifyContent: 'center'
-        }}>
-          <TextField
+        <Container>
+          {/* Search field */}
+          <Paper
+            component="form"
             sx={{
-              maxWidth: '400px',
-              '& .MuiOutlinedInput-root': {
-                color: 'white',
-                '& fieldset': {
-                  borderColor: 'white',
-                },
-                '&:hover fieldset': {
-                  borderColor: 'white',
-                },
-              },
-              '& .MuiInputBase-input::placeholder': {
-                color: 'rgba(255, 255, 255, 0.7)',
-              },
+              p: '2px 4px',
+              display: 'flex',
+              alignItems: 'center',
+              width: '100%',
+              mb: 3,
+              backgroundColor: 'rgba(255, 255, 255, 0.1)'
             }}
-            fullWidth
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-            placeholder="Add a new todo"
-            variant="outlined"
-            size="small"
-            disabled={loading}
-          />
-          <Button 
-            type="submit" 
-            variant="contained" 
-            color="primary"
-            disabled={loading}
           >
-            Add
-          </Button>
-        </form>
+            <SearchIcon sx={{ p: '10px', color: 'white' }} />
+            <InputBase
+              sx={{ 
+                ml: 1, 
+                flex: 1, 
+                color: 'white',
+                '&::placeholder': {
+                  color: 'rgba(255, 255, 255, 0.7)'
+                }
+              }}
+              placeholder="Search todos..."
+              value={searchQuery}
+              onChange={(e) => handleSearch(e.target.value)}
+            />
+          </Paper>
 
-        {error && (
-          <Typography color="error" sx={{ mb: 2 }}>
-            Error: {error}
+          {/* Search Results */}
+          {searchQuery && (
+            <Paper 
+              sx={{ 
+                width: '100%', 
+                mb: 3, 
+                backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                color: 'white'
+              }}
+            >
+              <List>
+                {searchResults.map(todo => (
+                  <ListItem 
+                    key={todo.id}
+                    sx={{
+                      borderBottom: '1px solid rgba(255, 255, 255, 0.1)'
+                    }}
+                  >
+                    <ListItemText
+                      primary={todo.text}
+                      secondary={todo.archived ? '(Archived)' : '(Active)'}
+                      sx={{
+                        '& .MuiListItemText-primary': {
+                          color: 'white'
+                        },
+                        '& .MuiListItemText-secondary': {
+                          color: 'rgba(255, 255, 255, 0.7)'
+                        }
+                      }}
+                    />
+                  </ListItem>
+                ))}
+              </List>
+            </Paper>
+          )}
+
+          <Typography variant="h4" component="h1" gutterBottom sx={{ color: 'white', textAlign: 'center' }}>
+            Todo List
           </Typography>
-        )}
 
-        {loading ? (
-          <CircularProgress sx={{ color: 'white' }} />
-        ) : (
-          <List sx={{ width: '100%' }}>
+          {error && (
+            <Typography color="error" sx={{ mb: 2 }}>
+              Error: {error}
+            </Typography>
+          )}
+
+          <form onSubmit={handleSubmit}>
+            <TextField
+              fullWidth
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              placeholder="Add a new todo"
+              sx={{
+                mb: 2,
+                '& .MuiInputBase-root': {
+                  color: 'white',
+                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                },
+                '& .MuiInputBase-input::placeholder': {
+                  color: 'rgba(255, 255, 255, 0.7)',
+                  opacity: 1,
+                },
+              }}
+            />
+            <Button 
+              type="submit" 
+              variant="contained" 
+              fullWidth
+              sx={{
+                mb: 2,
+                backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                '&:hover': {
+                  backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                },
+              }}
+            >
+              Add Todo
+            </Button>
+          </form>
+
+          {loading && (
+            <div style={{ textAlign: 'center', marginTop: '20px' }}>
+              <CircularProgress sx={{ color: 'white' }} />
+            </div>
+          )}
+
+          <List>
             {todos.map(todo => (
               <ListItem 
                 key={todo.id}
                 sx={{
-                  width: '100%',
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  gap: 2,
-                  padding: '8px 0'
+                  mb: 1,
+                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                  borderRadius: 1,
                 }}
               >
-                <div style={{ 
-                  display: 'flex', 
+                <div style={{
+                  display: 'flex',
                   alignItems: 'center',
                   flex: 1,
                   gap: '8px'
@@ -375,85 +327,8 @@ function App() {
               </ListItem>
             ))}
           </List>
-        )}
-      </Container>
-
-      {/* Side Peek Drawer */}
-      <Drawer
-        anchor="right"
-        open={drawerOpen}
-        onClose={handleDrawerClose}
-        PaperProps={{
-          sx: {
-            width: '300px',
-            backgroundColor: '#121212',
-            color: 'white',
-            borderLeft: '1px solid rgba(255, 255, 255, 0.12)'
-          }
-        }}
-      >
-        {selectedTodo && (
-          <Box sx={{ p: 3 }}>
-            <Box sx={{ 
-              display: 'flex', 
-              justifyContent: 'space-between', 
-              alignItems: 'center',
-              mb: 2
-            }}>
-              <Typography variant="h6">Task Details</Typography>
-              <IconButton 
-                onClick={handleDrawerClose}
-                sx={{ color: 'white' }}
-              >
-                <CloseIcon />
-              </IconButton>
-            </Box>
-            
-            <Divider sx={{ borderColor: 'rgba(255, 255, 255, 0.12)', my: 2 }} />
-            
-            <Typography variant="subtitle1" sx={{ mb: 1 }}>
-              Title
-            </Typography>
-            <Typography 
-              variant="body1" 
-              sx={{ 
-                mb: 3,
-                backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                p: 1.5,
-                borderRadius: 1
-              }}
-            >
-              {selectedTodo.text}
-            </Typography>
-
-            <Typography variant="subtitle1" sx={{ mb: 1 }}>
-              Created
-            </Typography>
-            <Typography 
-              variant="body1"
-              sx={{ 
-                backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                p: 1.5,
-                borderRadius: 1
-              }}
-            >
-              {format(selectedTodo.timestamp, 'PPpp')}
-            </Typography>
-
-            <Divider sx={{ borderColor: 'rgba(255, 255, 255, 0.12)', my: 2 }} />
-            
-            <Typography 
-              variant="body2" 
-              sx={{ 
-                color: selectedTodo.archived ? 'error.main' : 'success.main',
-                mt: 2
-              }}
-            >
-              Status: {selectedTodo.archived ? 'Archived' : 'Active'}
-            </Typography>
-          </Box>
-        )}
-      </Drawer>
+        </Container>
+      </div>
     </div>
   )
 }
