@@ -146,6 +146,8 @@ const ProgressWrapper = styled(Box)(({ theme }) => ({
   },
 }));
 
+const OPENAI_API_KEY = import.meta.env.VITE_OPENAI_API_KEY;
+
 function App() {
   const [todos, setTodos] = useState([])
   const [allTodos, setAllTodos] = useState([])  // New state for all todos
@@ -1101,26 +1103,45 @@ function App() {
   const generateAIResponse = async (userMessage) => {
     setIsTyping(true);
     
-    // Simulate thinking time
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    const responses = [
-      "I understand what you're saying. Can you tell me more?",
-      "That's interesting! How can I help you with that?",
-      "I'm here to assist you. What would you like to know?",
-      "Let me help you with that. Could you provide more details?",
-      "I'm processing your request. Is there anything specific you're looking for?"
-    ];
-    
-    const aiMessage = {
-      id: Date.now(),
-      text: responses[Math.floor(Math.random() * responses.length)],
-      timestamp: new Date(),
-      isAI: true
-    };
-    
-    setIsTyping(false);
-    setMessages(prev => [...prev, aiMessage]);
+    try {
+      console.log('Sending request to OpenAI...'); // Add logging
+      const response = await fetch('https://api.openai.com/v1/chat/completions', {
+        // ... existing fetch configuration ...
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('OpenAI API Error:', errorData); // Add detailed error logging
+        throw new Error(`API error: ${response.status} ${errorData.error?.message || 'Unknown error'}`);
+      }
+
+      const data = await response.json();
+      console.log('Received response:', data); // Add response logging
+
+      if (!data.choices || !data.choices[0]?.message?.content) {
+        throw new Error('Invalid response format from OpenAI');
+      }
+
+      const aiMessage = {
+        id: Date.now(),
+        text: data.choices[0].message.content,
+        timestamp: new Date(),
+        isAI: true
+      };
+      
+      setMessages(prev => [...prev, aiMessage]);
+    } catch (error) {
+      console.error('Detailed error:', error); // Add detailed error logging
+      const errorMessage = {
+        id: Date.now(),
+        text: `Error: ${error.message}`,
+        timestamp: new Date(),
+        isAI: true
+      };
+      setMessages(prev => [...prev, errorMessage]);
+    } finally {
+      setIsTyping(false);
+    }
   };
 
   // Handle sending a message
