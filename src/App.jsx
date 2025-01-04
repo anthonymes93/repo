@@ -104,6 +104,8 @@ import {
   Folder as FolderIcon,
   MoreVert as MoreVertIcon,
 } from '@mui/icons-material'
+import Brightness4Icon from '@mui/icons-material/Brightness4';
+import Brightness7Icon from '@mui/icons-material/Brightness7';
 
 const fadeIn = keyframes`
   from {
@@ -175,6 +177,7 @@ function App() {
     message: '',
     severity: 'success'
   });
+  const [mode, setMode] = React.useState('dark');
 
   // Define sidebar width constants
   const SIDEBAR_WIDTH = 240;
@@ -937,6 +940,10 @@ function App() {
     setCurrentPage(page);
   };
 
+  const toggleColorMode = () => {
+    setMode((prevMode) => (prevMode === 'light' ? 'dark' : 'light'));
+  };
+
   return (
     <Box sx={{ display: 'flex' }}>
       {/* Updated Sidebar */}
@@ -1047,6 +1054,49 @@ function App() {
             </NavItem>
           ))}
         </NavList>
+        <Box sx={{ 
+          mt: 'auto', // Push to bottom
+          borderTop: '1px solid rgba(255, 255, 255, 0.12)',
+          pt: 2 
+        }}>
+          <Tooltip 
+            title={!sidebarOpen ? 'Toggle theme' : ''} 
+            placement="right"
+            disableHoverListener={sidebarOpen}
+          >
+            <ListItemButton
+              onClick={toggleColorMode}
+              sx={{
+                minHeight: 48,
+                justifyContent: sidebarOpen ? 'initial' : 'center',
+                px: 2.5,
+                '&:hover': {
+                  backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                },
+              }}
+            >
+              <NavItemIcon
+                sx={{
+                  minWidth: 0,
+                  mr: sidebarOpen ? 2 : 'auto',
+                  justifyContent: 'center',
+                  color: 'rgba(255, 255, 255, 0.7)',
+                }}
+              >
+                {mode === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}
+              </NavItemIcon>
+              <NavItemText 
+                primary={`${mode === 'dark' ? 'Light' : 'Dark'} Mode`}
+                sx={{
+                  opacity: sidebarOpen ? 1 : 0,
+                  '& .MuiListItemText-primary': {
+                    color: 'white',
+                  },
+                }}
+              />
+            </ListItemButton>
+          </Tooltip>
+        </Box>
       </SideNav>
 
       {/* Updated Main Content */}
