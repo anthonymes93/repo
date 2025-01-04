@@ -272,8 +272,7 @@ function App() {
       description: "Automatically process and route new support tickets based on priority and type",
       status: "running",
       folder: "Support",
-      lastRun: "2024-03-10T15:30:00",
-      executionCount: 1457
+      lastRun: "2024-03-10T15:30:00"
     },
     {
       id: 2,
@@ -281,8 +280,7 @@ function App() {
       description: "Qualify and nurture leads through email campaigns",
       status: "stopped",
       folder: "Marketing",
-      lastRun: "2024-03-09T12:15:00",
-      executionCount: 892
+      lastRun: "2024-03-09T12:15:00"
     },
     {
       id: 3,
@@ -290,8 +288,7 @@ function App() {
       description: "Process invoices and update accounting system",
       status: "running",
       folder: "Finance",
-      lastRun: "2024-03-10T16:45:00",
-      executionCount: 234
+      lastRun: "2024-03-10T16:45:00"
     }
   ];
 
@@ -1864,10 +1861,107 @@ function App() {
           </Container>
         )}
         {currentPage === 'automations' && (
-          <div style={{ color: 'white' }}>
-            <h1>Automations Page</h1>
-            <p>This is a test to see if the page renders</p>
-          </div>
+          <Box sx={{ p: 3 }}>
+            {/* Header */}
+            <Box sx={{ 
+              display: 'flex', 
+              justifyContent: 'space-between', 
+              alignItems: 'center',
+              mb: 4 
+            }}>
+              <Typography variant="h4" sx={{ color: 'white' }}>
+                Automations
+              </Typography>
+              <Button
+                variant="contained"
+                startIcon={<AddIcon />}
+                sx={{
+                  bgcolor: '#4CAF50',
+                  '&:hover': { bgcolor: '#45a049' }
+                }}
+              >
+                Create New Automation
+              </Button>
+            </Box>
+
+            {/* Automation Cards */}
+            <Grid container spacing={3}>
+              {automationsList.map((automation) => (
+                <Grid item xs={12} key={automation.id}>
+                  <Paper
+                    sx={{
+                      p: 3,
+                      bgcolor: '#1E1E1E',
+                      border: '1px solid rgba(255, 255, 255, 0.12)',
+                      '&:hover': {
+                        bgcolor: '#2A2A2A'
+                      }
+                    }}
+                  >
+                    <Grid container spacing={2} alignItems="center">
+                      <Grid item xs={12} md={6}>
+                        <Stack direction="row" spacing={2} alignItems="center">
+                          <Avatar
+                            sx={{
+                              bgcolor: automation.status === 'running' 
+                                ? 'rgba(76, 175, 80, 0.2)' 
+                                : 'rgba(158, 158, 158, 0.2)',
+                              color: automation.status === 'running' ? '#4CAF50' : '#9E9E9E'
+                            }}
+                          >
+                            {automation.status === 'running' ? <RunningIcon /> : <StoppedIcon />}
+                          </Avatar>
+                          <Box>
+                            <Typography variant="h6" sx={{ color: 'white', mb: 0.5 }}>
+                              {automation.name}
+                            </Typography>
+                            <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
+                              {automation.description}
+                            </Typography>
+                          </Box>
+                        </Stack>
+                      </Grid>
+                      <Grid item xs={12} md={6}>
+                        <Stack 
+                          direction="row" 
+                          spacing={3} 
+                          alignItems="center" 
+                          justifyContent={{ xs: 'flex-start', md: 'flex-end' }}
+                        >
+                          <Chip 
+                            icon={<FolderIcon />} 
+                            label={automation.folder}
+                            sx={{ 
+                              bgcolor: 'rgba(255, 255, 255, 0.1)',
+                              color: 'white',
+                              '& .MuiChip-icon': { color: 'white' }
+                            }}
+                          />
+                          <Box>
+                            <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
+                              Last Run
+                            </Typography>
+                            <Typography variant="body2" sx={{ color: 'white' }}>
+                              {new Date(automation.lastRun).toLocaleString()}
+                            </Typography>
+                          </Box>
+                          <IconButton 
+                            size="small"
+                            sx={{ 
+                              color: 'white',
+                              '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.1)' }
+                            }}
+                          >
+                            <MoreVertIcon />
+                          </IconButton>
+                        </Stack>
+                      </Grid>
+                    </Grid>
+                  </Paper>
+                </Grid>
+              ))}
+            </Grid>
+          </Box>
         )}
       </Box>
     </Box>
