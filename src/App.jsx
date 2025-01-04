@@ -83,6 +83,11 @@ import {
   Schedule as ScheduleIcon,
   Task as TaskIcon,
   CheckCircle as CheckCircleIcon,
+  AutoAwesome as AutomationIcon,
+  Timer as TriggerIcon,
+  FilterAlt as FilterIcon,
+  Code as FunctionIcon,
+  Send as SendIcon,
 } from '@mui/icons-material'
 
 const fadeIn = keyframes`
@@ -154,6 +159,26 @@ function App() {
   // Define sidebar width constants
   const SIDEBAR_WIDTH = 240;
   const SIDEBAR_WIDTH_COLLAPSED = 65;
+
+  // Add automation node types
+  const nodeTypes = {
+    trigger: { icon: <TriggerIcon />, color: '#ff9800' },
+    filter: { icon: <FilterIcon />, color: '#2196f3' },
+    function: { icon: <FunctionIcon />, color: '#4CAF50' },
+    action: { icon: <SendIcon />, color: '#e91e63' },
+  };
+
+  // Add sample automation
+  const sampleAutomation = {
+    name: "Task Completion Notification",
+    description: "Send notification when task is marked as complete",
+    nodes: [
+      { id: 1, type: 'trigger', label: 'Task Completed', description: 'Triggers when a task is marked as complete' },
+      { id: 2, type: 'filter', label: 'High Priority Only', description: 'Only continue if task was high priority' },
+      { id: 3, type: 'function', label: 'Format Message', description: 'Prepare notification message' },
+      { id: 4, type: 'action', label: 'Send Notification', description: 'Send message to specified channel' },
+    ]
+  };
 
   useEffect(() => {
     fetchTodos()
@@ -801,6 +826,7 @@ function App() {
             { text: 'Tasks', icon: <TodoIcon />, page: 'todos' },
             { text: 'Profile', icon: <ProfileIcon />, page: 'profile' },
             { text: 'Settings', icon: <SettingsIcon />, page: 'settings' },
+            { text: 'Automations', icon: <AutomationIcon />, page: 'automations' },
           ].map((item) => (
             <NavItem key={item.page} disablePadding>
               <Tooltip 
@@ -1591,6 +1617,137 @@ function App() {
           <Typography variant="h4" sx={{ color: 'white' }}>
             Settings (Coming Soon)
           </Typography>
+        )}
+        {currentPage === 'automations' && (
+          <Box sx={{ p: 3, width: '100%' }}>
+            <Paper
+              sx={{
+                bgcolor: '#1E1E1E',
+                color: 'white',
+                border: '1px solid rgba(255, 255, 255, 0.12)',
+                p: 3,
+                mb: 3
+              }}
+            >
+              <Typography variant="h5" sx={{ mb: 1 }}>
+                {sampleAutomation.name}
+              </Typography>
+              <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
+                {sampleAutomation.description}
+              </Typography>
+            </Paper>
+
+            <Box sx={{ 
+              position: 'relative',
+              minHeight: '400px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}>
+              {/* Workflow Line */}
+              <Box
+                sx={{
+                  position: 'absolute',
+                  top: '50%',
+                  left: '50%',
+                  transform: 'translate(-50%, -50%)',
+                  width: '80%',
+                  height: '2px',
+                  bgcolor: 'rgba(255, 255, 255, 0.12)',
+                  zIndex: 0
+                }}
+              />
+
+              {/* Nodes */}
+              <Stack
+                direction="row"
+                spacing={4}
+                alignItems="center"
+                sx={{
+                  position: 'relative',
+                  zIndex: 1
+                }}
+              >
+                {sampleAutomation.nodes.map((node, index) => (
+                  <Box
+                    key={node.id}
+                    sx={{
+                      position: 'relative'
+                    }}
+                  >
+                    <Paper
+                      elevation={3}
+                      sx={{
+                        bgcolor: '#1E1E1E',
+                        color: 'white',
+                        border: `1px solid ${nodeTypes[node.type].color}`,
+                        p: 2,
+                        width: 200,
+                        cursor: 'pointer',
+                        transition: 'all 0.2s',
+                        '&:hover': {
+                          transform: 'translateY(-4px)',
+                          boxShadow: `0 4px 20px ${alpha(nodeTypes[node.type].color, 0.25)}`
+                        }
+                      }}
+                    >
+                      <Stack spacing={2}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <Avatar
+                            sx={{
+                              bgcolor: alpha(nodeTypes[node.type].color, 0.2),
+                              color: nodeTypes[node.type].color,
+                              width: 32,
+                              height: 32
+                            }}
+                          >
+                            {nodeTypes[node.type].icon}
+                          </Avatar>
+                          <Typography variant="subtitle2">
+                            {node.label}
+                          </Typography>
+                        </Box>
+                        <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
+                          {node.description}
+                        </Typography>
+                      </Stack>
+                    </Paper>
+
+                    {/* Connection dots */}
+                    {index < sampleAutomation.nodes.length - 1 && (
+                      <Box sx={{
+                        position: 'absolute',
+                        right: '-32px',
+                        top: '50%',
+                        transform: 'translateY(-50%)',
+                        width: '16px',
+                        height: '16px',
+                        borderRadius: '50%',
+                        bgcolor: nodeTypes[node.type].color,
+                        boxShadow: `0 0 10px ${alpha(nodeTypes[node.type].color, 0.5)}`
+                      }} />
+                    )}
+                  </Box>
+                ))}
+              </Stack>
+            </Box>
+
+            {/* Add Button */}
+            <Box sx={{ mt: 4, display: 'flex', justifyContent: 'center' }}>
+              <Button
+                variant="contained"
+                startIcon={<AutomationIcon />}
+                sx={{
+                  bgcolor: '#4CAF50',
+                  '&:hover': {
+                    bgcolor: '#45a049'
+                  }
+                }}
+              >
+                Create New Automation
+              </Button>
+            </Box>
+          </Box>
         )}
       </Box>
     </Box>
