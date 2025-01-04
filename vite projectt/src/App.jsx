@@ -1,4 +1,6 @@
 //works bro
+//you are cool
+
 import { useState, useEffect } from 'react'
 import { db } from './firebase'
 import { 
@@ -274,7 +276,7 @@ function App() {
           )}
 
           <Typography variant="h4" component="h1" gutterBottom sx={{ color: 'white', textAlign: 'center' }}>
-            Todo List
+            Todo Lister
           </Typography>
 
           <form onSubmit={handleSubmit} style={{ 
