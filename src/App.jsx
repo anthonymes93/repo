@@ -97,6 +97,10 @@ import {
   Cloud as CloudIcon,
   Memory as MemoryIcon,
   Storage as StorageIcon,
+  PlayArrow as RunningIcon,
+  Stop as StoppedIcon,
+  Folder as FolderIcon,
+  MoreVert as MoreVertIcon,
 } from '@mui/icons-material'
 
 const fadeIn = keyframes`
@@ -259,6 +263,48 @@ function App() {
       }
     ]
   };
+
+  // Add more sample automations
+  const automationsList = [
+    {
+      id: 1,
+      name: "Customer Support Ticket Processing",
+      description: "Automatically process and route new support tickets based on priority and type",
+      status: "running",
+      folder: "Support",
+      lastRun: "2024-03-10T15:30:00",
+      executionCount: 1457,
+      nodes: [ /* ... existing nodes ... */ ]
+    },
+    {
+      id: 2,
+      name: "Lead Nurturing Workflow",
+      description: "Qualify and nurture leads through email campaigns",
+      status: "stopped",
+      folder: "Marketing",
+      lastRun: "2024-03-09T12:15:00",
+      executionCount: 892,
+      nodes: [
+        { id: 1, type: 'trigger', label: 'New CRM Lead', description: 'Triggers when a new lead is created' },
+        { id: 2, type: 'filter', label: 'Lead Score Check', description: 'Check if lead score > 50' },
+        { id: 3, type: 'action', label: 'Send Email', description: 'Send welcome email' },
+      ]
+    },
+    {
+      id: 3,
+      name: "Invoice Processing",
+      description: "Process invoices and update accounting system",
+      status: "running",
+      folder: "Finance",
+      lastRun: "2024-03-10T16:45:00",
+      executionCount: 234,
+      nodes: [
+        { id: 1, type: 'trigger', label: 'New Invoice', description: 'Detect new invoice in email' },
+        { id: 2, type: 'function', label: 'Extract Data', description: 'Extract invoice details' },
+        { id: 3, type: 'action', label: 'Update QB', description: 'Update QuickBooks' },
+      ]
+    }
+  ];
 
   useEffect(() => {
     const fetchTodos = async () => {
@@ -1834,148 +1880,165 @@ function App() {
         )}
         {currentPage === 'automations' && (
           <Box sx={{ p: 3, width: '100%' }}>
-            <Paper
-              sx={{
-                bgcolor: '#1E1E1E',
-                color: 'white',
-                border: '1px solid rgba(255, 255, 255, 0.12)',
-                p: 3,
-                mb: 3
-              }}
-            >
-              <Typography variant="h5" sx={{ mb: 1 }}>
-                {supportTicketAutomation.name}
-              </Typography>
-              <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
-                {supportTicketAutomation.description}
-              </Typography>
-            </Paper>
-
+            {/* Header Section */}
             <Box sx={{ 
-              position: 'relative',
-              minHeight: '400px',
-              display: 'flex',
+              display: 'flex', 
+              justifyContent: 'space-between', 
               alignItems: 'center',
-              justifyContent: 'center',
-              overflowX: 'auto',
-              py: 4
+              mb: 3 
             }}>
-              {/* Workflow Line */}
-              <Box
+              <Typography variant="h4" sx={{ color: 'white' }}>
+                Automations
+              </Typography>
+              <Button
+                variant="contained"
+                startIcon={<AddIcon />}
                 sx={{
-                  position: 'absolute',
-                  top: '50%',
-                  left: '50%',
-                  transform: 'translate(-50%, -50%)',
-                  width: '90%',
-                  height: '2px',
-                  bgcolor: 'rgba(255, 255, 255, 0.12)',
-                  zIndex: 0
-                }}
-              />
-
-              {/* Nodes */}
-              <Stack
-                direction="row"
-                spacing={4}
-                alignItems="center"
-                sx={{
-                  position: 'relative',
-                  zIndex: 1,
-                  minWidth: 'min-content',
-                  px: 4
+                  bgcolor: '#4CAF50',
+                  '&:hover': { bgcolor: '#45a049' }
                 }}
               >
-                {supportTicketAutomation.nodes.map((node, index) => (
-                  <Box
-                    key={node.id}
+                Create New
+              </Button>
+            </Box>
+
+            {/* Search and Filter Bar */}
+            <Paper sx={{ 
+              p: 2, 
+              mb: 3, 
+              bgcolor: '#1E1E1E',
+              border: '1px solid rgba(255, 255, 255, 0.12)'
+            }}>
+              <Grid container spacing={2} alignItems="center">
+                <Grid item xs={12} md={4}>
+                  <TextField
+                    fullWidth
+                    size="small"
+                    placeholder="Search automations..."
+                    InputProps={{
+                      startAdornment: <SearchIcon sx={{ mr: 1, color: 'rgba(255, 255, 255, 0.7)' }} />,
+                    }}
                     sx={{
-                      position: 'relative'
+                      '& .MuiOutlinedInput-root': {
+                        color: 'white',
+                        '& fieldset': { borderColor: 'rgba(255, 255, 255, 0.12)' },
+                        '&:hover fieldset': { borderColor: 'rgba(255, 255, 255, 0.2)' },
+                        '&.Mui-focused fieldset': { borderColor: '#4CAF50' },
+                      }
+                    }}
+                  />
+                </Grid>
+                <Grid item xs={12} md={8}>
+                  <Stack direction="row" spacing={2}>
+                    <FormControl size="small" sx={{ minWidth: 120 }}>
+                      <Select
+                        value="all"
+                        sx={{ 
+                          color: 'white',
+                          '& .MuiOutlinedInput-notchedOutline': {
+                            borderColor: 'rgba(255, 255, 255, 0.12)'
+                          }
+                        }}
+                      >
+                        <MenuItem value="all">All Status</MenuItem>
+                        <MenuItem value="running">Running</MenuItem>
+                        <MenuItem value="stopped">Stopped</MenuItem>
+                      </Select>
+                    </FormControl>
+                    <FormControl size="small" sx={{ minWidth: 120 }}>
+                      <Select
+                        value="all"
+                        sx={{ 
+                          color: 'white',
+                          '& .MuiOutlinedInput-notchedOutline': {
+                            borderColor: 'rgba(255, 255, 255, 0.12)'
+                          }
+                        }}
+                      >
+                        <MenuItem value="all">All Folders</MenuItem>
+                        <MenuItem value="support">Support</MenuItem>
+                        <MenuItem value="marketing">Marketing</MenuItem>
+                        <MenuItem value="finance">Finance</MenuItem>
+                      </Select>
+                    </FormControl>
+                  </Stack>
+                </Grid>
+              </Grid>
+            </Paper>
+
+            {/* Automations List */}
+            <Grid container spacing={3}>
+              {automationsList.map((automation) => (
+                <Grid item xs={12} key={automation.id}>
+                  <Paper
+                    sx={{
+                      p: 3,
+                      bgcolor: '#1E1E1E',
+                      border: '1px solid rgba(255, 255, 255, 0.12)',
+                      '&:hover': {
+                        bgcolor: '#2A2A2A'
+                      }
                     }}
                   >
-                    <Paper
-                      elevation={3}
-                      sx={{
-                        bgcolor: '#1E1E1E',
-                        color: 'white',
-                        border: `1px solid ${nodeTypes[node.type].color}`,
-                        p: 2,
-                        width: 240,
-                        cursor: 'pointer',
-                        transition: 'all 0.2s',
-                        '&:hover': {
-                          transform: 'translateY(-4px)',
-                          boxShadow: `0 4px 20px ${alpha(nodeTypes[node.type].color, 0.25)}`,
-                          '& .node-config': {
-                            opacity: 1
-                          }
-                        }
-                      }}
-                    >
-                      <Stack spacing={2}>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <Grid container spacing={2}>
+                      <Grid item xs={12} sm={6}>
+                        <Stack direction="row" spacing={2} alignItems="center">
                           <Avatar
                             sx={{
-                              bgcolor: alpha(nodeTypes[node.type].color, 0.2),
-                              color: nodeTypes[node.type].color,
-                              width: 32,
-                              height: 32
+                              bgcolor: automation.status === 'running' 
+                                ? 'rgba(76, 175, 80, 0.2)' 
+                                : 'rgba(158, 158, 158, 0.2)',
+                              color: automation.status === 'running' ? '#4CAF50' : '#9E9E9E'
                             }}
                           >
-                            {nodeTypes[node.type].icon}
+                            {automation.status === 'running' ? <RunningIcon /> : <StoppedIcon />}
                           </Avatar>
-                          <Typography variant="subtitle2">
-                            {node.label}
-                          </Typography>
-                        </Box>
-                        <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
-                          {node.description}
-                        </Typography>
-                        <Box 
-                          className="node-config"
-                          sx={{ 
-                            mt: 1,
-                            p: 1,
-                            bgcolor: 'rgba(0,0,0,0.2)',
-                            borderRadius: 1,
-                            opacity: 0,
-                            transition: 'opacity 0.2s',
-                            fontSize: '0.75rem',
-                            color: 'rgba(255, 255, 255, 0.6)'
-                          }}
-                        >
-                          {Object.entries(node.config).map(([key, value]) => (
-                            <Box key={key} sx={{ mb: 0.5 }}>
-                              <Typography variant="caption" sx={{ color: nodeTypes[node.type].color }}>
-                                {key}:
-                              </Typography>{' '}
-                              <Typography variant="caption">
-                                {typeof value === 'object' ? JSON.stringify(value) : value}
+                          <Box>
+                            <Typography variant="h6" sx={{ color: 'white' }}>
+                              {automation.name}
+                            </Typography>
+                            <Stack direction="row" spacing={1} alignItems="center">
+                              <FolderIcon sx={{ fontSize: 16, color: 'rgba(255, 255, 255, 0.7)' }} />
+                              <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
+                                {automation.folder}
                               </Typography>
-                            </Box>
-                          ))}
-                        </Box>
-                      </Stack>
-                    </Paper>
-
-                    {/* Connection dots */}
-                    {index < supportTicketAutomation.nodes.length - 1 && (
-                      <Box sx={{
-                        position: 'absolute',
-                        right: '-32px',
-                        top: '50%',
-                        transform: 'translateY(-50%)',
-                        width: '16px',
-                        height: '16px',
-                        borderRadius: '50%',
-                        bgcolor: nodeTypes[node.type].color,
-                        boxShadow: `0 0 10px ${alpha(nodeTypes[node.type].color, 0.5)}`
-                      }} />
-                    )}
-                  </Box>
-                ))}
-              </Stack>
-            </Box>
+                            </Stack>
+                          </Box>
+                        </Stack>
+                      </Grid>
+                      <Grid item xs={12} sm={6}>
+                        <Stack 
+                          direction="row" 
+                          spacing={3} 
+                          alignItems="center" 
+                          justifyContent="flex-end"
+                        >
+                          <Box textAlign="right">
+                            <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
+                              Last Run
+                            </Typography>
+                            <Typography variant="body2" sx={{ color: 'white' }}>
+                              {new Date(automation.lastRun).toLocaleString()}
+                            </Typography>
+                          </Box>
+                          <Box textAlign="right">
+                            <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
+                              Executions
+                            </Typography>
+                            <Typography variant="body2" sx={{ color: 'white' }}>
+                              {automation.executionCount.toLocaleString()}
+                            </Typography>
+                          </Box>
+                          <IconButton sx={{ color: 'white' }}>
+                            <MoreVertIcon />
+                          </IconButton>
+                        </Stack>
+                      </Grid>
+                    </Grid>
+                  </Paper>
+                </Grid>
+              ))}
+            </Grid>
           </Box>
         )}
       </Box>
