@@ -190,200 +190,192 @@ function App() {
       background: 'linear-gradient(to right, #0f2027, #203a43, #2c5364)',
       position: 'relative'
     }}>
-      <Container maxWidth="sm">
-        <h2 style={{ color: 'yellow', textAlign: 'center', marginTop: '20px' }}>Test Change - Auto Update</h2>
-        
-        <Container 
-          maxWidth="sm" 
-          sx={{ 
-            color: 'white',
+      <Container maxWidth="sm" style={{
+        position: 'absolute',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+        width: '100%'
+      }}>
+        {/* Search field */}
+        <Paper
+          component="form"
+          sx={{
+            p: '2px 4px',
             display: 'flex',
-            flexDirection: 'column',
             alignItems: 'center',
             width: '100%',
-            padding: '20px'
+            mb: 3,
+            backgroundColor: 'rgba(255, 255, 255, 0.1)'
           }}
         >
-          {/* Search Field */}
-          <Paper
-            sx={{
-              p: '2px 4px',
-              display: 'flex',
-              alignItems: 'center',
-              width: '100%',
-              mb: 3,
-              backgroundColor: 'transparent',
-              border: '1px solid white'
+          <IconButton sx={{ p: '10px', color: 'white' }}>
+            <SearchIcon />
+          </IconButton>
+          <InputBase
+            sx={{ 
+              ml: 1, 
+              flex: 1, 
+              color: 'white',
+              '&::placeholder': {
+                color: 'rgba(255, 255, 255, 0.7)'
+              }
+            }}
+            placeholder="Search todos..."
+            value={searchQuery}
+            onChange={(e) => handleSearch(e.target.value)}
+          />
+        </Paper>
+
+        {/* Search Results */}
+        {searchQuery && (
+          <Paper 
+            sx={{ 
+              width: '100%', 
+              mb: 3, 
+              backgroundColor: 'rgba(255, 255, 255, 0.1)',
+              color: 'white'
             }}
           >
-            <IconButton sx={{ p: '10px', color: 'white' }}>
-              <SearchIcon />
-            </IconButton>
-            <InputBase
-              sx={{ 
-                ml: 1, 
-                flex: 1, 
-                color: 'white',
-                '&::placeholder': {
-                  color: 'rgba(255, 255, 255, 0.7)'
-                }
-              }}
-              placeholder="Search todos..."
-              value={searchQuery}
-              onChange={(e) => handleSearch(e.target.value)}
-            />
-          </Paper>
-
-          {/* Search Results */}
-          {searchQuery && (
-            <Paper 
-              sx={{ 
-                width: '100%', 
-                mb: 3, 
-                backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                color: 'white'
-              }}
-            >
-              <List>
-                {searchResults.map(todo => (
-                  <ListItem 
-                    key={todo.id}
-                    sx={{
-                      borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
-                      cursor: 'pointer',
-                      '&:hover': {
-                        backgroundColor: 'rgba(255, 255, 255, 0.05)'
-                      }
-                    }}
-                    onClick={() => handleTodoClick(todo)}
-                  >
-                    <ListItemText
-                      primary={todo.text}
-                      secondary={todo.archived ? '(Archived)' : '(Active)'}
-                      sx={{
-                        '& .MuiListItemText-primary': {
-                          color: 'white'
-                        },
-                        '& .MuiListItemText-secondary': {
-                          color: 'rgba(255, 255, 255, 0.7)'
-                        }
-                      }}
-                    />
-                  </ListItem>
-                ))}
-              </List>
-            </Paper>
-          )}
-
-          <Typography variant="h4" component="h1" gutterBottom sx={{ color: 'white', textAlign: 'center' }}>
-            Todo List
-          </Typography>
-
-          <form onSubmit={handleSubmit} style={{ 
-            display: 'flex', 
-            gap: '10px', 
-            marginBottom: '20px',
-            width: '100%',
-            justifyContent: 'center'
-          }}>
-            <TextField
-              sx={{
-                maxWidth: '400px',
-                '& .MuiOutlinedInput-root': {
-                  color: 'white',
-                  '& fieldset': {
-                    borderColor: 'white',
-                  },
-                  '&:hover fieldset': {
-                    borderColor: 'white',
-                  },
-                },
-                '& .MuiInputBase-input::placeholder': {
-                  color: 'rgba(255, 255, 255, 0.7)',
-                },
-              }}
-              fullWidth
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              placeholder="Add a new todo"
-              variant="outlined"
-              size="small"
-              disabled={loading}
-            />
-            <Button 
-              type="submit" 
-              variant="contained" 
-              color="primary"
-              disabled={loading}
-            >
-              Add
-            </Button>
-          </form>
-
-          {error && (
-            <Typography color="error" sx={{ mb: 2 }}>
-              Error: {error}
-            </Typography>
-          )}
-
-          {loading ? (
-            <CircularProgress sx={{ color: 'white' }} />
-          ) : (
-            <List sx={{ width: '100%' }}>
-              {todos.map(todo => (
+            <List>
+              {searchResults.map(todo => (
                 <ListItem 
                   key={todo.id}
                   sx={{
-                    width: '100%',
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    gap: 2,
-                    padding: '8px 0'
+                    borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+                    cursor: 'pointer',
+                    '&:hover': {
+                      backgroundColor: 'rgba(255, 255, 255, 0.05)'
+                    }
                   }}
+                  onClick={() => handleTodoClick(todo)}
                 >
-                  <div style={{ 
-                    display: 'flex', 
-                    alignItems: 'center',
-                    flex: 1,
-                    gap: '8px'
-                  }}>
-                    <Checkbox
-                      checked={todo.completed}
-                      onChange={() => toggleTodo(todo.id)}
-                      sx={{ 
-                        color: 'white',
-                        '&.Mui-checked': {
-                          color: 'white',
-                        }
-                      }}
-                    />
-                    <ListItemText 
-                      primary={todo.text}
-                      sx={{
-                        textDecoration: todo.completed ? 'line-through' : 'none',
-                        color: 'white',
-                        margin: 0,
-                        '& .MuiTypography-root': {
-                          color: 'white'
-                        }
-                      }}
-                    />
-                  </div>
-                  <IconButton 
-                    onClick={() => archiveTodo(todo.id)}
-                    sx={{ 
-                      color: 'white',
-                      padding: '8px'
+                  <ListItemText
+                    primary={todo.text}
+                    secondary={todo.archived ? '(Archived)' : '(Active)'}
+                    sx={{
+                      '& .MuiListItemText-primary': {
+                        color: 'white'
+                      },
+                      '& .MuiListItemText-secondary': {
+                        color: 'rgba(255, 255, 255, 0.7)'
+                      }
                     }}
-                  >
-                    <DeleteIcon />
-                  </IconButton>
+                  />
                 </ListItem>
               ))}
             </List>
-          )}
-        </Container>
+          </Paper>
+        )}
+
+        <Typography variant="h4" component="h1" gutterBottom sx={{ color: 'white', textAlign: 'center' }}>
+          Todo List
+        </Typography>
+
+        <form onSubmit={handleSubmit} style={{ 
+          display: 'flex', 
+          gap: '10px', 
+          marginBottom: '20px',
+          width: '100%',
+          justifyContent: 'center'
+        }}>
+          <TextField
+            sx={{
+              maxWidth: '400px',
+              '& .MuiOutlinedInput-root': {
+                color: 'white',
+                '& fieldset': {
+                  borderColor: 'white',
+                },
+                '&:hover fieldset': {
+                  borderColor: 'white',
+                },
+              },
+              '& .MuiInputBase-input::placeholder': {
+                color: 'rgba(255, 255, 255, 0.7)',
+              },
+            }}
+            fullWidth
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            placeholder="Add a new todo"
+            variant="outlined"
+            size="small"
+            disabled={loading}
+          />
+          <Button 
+            type="submit" 
+            variant="contained" 
+            color="primary"
+            disabled={loading}
+          >
+            Add
+          </Button>
+        </form>
+
+        {error && (
+          <Typography color="error" sx={{ mb: 2 }}>
+            Error: {error}
+          </Typography>
+        )}
+
+        {loading ? (
+          <CircularProgress sx={{ color: 'white' }} />
+        ) : (
+          <List sx={{ width: '100%' }}>
+            {todos.map(todo => (
+              <ListItem 
+                key={todo.id}
+                sx={{
+                  width: '100%',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  gap: 2,
+                  padding: '8px 0'
+                }}
+              >
+                <div style={{ 
+                  display: 'flex', 
+                  alignItems: 'center',
+                  flex: 1,
+                  gap: '8px'
+                }}>
+                  <Checkbox
+                    checked={todo.completed}
+                    onChange={() => toggleTodo(todo.id)}
+                    sx={{ 
+                      color: 'white',
+                      '&.Mui-checked': {
+                        color: 'white',
+                      }
+                    }}
+                  />
+                  <ListItemText 
+                    primary={todo.text}
+                    sx={{
+                      textDecoration: todo.completed ? 'line-through' : 'none',
+                      color: 'white',
+                      margin: 0,
+                      '& .MuiTypography-root': {
+                        color: 'white'
+                      }
+                    }}
+                  />
+                </div>
+                <IconButton 
+                  onClick={() => archiveTodo(todo.id)}
+                  sx={{ 
+                    color: 'white',
+                    padding: '8px'
+                  }}
+                >
+                  <DeleteIcon />
+                </IconButton>
+              </ListItem>
+            ))}
+          </List>
+        )}
       </Container>
 
       {/* Side Peek Drawer */}
