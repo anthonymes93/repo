@@ -118,6 +118,7 @@ import Dialog from '@mui/material/Dialog';
 import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
 import CloseIcon from '@mui/icons-material/Close';
+import OpenAI from 'openai';
 
 const fadeIn = keyframes`
   from {
@@ -203,6 +204,12 @@ function App() {
   const [messageInput, setMessageInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef(null);
+
+  // Initialize OpenAI client
+  const openai = new OpenAI({
+    apiKey: import.meta.env.VITE_OPENAI_API_KEY,
+    dangerouslyAllowBrowser: true
+  });
 
   const theme = useMemo(
     () =>
@@ -1097,30 +1104,42 @@ function App() {
     setNotificationCount(prev => prev + 1);
   };
 
-  // Simulate AI response
+  // Replace the generateAIResponse function
   const generateAIResponse = async (userMessage) => {
     setIsTyping(true);
     
-    // Simulate thinking time
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    const responses = [
-      "I understand what you're saying. Can you tell me more?",
-      "That's interesting! How can I help you with that?",
-      "I'm here to assist you. What would you like to know?",
-      "Let me help you with that. Could you provide more details?",
-      "I'm processing your request. Is there anything specific you're looking for?"
-    ];
-    
-    const aiMessage = {
-      id: Date.now(),
-      text: responses[Math.floor(Math.random() * responses.length)],
-      timestamp: new Date(),
-      isAI: true
-    };
-    
-    setIsTyping(false);
-    setMessages(prev => [...prev, aiMessage]);
+    try {
+      const completion = await openai.chat.completions.create({
+        messages: [
+          { 
+            role: "system", 
+            content: "You are a helpful assistant in a task management application. Help users organize and manage their tasks effectively."
+          },
+          { role: "user", content: userMessage }
+        ],
+        model: "gpt-3.5-turbo",
+      });
+
+      const aiMessage = {
+        id: Date.now(),
+        text: completion.choices[0].message.content,
+        timestamp: new Date(),
+        isAI: true
+      };
+      
+      setMessages(prev => [...prev, aiMessage]);
+    } catch (error) {
+      console.error('Error generating AI response:', error);
+      // Show error message to user
+      setMessages(prev => [...prev, {
+        id: Date.now(),
+        text: "Sorry, I encountered an error. Please try again.",
+        timestamp: new Date(),
+        isAI: true
+      }]);
+    } finally {
+      setIsTyping(false);
+    }
   };
 
   // Handle sending a message
