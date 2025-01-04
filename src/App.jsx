@@ -105,6 +105,12 @@ function App() {
     }
   }, [selectedTodo, subtasks]);
 
+  useEffect(() => {
+    if (selectedTodo) {
+      setNoteInput(selectedTodo.notes || '');
+    }
+  }, [selectedTodo, subtasks]);
+
   const fetchTodos = async () => {
     try {
       setLoading(true);
@@ -282,26 +288,25 @@ function App() {
 
   const handleNoteUpdate = async (todoId, newNote) => {
     try {
-      const todoRef = doc(db, 'todos', todoId)
+      const todoRef = doc(db, 'todos', todoId);
       await updateDoc(todoRef, {
         notes: newNote
-      })
+      });
       
-      // Update local state
-      setAllTodos(prevTodos => 
-        prevTodos.map(todo => 
-          todo.id === todoId ? { ...todo, notes: newNote } : todo
-        )
-      )
-      setSearchResults(prevResults => 
-        prevResults.map(todo => 
-          todo.id === todoId ? { ...todo, notes: newNote } : todo
-        )
-      )
+      // Update all relevant states
+      const updatedTodo = { ...selectedTodo, notes: newNote };
+      setSelectedTodo(updatedTodo);
+      setAllTodos(prevAll => prevAll.map(todo => 
+        todo.id === todoId ? updatedTodo : todo
+      ));
+      setTodos(prevTodos => prevTodos.map(todo =>
+        todo.id === todoId ? updatedTodo : todo
+      ));
+      
     } catch (error) {
-      console.error("Error updating note:", error)
+      console.error("Error updating note:", error);
     }
-  }
+  };
 
   const handleStatusChange = async (todoId, newStatus) => {
     try {
@@ -938,37 +943,45 @@ function App() {
                 )}
                 
                 {/* Notes section */}
-                <Typography variant="h6" sx={{ mb: 1 }}>
-                  Notes:
-                </Typography>
-                <TextField
-                  multiline
-                  rows={10}
-                  fullWidth
-                  value={noteInput}
-                  onChange={(e) => setNoteInput(e.target.value)}
-                  onBlur={() => handleNoteUpdate(selectedTodo.id, noteInput)}
-                  sx={{
-                    '& .MuiInputBase-root': {
-                      color: 'white',
-                      backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                    },
-                    '& .MuiInputBase-input': {
-                      color: 'white',
-                    },
-                    '& .MuiOutlinedInput-root': {
-                      '& fieldset': {
-                        borderColor: 'rgba(255, 255, 255, 0.3)',
-                      },
-                      '&:hover fieldset': {
-                        borderColor: 'rgba(255, 255, 255, 0.5)',
-                      },
-                      '&.Mui-focused fieldset': {
-                        borderColor: 'white',
-                      },
-                    },
-                  }}
-                />
+                <Card sx={{ 
+                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                  mb: 3,
+                  border: '1px solid rgba(255, 255, 255, 0.2)'
+                }}>
+                  <CardContent>
+                    <Typography variant="h6" sx={{ mb: 2 }}>
+                      Notes
+                    </Typography>
+                    <TextField
+                      multiline
+                      rows={10}
+                      fullWidth
+                      value={noteInput}
+                      onChange={(e) => setNoteInput(e.target.value)}
+                      onBlur={() => handleNoteUpdate(selectedTodo.id, noteInput)}
+                      sx={{
+                        '& .MuiInputBase-root': {
+                          color: 'white',
+                          backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                        },
+                        '& .MuiInputBase-input': {
+                          color: 'white',
+                        },
+                        '& .MuiOutlinedInput-root': {
+                          '& fieldset': {
+                            borderColor: 'rgba(255, 255, 255, 0.3)',
+                          },
+                          '&:hover fieldset': {
+                            borderColor: 'rgba(255, 255, 255, 0.5)',
+                          },
+                          '&.Mui-focused fieldset': {
+                            borderColor: 'white',
+                          },
+                        },
+                      }}
+                    />
+                  </CardContent>
+                </Card>
               </div>
             )}
           </Drawer>
