@@ -122,10 +122,13 @@ import Dialog from '@mui/material/Dialog';
 import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
 import CloseIcon from '@mui/icons-material/Close';
+<<<<<<< HEAD
 import Confetti from 'react-confetti';
 import MailIcon from '@mui/icons-material/Mail';
 import ReplyIcon from '@mui/icons-material/Reply';
 import ForwardIcon from '@mui/icons-material/Forward';
+=======
+>>>>>>> 11ec7d3f0a14e765c8116cad90b9460db918dff7
 
 const fadeIn = keyframes`
   from {
@@ -213,6 +216,7 @@ function App() {
   const [messageInput, setMessageInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef(null);
+<<<<<<< HEAD
   const [showConfetti, setShowConfetti] = useState(false);
   const [windowSize, setWindowSize] = useState({
     width: window.innerWidth,
@@ -221,6 +225,8 @@ function App() {
   const [selectedEmail, setSelectedEmail] = useState(null);
   const [emailDrawerOpen, setEmailDrawerOpen] = useState(false);
   const [emailFilter, setEmailFilter] = useState('all');
+=======
+>>>>>>> 11ec7d3f0a14e765c8116cad90b9460db918dff7
 
   const theme = useMemo(
     () =>
@@ -1127,11 +1133,12 @@ function App() {
     setNotificationCount(prev => prev + 1);
   };
 
-  // Simulate AI response
+  // Replace the generateAIResponse function
   const generateAIResponse = async (userMessage) => {
     setIsTyping(true);
     
     try {
+<<<<<<< HEAD
       console.log('Sending request to OpenAI...'); // Add logging
       const response = await fetch('https://api.openai.com/v1/chat/completions', {
         // ... existing fetch configuration ...
@@ -1153,12 +1160,29 @@ function App() {
       const aiMessage = {
         id: Date.now(),
         text: data.choices[0].message.content,
+=======
+      const completion = await openai.chat.completions.create({
+        messages: [
+          { 
+            role: "system", 
+            content: "You are a helpful assistant in a task management application. Help users organize and manage their tasks effectively."
+          },
+          { role: "user", content: userMessage }
+        ],
+        model: "gpt-3.5-turbo",
+      });
+
+      const aiMessage = {
+        id: Date.now(),
+        text: completion.choices[0].message.content,
+>>>>>>> 7986aab122fc47fed15463a2c62be46ad75094c5
         timestamp: new Date(),
         isAI: true
       };
       
       setMessages(prev => [...prev, aiMessage]);
     } catch (error) {
+<<<<<<< HEAD
       console.error('Detailed error:', error); // Add detailed error logging
       const errorMessage = {
         id: Date.now(),
@@ -1167,6 +1191,16 @@ function App() {
         isAI: true
       };
       setMessages(prev => [...prev, errorMessage]);
+=======
+      console.error('Error generating AI response:', error);
+      // Show error message to user
+      setMessages(prev => [...prev, {
+        id: Date.now(),
+        text: "Sorry, I encountered an error. Please try again.",
+        timestamp: new Date(),
+        isAI: true
+      }]);
+>>>>>>> 7986aab122fc47fed15463a2c62be46ad75094c5
     } finally {
       setIsTyping(false);
     }
@@ -1217,7 +1251,6 @@ function App() {
         />
       )}
       <Box sx={{ display: 'flex' }}>
-        {/* Updated Sidebar */}
         <SideNav
           variant="permanent"
           sx={{
@@ -1232,6 +1265,7 @@ function App() {
             },
           }}
         >
+<<<<<<< HEAD
           {/* App Title/Logo with Toggle */}
           <Box sx={{ 
             p: 2, 
@@ -1369,6 +1403,9 @@ function App() {
               </ListItemButton>
             </Tooltip>
           </Box>
+=======
+          {/* Sidebar content */}
+>>>>>>> 11ec7d3f0a14e765c8116cad90b9460db918dff7
         </SideNav>
 
         {/* Add Header/AppBar */}
@@ -1385,7 +1422,10 @@ function App() {
           <Toolbar sx={{ justifyContent: 'flex-end' }}>
             <IconButton 
               color="inherit"
-              onClick={handleNotificationClick}  // Make sure this is here
+              onClick={() => {
+                // Handle notification click
+                setNotificationCount(0); // Reset count when clicked
+              }}
             >
               <Badge badgeContent={notificationCount} color="error">
                 <NotificationsIcon />
@@ -1749,6 +1789,7 @@ function App() {
                                   </Box>
                                 </Box>
 
+<<<<<<< HEAD
                                 {(todo.phone || todo.email || todo.notes) && (
                                   <Stack 
                                     direction="row" 
@@ -3265,6 +3306,9 @@ Team Lead`
             </Paper>
           </DialogContent>
         </Dialog>
+=======
+        {/* Chat and other components */}
+>>>>>>> 11ec7d3f0a14e765c8116cad90b9460db918dff7
       </Box>
     </ThemeProvider>
   )
