@@ -48,6 +48,9 @@ import ClearIcon from '@mui/icons-material/Clear'
 import PhoneIcon from '@mui/icons-material/Phone'
 import EmailIcon from '@mui/icons-material/Email'
 import AccessTimeIcon from '@mui/icons-material/AccessTime'
+import { alpha } from '@mui/material/styles'
+import NotesIcon from '@mui/icons-material/Notes'
+import ViewKanbanIcon from '@mui/icons-material/ViewKanban'
 
 function App() {
   const [todos, setTodos] = useState([])
@@ -860,39 +863,66 @@ function App() {
             }}
             PaperProps={{
               sx: {
-                width: '400px',
-                backgroundColor: '#1a1a1a',
+                width: '450px',
+                backgroundColor: '#1E1E1E', // Darker background
                 color: 'white',
-                borderLeft: '1px solid rgba(255, 255, 255, 0.12)'
+                borderLeft: '1px solid rgba(255, 255, 255, 0.08)'
               }
             }}
           >
             {selectedTodo && (
               <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-                {/* Header */}
+                {/* Enhanced Header */}
                 <Box sx={{ 
                   p: 3, 
-                  backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                  borderBottom: '1px solid rgba(255, 255, 255, 0.12)'
+                  background: 'linear-gradient(45deg, #2C2C2C 0%, #1E1E1E 100%)',
+                  borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+                  position: 'relative',
+                  overflow: 'hidden',
                 }}>
-                  <Stack direction="row" spacing={2} alignItems="center" sx={{ mb: 2 }}>
+                  <Box
+                    sx={{
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      height: '4px',
+                      background: 'linear-gradient(90deg, #4CAF50 0%, #81C784 100%)'
+                    }}
+                  />
+                  <Stack direction="row" spacing={2} alignItems="center" sx={{ mb: 3 }}>
                     <Avatar 
                       sx={{ 
-                        bgcolor: '#4CAF50',
-                        width: 56,
-                        height: 56
+                        bgcolor: 'transparent',
+                        width: 60,
+                        height: 60,
+                        fontSize: '24px',
+                        border: '2px solid #4CAF50',
+                        background: alpha('#4CAF50', 0.2),
+                        color: '#4CAF50'
                       }}
                     >
                       {selectedTodo.text[0].toUpperCase()}
                     </Avatar>
-                    <Box>
-                      <Typography variant="h5" sx={{ fontWeight: 500 }}>
+                    <Box sx={{ flex: 1 }}>
+                      <Typography variant="h5" sx={{ 
+                        fontWeight: 600,
+                        letterSpacing: '-0.5px',
+                        mb: 0.5
+                      }}>
                         {selectedTodo.text}
                       </Typography>
-                      <Stack direction="row" spacing={1} alignItems="center" sx={{ mt: 1 }}>
-                        <AccessTimeIcon sx={{ fontSize: 16, color: 'rgba(255, 255, 255, 0.7)' }} />
-                        <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
-                          Created {new Date(selectedTodo.timestamp).toLocaleDateString()}
+                      <Stack direction="row" spacing={1} alignItems="center">
+                        <AccessTimeIcon sx={{ fontSize: 14, color: 'rgba(255, 255, 255, 0.6)' }} />
+                        <Typography variant="body2" sx={{ 
+                          color: 'rgba(255, 255, 255, 0.6)',
+                          fontSize: '0.875rem'
+                        }}>
+                          {new Date(selectedTodo.timestamp).toLocaleDateString(undefined, {
+                            month: 'short',
+                            day: 'numeric',
+                            year: 'numeric'
+                          })}
                         </Typography>
                       </Stack>
                     </Box>
@@ -903,87 +933,155 @@ function App() {
                       label={selectedTodo.isActive ? "Active" : "Inactive"}
                       color={selectedTodo.isActive ? "success" : "default"}
                       size="small"
+                      sx={{
+                        borderRadius: '6px',
+                        '& .MuiChip-label': {
+                          fontWeight: 500
+                        }
+                      }}
                     />
                     <Chip 
                       label={selectedTodo.completed ? "Completed" : "In Progress"}
                       color={selectedTodo.completed ? "primary" : "warning"}
                       size="small"
+                      sx={{
+                        borderRadius: '6px',
+                        '& .MuiChip-label': {
+                          fontWeight: 500
+                        }
+                      }}
                     />
                   </Stack>
                 </Box>
 
-                {/* Content */}
-                <Box sx={{ p: 3, flex: 1, overflowY: 'auto' }}>
+                {/* Enhanced Content */}
+                <Box sx={{ 
+                  flex: 1, 
+                  overflowY: 'auto',
+                  '&::-webkit-scrollbar': {
+                    width: '8px',
+                  },
+                  '&::-webkit-scrollbar-track': {
+                    background: 'transparent',
+                  },
+                  '&::-webkit-scrollbar-thumb': {
+                    background: 'rgba(255, 255, 255, 0.1)',
+                    borderRadius: '4px',
+                  },
+                }}>
                   {/* Contact Section */}
-                  <Typography variant="h6" sx={{ mb: 2, fontWeight: 500 }}>
-                    Contact Information
-                  </Typography>
-                  <Stack spacing={2} sx={{ mb: 4 }}>
-                    <TextField
-                      fullWidth
-                      label="Phone Number"
-                      value={selectedTodo.phone || ''}
-                      onChange={(e) => handleContactUpdate(selectedTodo.id, 'phone', e.target.value)}
-                      InputProps={{
-                        startAdornment: (
-                          <InputAdornment position="start">
-                            <PhoneIcon sx={{ color: 'rgba(255, 255, 255, 0.7)' }} />
-                          </InputAdornment>
-                        ),
-                      }}
-                      sx={{
-                        '& .MuiOutlinedInput-root': {
-                          backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                          '&:hover': {
-                            backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                  <Box sx={{ p: 3 }}>
+                    <Typography variant="h6" sx={{ 
+                      mb: 3,
+                      fontWeight: 600,
+                      fontSize: '1.1rem',
+                      color: 'rgba(255, 255, 255, 0.9)'
+                    }}>
+                      Contact Information
+                    </Typography>
+                    <Stack spacing={2} sx={{ mb: 4 }}>
+                      <TextField
+                        fullWidth
+                        label="Phone Number"
+                        value={selectedTodo.phone || ''}
+                        onChange={(e) => handleContactUpdate(selectedTodo.id, 'phone', e.target.value)}
+                        InputProps={{
+                          startAdornment: (
+                            <InputAdornment position="start">
+                              <PhoneIcon sx={{ color: '#4CAF50' }} />
+                            </InputAdornment>
+                          ),
+                        }}
+                        sx={{
+                          '& .MuiOutlinedInput-root': {
+                            backgroundColor: alpha('#FFFFFF', 0.03),
+                            borderRadius: '8px',
+                            '&:hover': {
+                              backgroundColor: alpha('#FFFFFF', 0.05),
+                            },
+                            '& fieldset': {
+                              borderColor: 'rgba(255, 255, 255, 0.1)',
+                            },
                           },
-                        }
-                      }}
-                    />
-                    <TextField
-                      fullWidth
-                      label="Email"
-                      value={selectedTodo.email || ''}
-                      onChange={(e) => handleContactUpdate(selectedTodo.id, 'email', e.target.value)}
-                      InputProps={{
-                        startAdornment: (
-                          <InputAdornment position="start">
-                            <EmailIcon sx={{ color: 'rgba(255, 255, 255, 0.7)' }} />
-                          </InputAdornment>
-                        ),
-                      }}
-                      sx={{
-                        '& .MuiOutlinedInput-root': {
-                          backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                          '&:hover': {
-                            backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                          '& .MuiInputLabel-root': {
+                            color: 'rgba(255, 255, 255, 0.7)',
                           },
-                        }
-                      }}
-                    />
-                  </Stack>
+                          '& .MuiInputBase-input': {
+                            color: 'white',
+                          }
+                        }}
+                      />
+                      <TextField
+                        fullWidth
+                        label="Email"
+                        value={selectedTodo.email || ''}
+                        onChange={(e) => handleContactUpdate(selectedTodo.id, 'email', e.target.value)}
+                        InputProps={{
+                          startAdornment: (
+                            <InputAdornment position="start">
+                              <EmailIcon sx={{ color: '#4CAF50' }} />
+                            </InputAdornment>
+                          ),
+                        }}
+                        sx={{
+                          '& .MuiOutlinedInput-root': {
+                            backgroundColor: alpha('#FFFFFF', 0.03),
+                            borderRadius: '8px',
+                            '&:hover': {
+                              backgroundColor: alpha('#FFFFFF', 0.05),
+                            },
+                            '& fieldset': {
+                              borderColor: 'rgba(255, 255, 255, 0.1)',
+                            },
+                          },
+                          '& .MuiInputLabel-root': {
+                            color: 'rgba(255, 255, 255, 0.7)',
+                          },
+                          '& .MuiInputBase-input': {
+                            color: 'white',
+                          }
+                        }}
+                      />
+                    </Stack>
 
-                  {/* Notes Section */}
-                  <Typography variant="h6" sx={{ mb: 2, fontWeight: 500 }}>
-                    Notes
-                  </Typography>
-                  <TextField
-                    multiline
-                    rows={6}
-                    fullWidth
-                    value={noteInput}
-                    onChange={(e) => setNoteInput(e.target.value)}
-                    onBlur={() => handleNoteUpdate(selectedTodo.id, noteInput)}
-                    placeholder="Add your notes here..."
-                    sx={{
-                      '& .MuiOutlinedInput-root': {
-                        backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                        '&:hover': {
-                          backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                    {/* Notes Section */}
+                    <Typography variant="h6" sx={{ 
+                      mb: 3,
+                      fontWeight: 600,
+                      fontSize: '1.1rem',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 1,
+                      color: 'rgba(255, 255, 255, 0.9)'
+                    }}>
+                      <NotesIcon sx={{ color: '#4CAF50' }} />
+                      Notes
+                    </Typography>
+                    <TextField
+                      multiline
+                      rows={6}
+                      fullWidth
+                      value={noteInput}
+                      onChange={(e) => setNoteInput(e.target.value)}
+                      onBlur={() => handleNoteUpdate(selectedTodo.id, noteInput)}
+                      placeholder="Add your notes here..."
+                      sx={{
+                        '& .MuiOutlinedInput-root': {
+                          backgroundColor: alpha('#FFFFFF', 0.03),
+                          borderRadius: '8px',
+                          '&:hover': {
+                            backgroundColor: alpha('#FFFFFF', 0.05),
+                          },
+                          '& fieldset': {
+                            borderColor: 'rgba(255, 255, 255, 0.1)',
+                          },
                         },
-                      }
-                    }}
-                  />
+                        '& .MuiInputBase-input': {
+                          color: 'white',
+                        }
+                      }}
+                    />
+                  </Box>
                 </Box>
               </Box>
             )}
