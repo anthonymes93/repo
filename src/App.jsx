@@ -53,6 +53,8 @@ import {
   ListItemButton,
   Tooltip,
   Grid,
+  Snackbar,
+  Alert,
 } from '@mui/material'
 import DeleteIcon from '@mui/icons-material/Delete'
 import SearchIcon from '@mui/icons-material/Search'
@@ -168,6 +170,11 @@ function App() {
   const [currentPage, setCurrentPage] = useState('todos');
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [completedTasksCount, setCompletedTasksCount] = useState(0);
+  const [notification, setNotification] = useState({
+    open: false,
+    message: '',
+    severity: 'success'
+  });
 
   // Define sidebar width constants
   const SIDEBAR_WIDTH = 240;
@@ -862,15 +869,35 @@ function App() {
       
       const updatedTodo = { ...selectedTodo, isActive: isActive };
       setSelectedTodo(updatedTodo);
+      setAllTodos(prevAll => prevAll.map(todo => 
+        todo.id === todoId ? updatedTodo : todo
+      ));
       setTodos(prevTodos => prevTodos.map(todo =>
         todo.id === todoId ? updatedTodo : todo
       ));
-      setAllTodos(prevAll => prevAll.map(todo =>
-        todo.id === todoId ? updatedTodo : todo
-      ));
+
+      // Show notification
+      setNotification({
+        open: true,
+        message: `${updatedTodo.text} is now ${isActive ? 'active' : 'inactive'}`,
+        severity: 'success'
+      });
     } catch (error) {
       console.error("Error updating active status:", error);
+      setNotification({
+        open: true,
+        message: 'Failed to update task status',
+        severity: 'error'
+      });
     }
+  };
+
+  // Add handleCloseNotification function
+  const handleCloseNotification = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setNotification(prev => ({ ...prev, open: false }));
   };
 
   // Add function to count active tasks
@@ -1964,6 +1991,23 @@ function App() {
           </Box>
         )}
       </Box>
+
+      {/* Add Snackbar component at the end of the return statement, before the closing Box tag */}
+      <Snackbar
+        open={notification.open}
+        autoHideDuration={3000}
+        onClose={handleCloseNotification}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+      >
+        <Alert
+          onClose={handleCloseNotification}
+          severity={notification.severity}
+          variant="filled"
+          sx={{ width: '100%' }}
+        >
+          {notification.message}
+        </Alert>
+      </Snackbar>
     </Box>
   )
 }
