@@ -1,3 +1,5 @@
+// Test auto-commit - this comment should be saved automatically
+// Testing auto-commit again - [current time]
 import { useState, useEffect } from 'react'
 import { db } from './firebase'
 import { 
