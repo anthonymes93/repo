@@ -1060,6 +1060,7 @@ function App() {
 
         {currentPage === 'dashboard' && (
           <Grid container spacing={3}>
+            {console.log('Dashboard todos:', todos)} {/* Debug log */}
             {/* Active Tasks Widget */}
             <Grid item xs={12} sm={6} md={3}>
               <Card sx={{ 
@@ -1327,10 +1328,16 @@ function App() {
                 
                 <Grid container spacing={2}>
                   {todos
-                    .filter(todo => todo.isActive !== false) // Show tasks that are active or where isActive is not set
+                    .filter(todo => todo.isActive !== false)
                     .map(todo => (
                       <Grid item xs={12} sm={6} md={4} key={todo.id}>
                         <Paper
+                          onClick={() => {
+                            console.log('Dashboard task clicked:', todo); // Debug log
+                            setSelectedTodo(todo);
+                            setNoteInput(todo.notes || '');
+                            setDrawerOpen(true);
+                          }}
                           sx={{
                             p: 2,
                             bgcolor: 'rgba(255, 255, 255, 0.1)',
@@ -1343,11 +1350,6 @@ function App() {
                               bgcolor: 'rgba(255, 255, 255, 0.15)',
                               boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
                             }
-                          }}
-                          onClick={() => {
-                            setSelectedTodo(todo);
-                            setNoteInput(todo.notes || '');
-                            setDrawerOpen(true);
                           }}
                         >
                           <Stack spacing={2}>
