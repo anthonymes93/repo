@@ -1721,7 +1721,7 @@ function App() {
               
               <Grid container spacing={2}>
                 {displayedTodos
-                  .filter(todo => todo.isActive !== false) // Show tasks that are active or where isActive is not set
+                  .filter(todo => todo.isActive !== false)
                   .map(todo => (
                     <Grid item xs={12} sm={6} md={4} key={todo.id}>
                       <Paper
@@ -1732,6 +1732,9 @@ function App() {
                           cursor: 'pointer',
                           transition: 'all 0.2s ease',
                           border: '1px solid rgba(255, 255, 255, 0.12)',
+                          height: '100%', // Make all papers take full height of grid item
+                          display: 'flex', // Enable flexbox
+                          flexDirection: 'column', // Stack children vertically
                           '&:hover': {
                             transform: 'translateY(-2px)',
                             bgcolor: 'rgba(255, 255, 255, 0.15)',
@@ -1744,20 +1747,21 @@ function App() {
                           setDrawerOpen(true);
                         }}
                       >
-                        <Stack spacing={2}>
-                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <Stack spacing={2} sx={{ height: '100%' }}> {/* Make stack take full height */}
+                          <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1 }}>
                             <Avatar 
                               sx={{ 
                                 bgcolor: 'transparent',
                                 border: '2px solid #4CAF50',
                                 color: '#4CAF50',
                                 width: 40,
-                                height: 40
+                                height: 40,
+                                flexShrink: 0 // Prevent avatar from shrinking
                               }}
                             >
                               {todo.text[0].toUpperCase()}
                             </Avatar>
-                            <Box sx={{ flex: 1 }}>
+                            <Box sx={{ flex: 1, minWidth: 0 }}> {/* Add minWidth to enable text truncation */}
                               <Typography 
                                 variant="subtitle1" 
                                 sx={{ 
@@ -1767,71 +1771,85 @@ function App() {
                                   textOverflow: 'ellipsis',
                                   display: '-webkit-box',
                                   WebkitLineClamp: 2,
-                                  WebkitBoxOrient: 'vertical'
+                                  WebkitBoxOrient: 'vertical',
+                                  lineHeight: 1.3,
+                                  mb: 0.5
                                 }}
                               >
                                 {todo.text}
                               </Typography>
-                              <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.6)' }}>
+                              <Typography 
+                                variant="caption" 
+                                sx={{ 
+                                  color: 'rgba(255, 255, 255, 0.6)',
+                                  display: 'block'
+                                }}
+                              >
                                 Created {new Date(todo.timestamp).toLocaleDateString()}
                               </Typography>
                             </Box>
                           </Box>
 
-                          {(todo.phone || todo.email || todo.notes) && (
-                            <Stack 
-                              direction="row" 
-                              spacing={1} 
-                              sx={{ 
-                                mt: 1,
-                                flexWrap: 'wrap',
-                                gap: 0.5
-                              }}
-                            >
-                              {todo.phone && (
-                                <Chip
-                                  icon={<PhoneIcon sx={{ fontSize: '16px' }} />}
-                                  label="Has Phone"
-                                  size="small"
-                                  sx={{
-                                    bgcolor: 'rgba(76, 175, 80, 0.2)',
-                                    color: '#4CAF50',
-                                    '& .MuiChip-icon': {
-                                      color: '#4CAF50'
-                                    }
-                                  }}
-                                />
-                              )}
-                              {todo.email && (
-                                <Chip
-                                  icon={<EmailIcon sx={{ fontSize: '16px' }} />}
-                                  label="Has Email"
-                                  size="small"
-                                  sx={{
-                                    bgcolor: 'rgba(33, 150, 243, 0.2)',
-                                    color: '#2196f3',
-                                    '& .MuiChip-icon': {
-                                      color: '#2196f3'
-                                    }
-                                  }}
-                                />
-                              )}
-                              {todo.notes && (
-                                <Chip
-                                  icon={<NotesIcon sx={{ fontSize: '16px' }} />}
-                                  label="Has Notes"
-                                  size="small"
-                                  sx={{
-                                    bgcolor: 'rgba(255, 152, 0, 0.2)',
-                                    color: '#ff9800',
-                                    '& .MuiChip-icon': {
-                                      color: '#ff9800'
-                                    }
-                                  }}
-                                />
-                              )}
-                            </Stack>
-                          )}
+                          {/* Push chips to bottom using margin-top: auto */}
+                          <Box sx={{ mt: 'auto', pt: 2 }}> {/* Added pt: 2 for top padding */}
+                            {(todo.phone || todo.email || todo.notes) && (
+                              <Stack 
+                                direction="row" 
+                                spacing={1} 
+                                sx={{ 
+                                  flexWrap: 'wrap',
+                                  gap: 1, // Increased gap between chips
+                                  '& .MuiChip-root': {
+                                    mb: 1, // Add bottom margin to each chip
+                                    mr: 1 // Add right margin to each chip
+                                  }
+                                }}
+                              >
+                                {todo.phone && (
+                                  <Chip
+                                    icon={<PhoneIcon sx={{ fontSize: '16px' }} />}
+                                    label="Has Phone"
+                                    size="small"
+                                    sx={{
+                                      bgcolor: 'rgba(76, 175, 80, 0.2)',
+                                      color: '#4CAF50',
+                                      '& .MuiChip-icon': {
+                                        color: '#4CAF50'
+                                      }
+                                    }}
+                                  />
+                                )}
+                                {todo.email && (
+                                  <Chip
+                                    icon={<EmailIcon sx={{ fontSize: '16px' }} />}
+                                    label="Has Email"
+                                    size="small"
+                                    sx={{
+                                      bgcolor: 'rgba(33, 150, 243, 0.2)',
+                                      color: '#2196f3',
+                                      '& .MuiChip-icon': {
+                                        color: '#2196f3'
+                                      }
+                                    }}
+                                  />
+                                )}
+                                {todo.notes && (
+                                  <Chip
+                                    icon={<NotesIcon sx={{ fontSize: '16px' }} />}
+                                    label="Has Notes"
+                                    size="small"
+                                    sx={{
+                                      bgcolor: 'rgba(255, 152, 0, 0.2)',
+                                      color: '#ff9800',
+                                      '& .MuiChip-icon': {
+                                        color: '#ff9800'
+                                      }
+                                    }}
+                                  />
+                                )}
+                              </Stack>
+                            )}
+                          </Box>
                         </Stack>
                       </Paper>
                     </Grid>
