@@ -36,6 +36,7 @@ import DeleteIcon from '@mui/icons-material/Delete'
 import SearchIcon from '@mui/icons-material/Search'
 import SortIcon from '@mui/icons-material/Sort'
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd'
+import { StrictMode } from 'react'
 
 function App() {
   const [todos, setTodos] = useState([])
@@ -352,22 +353,33 @@ function App() {
     }
   };
 
-  const onDragEnd = (result) => {
+  const handleDragEnd = (result) => {
     if (!result.destination) return;
-
+    
+    console.log('Drag ended:', result); // Debug log
+    
     const { source, destination } = result;
-
-    // Create new columns object
-    const newColumns = { ...columns };
     
-    // Remove from source
-    const [removed] = newColumns[source.droppableId].items.splice(source.index, 1);
+    const sourceCol = columns[source.droppableId];
+    const destCol = columns[destination.droppableId];
     
-    // Add to destination
-    newColumns[destination.droppableId].items.splice(destination.index, 0, removed);
+    const sourceItems = [...sourceCol.items];
+    const destItems = [...destCol.items];
     
-    // Update state
-    setColumns(newColumns);
+    const [removed] = sourceItems.splice(source.index, 1);
+    destItems.splice(destination.index, 0, removed);
+    
+    setColumns({
+      ...columns,
+      [source.droppableId]: {
+        ...sourceCol,
+        items: sourceItems
+      },
+      [destination.droppableId]: {
+        ...destCol,
+        items: destItems
+      }
+    });
 
     // Update Firebase
     const todoRef = doc(db, 'todos', removed.id);
@@ -443,83 +455,67 @@ function App() {
   };
 
   const renderKanbanBoard = () => (
-    <DragDropContext onDragEnd={onDragEnd}>
-      <div style={{ 
-        display: 'flex', 
-        gap: '16px',
-        minHeight: '200px',
-        width: '100%'
-      }}>
-        {Object.entries(columns).map(([columnId, column]) => (
-          <div
-            key={columnId}
-            style={{
-              background: 'rgba(255, 255, 255, 0.05)',
-              padding: '8px',
-              borderRadius: '4px',
-              width: '33%',
-            }}
-          >
-            <Typography
-              variant="subtitle2"
-              sx={{
-                color: column.color,
-                mb: 1,
-                fontWeight: 'bold'
+    <DragDropContext onDragEnd={handleDragEnd}>
+      <div style={{ padding: '20px' }}>
+        <div style={{ display: 'flex', gap: '16px' }}>
+          {Object.entries(columns).map(([columnId, column]) => (
+            <div 
+              key={columnId}
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                flex: 1,
               }}
             >
-              {column.title}
-            </Typography>
-            <Droppable droppableId={columnId}>
-              {(provided, snapshot) => (
-                <div
-                  {...provided.droppableProps}
-                  ref={provided.innerRef}
-                  style={{
-                    minHeight: 150,
-                    background: snapshot.isDraggingOver 
-                      ? 'rgba(255, 255, 255, 0.1)' 
-                      : 'transparent',
-                    padding: 4,
-                    borderRadius: 4,
-                  }}
-                >
-                  {column.items.map((item, index) => (
-                    <Draggable
-                      key={item.id}
-                      draggableId={item.id}
-                      index={index}
-                    >
-                      {(provided, snapshot) => (
-                        <div
-                          ref={provided.innerRef}
-                          {...provided.draggableProps}
-                          {...provided.dragHandleProps}
-                          style={{
-                            userSelect: 'none',
-                            padding: 16,
-                            margin: '0 0 8px 0',
-                            backgroundColor: snapshot.isDragging
-                              ? 'rgba(255, 255, 255, 0.2)'
-                              : 'rgba(255, 255, 255, 0.1)',
-                            color: 'white',
-                            borderRadius: 4,
-                            ...provided.draggableProps.style,
-                          }}
-                        >
-                          {item.text}
-                        </div>
-                      )}
-                    </Draggable>
-                  ))}
-                  {provided.placeholder}
-                </div>
-              )}
-            </Droppable>
-          </div>
-        ))}
-      </div>
-    </DragDropContext>
+              <h3 style={{ color: column.color, margin: '0 0 8px' }}>
+                {column.title}
+              </h3>
+              <Droppable droppableId={columnId}>
+                {(provided, snapshot) => (
+                  <div
+                    {...provided.droppableProps}
+                    ref={provided.innerRef}
+                    style={{
+                      background: snapshot.isDraggingOver ? 'rgba(255, 255, 255, 0.1)' : 'rgba(255, 255, 255, 0.05)',
+                      padding: 8,
+                      minHeight: 200,
+                      borderRadius: 4,
+                    }}
+                  >
+                    {column.items.map((item, index) => (
+                      <Draggable
+                        key={item.id}
+                        draggableId={item.id}
+                        index={index}
+                      >
+                        {(provided, snapshot) => (
+                          <div
+                            ref={provided.innerRef}
+                            {...provided.draggableProps}
+                            {...provided.dragHandleProps}
+                            style={{
+                              padding: 16,
+                              margin: '0 0 8px 0',
+                              backgroundColor: snapshot.isDragging ? 'rgba(255, 255, 255, 0.2)' : 'rgba(255, 255, 255, 0.1)',
+                              color: 'white',
+                              borderRadius: 4,
+                              ...provided.draggableProps.style,
+                            }}
+                          >
+                            {item.text}
+                          </div>
+                        )}
+                      </Draggable>
+                    ))}
+                    {provided.placeholder}
+                  </div>
+                )}
+              </Droppable>
+            </div>
+          ))}
+        </div>
+      </DragDropContext>
+    </div>
   );
 
   return (
