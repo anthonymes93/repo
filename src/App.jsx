@@ -1026,8 +1026,264 @@ function App() {
         flexGrow: 1, 
         p: 3,
         transition: 'margin 225ms cubic-bezier(0.4, 0, 0.6, 1)',
-        marginLeft: `${sidebarOpen ? 0 : -175}px`, // Adjust main content when sidebar collapses
+        marginLeft: `${sidebarOpen ? 0 : -175}px`,
       }}>
+        {console.log('Current Page:', currentPage)}
+
+        {currentPage === 'dashboard' && (
+          <Grid container spacing={3}>
+            {/* Active Tasks Widget */}
+            <Grid item xs={12} sm={6} md={3}>
+              <Card sx={{ 
+                bgcolor: '#1E1E1E', 
+                color: 'white',
+                border: '1px solid rgba(255, 255, 255, 0.12)',
+                height: '100%'
+              }}>
+                <CardContent sx={{ 
+                  display: 'flex', 
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  textAlign: 'center',
+                  py: 3
+                }}>
+                  <Avatar sx={{ 
+                    bgcolor: 'rgba(76, 175, 80, 0.2)', 
+                    mb: 2,
+                    width: 56,
+                    height: 56
+                  }}>
+                    <TaskIcon sx={{ color: '#4CAF50', fontSize: 30 }} />
+                  </Avatar>
+                  <Typography variant="h3" sx={{ mb: 1, fontWeight: 600 }}>
+                    {getActiveTasks()}
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
+                    Active Tasks
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+
+            {/* Completed Tasks Widget - Replace Weekly Progress Widget */}
+            <Grid item xs={12} sm={6} md={3}>
+              <Card sx={{ 
+                bgcolor: '#1E1E1E', 
+                color: 'white',
+                border: '1px solid rgba(255, 255, 255, 0.12)',
+                height: '100%'
+              }}>
+                <CardContent sx={{ 
+                  display: 'flex', 
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  textAlign: 'center',
+                  py: 3
+                }}>
+                  <Avatar sx={{ 
+                    bgcolor: 'rgba(33, 150, 243, 0.2)', 
+                    mb: 2,
+                    width: 56,
+                    height: 56
+                  }}>
+                    <CheckCircleIcon sx={{ color: '#2196f3', fontSize: 30 }} />
+                  </Avatar>
+                  <Typography variant="h3" sx={{ mb: 1, fontWeight: 600 }}>
+                    {completedTasksCount}
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
+                    Completed Tasks
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+
+            {/* Placeholder: Monthly Stats */}
+            <Grid item xs={12} sm={6} md={3}>
+              <Card sx={{ 
+                bgcolor: '#1E1E1E', 
+                color: 'white',
+                border: '1px solid rgba(255, 255, 255, 0.12)',
+                height: '100%'
+              }}>
+                <CardContent sx={{ 
+                  display: 'flex', 
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  textAlign: 'center',
+                  py: 3
+                }}>
+                  <Avatar sx={{ 
+                    bgcolor: 'rgba(255, 152, 0, 0.2)', 
+                    mb: 2,
+                    width: 56,
+                    height: 56
+                  }}>
+                    <AssessmentIcon sx={{ color: '#ff9800', fontSize: 30 }} />
+                  </Avatar>
+                  <Typography variant="h4" sx={{ mb: 1, fontWeight: 600 }}>
+                    87%
+                  </Typography>
+                  <LinearProgress 
+                    variant="determinate" 
+                    value={87}
+                    sx={{ 
+                      width: '80%', 
+                      mb: 2,
+                      height: 8,
+                      borderRadius: 4,
+                      backgroundColor: 'rgba(255, 152, 0, 0.2)',
+                      '& .MuiLinearProgress-bar': {
+                        backgroundColor: '#ff9800',
+                        borderRadius: 4,
+                      }
+                    }}
+                  />
+                  <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
+                    Monthly Completion Rate
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+
+            {/* Placeholder: Time Tracking */}
+            <Grid item xs={12} sm={6} md={3}>
+              <Card sx={{ 
+                bgcolor: '#1E1E1E', 
+                color: 'white',
+                border: '1px solid rgba(255, 255, 255, 0.12)',
+                height: '100%'
+              }}>
+                <CardContent sx={{ 
+                  display: 'flex', 
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  textAlign: 'center',
+                  py: 3
+                }}>
+                  <Avatar sx={{ 
+                    bgcolor: 'rgba(233, 30, 99, 0.2)', 
+                    mb: 2,
+                    width: 56,
+                    height: 56
+                  }}>
+                    <ScheduleIcon sx={{ color: '#e91e63', fontSize: 30 }} />
+                  </Avatar>
+                  <Typography variant="h4" sx={{ mb: 1, fontWeight: 600 }}>
+                    24.5h
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
+                    Time Spent This Week
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+
+            {/* Performance Widget */}
+            <Grid item xs={12} sm={6} md={3}>
+              <Card sx={{ bgcolor: '#1E1E1E', color: 'white', border: '1px solid rgba(255, 255, 255, 0.12)', height: '100%' }}>
+                <CardContent sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', py: 3 }}>
+                  <Avatar sx={{ bgcolor: 'rgba(156, 39, 176, 0.2)', mb: 2, width: 56, height: 56 }}>
+                    <SpeedIcon sx={{ color: '#9c27b0', fontSize: 30 }} />
+                  </Avatar>
+                  <Typography variant="h4" sx={{ mb: 1, fontWeight: 600 }}>98%</Typography>
+                  <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>Performance Score</Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+
+            {/* Growth Rate Widget */}
+            <Grid item xs={12} sm={6} md={3}>
+              <Card sx={{ bgcolor: '#1E1E1E', color: 'white', border: '1px solid rgba(255, 255, 255, 0.12)', height: '100%' }}>
+                <CardContent sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', py: 3 }}>
+                  <Avatar sx={{ bgcolor: 'rgba(0, 150, 136, 0.2)', mb: 2, width: 56, height: 56 }}>
+                    <TimelineIcon sx={{ color: '#009688', fontSize: 30 }} />
+                  </Avatar>
+                  <Typography variant="h4" sx={{ mb: 1, fontWeight: 600 }}>+15%</Typography>
+                  <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>Monthly Growth</Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+
+            {/* Distribution Widget */}
+            <Grid item xs={12} sm={6} md={3}>
+              <Card sx={{ bgcolor: '#1E1E1E', color: 'white', border: '1px solid rgba(255, 255, 255, 0.12)', height: '100%' }}>
+                <CardContent sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', py: 3 }}>
+                  <Avatar sx={{ bgcolor: 'rgba(121, 85, 72, 0.2)', mb: 2, width: 56, height: 56 }}>
+                    <PieChartIcon sx={{ color: '#795548', fontSize: 30 }} />
+                  </Avatar>
+                  <Typography variant="h4" sx={{ mb: 1, fontWeight: 600 }}>65/35</Typography>
+                  <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>Task Distribution</Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+
+            {/* Analytics Widget */}
+            <Grid item xs={12} sm={6} md={3}>
+              <Card sx={{ bgcolor: '#1E1E1E', color: 'white', border: '1px solid rgba(255, 255, 255, 0.12)', height: '100%' }}>
+                <CardContent sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', py: 3 }}>
+                  <Avatar sx={{ bgcolor: 'rgba(63, 81, 181, 0.2)', mb: 2, width: 56, height: 56 }}>
+                    <BarChartIcon sx={{ color: '#3f51b5', fontSize: 30 }} />
+                  </Avatar>
+                  <Typography variant="h4" sx={{ mb: 1, fontWeight: 600 }}>1.2K</Typography>
+                  <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>Weekly Analytics</Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+
+            {/* Issues Widget */}
+            <Grid item xs={12} sm={6} md={3}>
+              <Card sx={{ bgcolor: '#1E1E1E', color: 'white', border: '1px solid rgba(255, 255, 255, 0.12)', height: '100%' }}>
+                <CardContent sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', py: 3 }}>
+                  <Avatar sx={{ bgcolor: 'rgba(244, 67, 54, 0.2)', mb: 2, width: 56, height: 56 }}>
+                    <BugReportIcon sx={{ color: '#f44336', fontSize: 30 }} />
+                  </Avatar>
+                  <Typography variant="h4" sx={{ mb: 1, fontWeight: 600 }}>3</Typography>
+                  <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>Open Issues</Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+
+            {/* Cloud Usage Widget */}
+            <Grid item xs={12} sm={6} md={3}>
+              <Card sx={{ bgcolor: '#1E1E1E', color: 'white', border: '1px solid rgba(255, 255, 255, 0.12)', height: '100%' }}>
+                <CardContent sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', py: 3 }}>
+                  <Avatar sx={{ bgcolor: 'rgba(0, 188, 212, 0.2)', mb: 2, width: 56, height: 56 }}>
+                    <CloudIcon sx={{ color: '#00bcd4', fontSize: 30 }} />
+                  </Avatar>
+                  <Typography variant="h4" sx={{ mb: 1, fontWeight: 600 }}>82%</Typography>
+                  <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>Cloud Usage</Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+
+            {/* System Load Widget */}
+            <Grid item xs={12} sm={6} md={3}>
+              <Card sx={{ bgcolor: '#1E1E1E', color: 'white', border: '1px solid rgba(255, 255, 255, 0.12)', height: '100%' }}>
+                <CardContent sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', py: 3 }}>
+                  <Avatar sx={{ bgcolor: 'rgba(255, 87, 34, 0.2)', mb: 2, width: 56, height: 56 }}>
+                    <MemoryIcon sx={{ color: '#ff5722', fontSize: 30 }} />
+                  </Avatar>
+                  <Typography variant="h4" sx={{ mb: 1, fontWeight: 600 }}>45%</Typography>
+                  <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>System Load</Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+
+            {/* Storage Widget */}
+            <Grid item xs={12} sm={6} md={3}>
+              <Card sx={{ bgcolor: '#1E1E1E', color: 'white', border: '1px solid rgba(255, 255, 255, 0.12)', height: '100%' }}>
+                <CardContent sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', py: 3 }}>
+                  <Avatar sx={{ bgcolor: 'rgba(96, 125, 139, 0.2)', mb: 2, width: 56, height: 56 }}>
+                    <StorageIcon sx={{ color: '#607d8b', fontSize: 30 }} />
+                  </Avatar>
+                  <Typography variant="h4" sx={{ mb: 1, fontWeight: 600 }}>756GB</Typography>
+                  <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>Storage Used</Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+          </Grid>
+        )}
         {currentPage === 'todos' && (
           <Container>
             {/* Search field */}
@@ -1603,318 +1859,11 @@ function App() {
             </Drawer>
           </Container>
         )}
-        {currentPage === 'dashboard' && (
-          <Grid container spacing={3}>
-            {/* Active Tasks Widget */}
-            <Grid item xs={12} sm={6} md={3}>
-              <Card sx={{ 
-                bgcolor: '#1E1E1E', 
-                color: 'white',
-                border: '1px solid rgba(255, 255, 255, 0.12)',
-                height: '100%'
-              }}>
-                <CardContent sx={{ 
-                  display: 'flex', 
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  textAlign: 'center',
-                  py: 3
-                }}>
-                  <Avatar sx={{ 
-                    bgcolor: 'rgba(76, 175, 80, 0.2)', 
-                    mb: 2,
-                    width: 56,
-                    height: 56
-                  }}>
-                    <TaskIcon sx={{ color: '#4CAF50', fontSize: 30 }} />
-                  </Avatar>
-                  <Typography variant="h3" sx={{ mb: 1, fontWeight: 600 }}>
-                    {getActiveTasks()}
-                  </Typography>
-                  <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
-                    Active Tasks
-                  </Typography>
-                </CardContent>
-              </Card>
-            </Grid>
-
-            {/* Completed Tasks Widget - Replace Weekly Progress Widget */}
-            <Grid item xs={12} sm={6} md={3}>
-              <Card sx={{ 
-                bgcolor: '#1E1E1E', 
-                color: 'white',
-                border: '1px solid rgba(255, 255, 255, 0.12)',
-                height: '100%'
-              }}>
-                <CardContent sx={{ 
-                  display: 'flex', 
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  textAlign: 'center',
-                  py: 3
-                }}>
-                  <Avatar sx={{ 
-                    bgcolor: 'rgba(33, 150, 243, 0.2)', 
-                    mb: 2,
-                    width: 56,
-                    height: 56
-                  }}>
-                    <CheckCircleIcon sx={{ color: '#2196f3', fontSize: 30 }} />
-                  </Avatar>
-                  <Typography variant="h3" sx={{ mb: 1, fontWeight: 600 }}>
-                    {completedTasksCount}
-                  </Typography>
-                  <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
-                    Completed Tasks
-                  </Typography>
-                </CardContent>
-              </Card>
-            </Grid>
-
-            {/* Placeholder: Monthly Stats */}
-            <Grid item xs={12} sm={6} md={3}>
-              <Card sx={{ 
-                bgcolor: '#1E1E1E', 
-                color: 'white',
-                border: '1px solid rgba(255, 255, 255, 0.12)',
-                height: '100%'
-              }}>
-                <CardContent sx={{ 
-                  display: 'flex', 
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  textAlign: 'center',
-                  py: 3
-                }}>
-                  <Avatar sx={{ 
-                    bgcolor: 'rgba(255, 152, 0, 0.2)', 
-                    mb: 2,
-                    width: 56,
-                    height: 56
-                  }}>
-                    <AssessmentIcon sx={{ color: '#ff9800', fontSize: 30 }} />
-                  </Avatar>
-                  <Typography variant="h4" sx={{ mb: 1, fontWeight: 600 }}>
-                    87%
-                  </Typography>
-                  <LinearProgress 
-                    variant="determinate" 
-                    value={87}
-                    sx={{ 
-                      width: '80%', 
-                      mb: 2,
-                      height: 8,
-                      borderRadius: 4,
-                      backgroundColor: 'rgba(255, 152, 0, 0.2)',
-                      '& .MuiLinearProgress-bar': {
-                        backgroundColor: '#ff9800',
-                        borderRadius: 4,
-                      }
-                    }}
-                  />
-                  <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
-                    Monthly Completion Rate
-                  </Typography>
-                </CardContent>
-              </Card>
-            </Grid>
-
-            {/* Placeholder: Time Tracking */}
-            <Grid item xs={12} sm={6} md={3}>
-              <Card sx={{ 
-                bgcolor: '#1E1E1E', 
-                color: 'white',
-                border: '1px solid rgba(255, 255, 255, 0.12)',
-                height: '100%'
-              }}>
-                <CardContent sx={{ 
-                  display: 'flex', 
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  textAlign: 'center',
-                  py: 3
-                }}>
-                  <Avatar sx={{ 
-                    bgcolor: 'rgba(233, 30, 99, 0.2)', 
-                    mb: 2,
-                    width: 56,
-                    height: 56
-                  }}>
-                    <ScheduleIcon sx={{ color: '#e91e63', fontSize: 30 }} />
-                  </Avatar>
-                  <Typography variant="h4" sx={{ mb: 1, fontWeight: 600 }}>
-                    24.5h
-                  </Typography>
-                  <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
-                    Time Spent This Week
-                  </Typography>
-                </CardContent>
-              </Card>
-            </Grid>
-
-            {/* Performance Widget */}
-            <Grid item xs={12} sm={6} md={3}>
-              <Card sx={{ bgcolor: '#1E1E1E', color: 'white', border: '1px solid rgba(255, 255, 255, 0.12)', height: '100%' }}>
-                <CardContent sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', py: 3 }}>
-                  <Avatar sx={{ bgcolor: 'rgba(156, 39, 176, 0.2)', mb: 2, width: 56, height: 56 }}>
-                    <SpeedIcon sx={{ color: '#9c27b0', fontSize: 30 }} />
-                  </Avatar>
-                  <Typography variant="h4" sx={{ mb: 1, fontWeight: 600 }}>98%</Typography>
-                  <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>Performance Score</Typography>
-                </CardContent>
-              </Card>
-            </Grid>
-
-            {/* Growth Rate Widget */}
-            <Grid item xs={12} sm={6} md={3}>
-              <Card sx={{ bgcolor: '#1E1E1E', color: 'white', border: '1px solid rgba(255, 255, 255, 0.12)', height: '100%' }}>
-                <CardContent sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', py: 3 }}>
-                  <Avatar sx={{ bgcolor: 'rgba(0, 150, 136, 0.2)', mb: 2, width: 56, height: 56 }}>
-                    <TimelineIcon sx={{ color: '#009688', fontSize: 30 }} />
-                  </Avatar>
-                  <Typography variant="h4" sx={{ mb: 1, fontWeight: 600 }}>+15%</Typography>
-                  <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>Monthly Growth</Typography>
-                </CardContent>
-              </Card>
-            </Grid>
-
-            {/* Distribution Widget */}
-            <Grid item xs={12} sm={6} md={3}>
-              <Card sx={{ bgcolor: '#1E1E1E', color: 'white', border: '1px solid rgba(255, 255, 255, 0.12)', height: '100%' }}>
-                <CardContent sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', py: 3 }}>
-                  <Avatar sx={{ bgcolor: 'rgba(121, 85, 72, 0.2)', mb: 2, width: 56, height: 56 }}>
-                    <PieChartIcon sx={{ color: '#795548', fontSize: 30 }} />
-                  </Avatar>
-                  <Typography variant="h4" sx={{ mb: 1, fontWeight: 600 }}>65/35</Typography>
-                  <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>Task Distribution</Typography>
-                </CardContent>
-              </Card>
-            </Grid>
-
-            {/* Analytics Widget */}
-            <Grid item xs={12} sm={6} md={3}>
-              <Card sx={{ bgcolor: '#1E1E1E', color: 'white', border: '1px solid rgba(255, 255, 255, 0.12)', height: '100%' }}>
-                <CardContent sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', py: 3 }}>
-                  <Avatar sx={{ bgcolor: 'rgba(63, 81, 181, 0.2)', mb: 2, width: 56, height: 56 }}>
-                    <BarChartIcon sx={{ color: '#3f51b5', fontSize: 30 }} />
-                  </Avatar>
-                  <Typography variant="h4" sx={{ mb: 1, fontWeight: 600 }}>1.2K</Typography>
-                  <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>Weekly Analytics</Typography>
-                </CardContent>
-              </Card>
-            </Grid>
-
-            {/* Issues Widget */}
-            <Grid item xs={12} sm={6} md={3}>
-              <Card sx={{ bgcolor: '#1E1E1E', color: 'white', border: '1px solid rgba(255, 255, 255, 0.12)', height: '100%' }}>
-                <CardContent sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', py: 3 }}>
-                  <Avatar sx={{ bgcolor: 'rgba(244, 67, 54, 0.2)', mb: 2, width: 56, height: 56 }}>
-                    <BugReportIcon sx={{ color: '#f44336', fontSize: 30 }} />
-                  </Avatar>
-                  <Typography variant="h4" sx={{ mb: 1, fontWeight: 600 }}>3</Typography>
-                  <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>Open Issues</Typography>
-                </CardContent>
-              </Card>
-            </Grid>
-
-            {/* Cloud Usage Widget */}
-            <Grid item xs={12} sm={6} md={3}>
-              <Card sx={{ bgcolor: '#1E1E1E', color: 'white', border: '1px solid rgba(255, 255, 255, 0.12)', height: '100%' }}>
-                <CardContent sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', py: 3 }}>
-                  <Avatar sx={{ bgcolor: 'rgba(0, 188, 212, 0.2)', mb: 2, width: 56, height: 56 }}>
-                    <CloudIcon sx={{ color: '#00bcd4', fontSize: 30 }} />
-                  </Avatar>
-                  <Typography variant="h4" sx={{ mb: 1, fontWeight: 600 }}>82%</Typography>
-                  <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>Cloud Usage</Typography>
-                </CardContent>
-              </Card>
-            </Grid>
-
-            {/* System Load Widget */}
-            <Grid item xs={12} sm={6} md={3}>
-              <Card sx={{ bgcolor: '#1E1E1E', color: 'white', border: '1px solid rgba(255, 255, 255, 0.12)', height: '100%' }}>
-                <CardContent sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', py: 3 }}>
-                  <Avatar sx={{ bgcolor: 'rgba(255, 87, 34, 0.2)', mb: 2, width: 56, height: 56 }}>
-                    <MemoryIcon sx={{ color: '#ff5722', fontSize: 30 }} />
-                  </Avatar>
-                  <Typography variant="h4" sx={{ mb: 1, fontWeight: 600 }}>45%</Typography>
-                  <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>System Load</Typography>
-                </CardContent>
-              </Card>
-            </Grid>
-
-            {/* Storage Widget */}
-            <Grid item xs={12} sm={6} md={3}>
-              <Card sx={{ bgcolor: '#1E1E1E', color: 'white', border: '1px solid rgba(255, 255, 255, 0.12)', height: '100%' }}>
-                <CardContent sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', py: 3 }}>
-                  <Avatar sx={{ bgcolor: 'rgba(96, 125, 139, 0.2)', mb: 2, width: 56, height: 56 }}>
-                    <StorageIcon sx={{ color: '#607d8b', fontSize: 30 }} />
-                  </Avatar>
-                  <Typography variant="h4" sx={{ mb: 1, fontWeight: 600 }}>756GB</Typography>
-                  <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>Storage Used</Typography>
-                </CardContent>
-              </Card>
-            </Grid>
-          </Grid>
-        )}
-        {currentPage === 'profile' && (
-          <Typography variant="h4" sx={{ color: 'white' }}>
-            Profile (Coming Soon)
-          </Typography>
-        )}
-        {currentPage === 'settings' && (
-          <Typography variant="h4" sx={{ color: 'white' }}>
-            Settings (Coming Soon)
-          </Typography>
-        )}
         {currentPage === 'automations' && (
-          <Box sx={{ p: 3, width: '100%' }}>
-            {/* Header Section */}
-            <Box sx={{ 
-              display: 'flex', 
-              justifyContent: 'space-between', 
-              alignItems: 'center',
-              mb: 3 
-            }}>
-              <Typography variant="h4" sx={{ color: 'white' }}>
-                Automations
-              </Typography>
-              <Button
-                variant="contained"
-                startIcon={<AddIcon />}
-                sx={{
-                  bgcolor: '#4CAF50',
-                  '&:hover': { bgcolor: '#45a049' }
-                }}
-              >
-                Create New
-              </Button>
-            </Box>
-
-            {/* Automations List */}
-            <Grid container spacing={3}>
-              {automationsList.map((automation) => (
-                <Grid item xs={12} key={automation.id}>
-                  <Paper
-                    sx={{
-                      p: 3,
-                      bgcolor: '#1E1E1E',
-                      border: '1px solid rgba(255, 255, 255, 0.12)',
-                      '&:hover': {
-                        bgcolor: '#2A2A2A'
-                      }
-                    }}
-                  >
-                    <Typography variant="h6" sx={{ color: 'white' }}>
-                      {automation.name}
-                    </Typography>
-                    <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
-                      {automation.description}
-                    </Typography>
-                  </Paper>
-                </Grid>
-              ))}
-            </Grid>
+          <Box>
+            <Typography variant="h4" sx={{ color: 'white', mb: 3 }}>
+              Test - Automations Page
+            </Typography>
           </Box>
         )}
       </Box>
