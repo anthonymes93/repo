@@ -74,30 +74,57 @@ function App() {
     setTodos(prevTodos => sortTodos([...prevTodos]))
   }, [sortDirection])
 
+  useEffect(() => {
+    if (selectedTodo) {
+      // Initialize columns with the selected todo in the correct column
+      const initialColumns = {
+        'not-started': {
+          title: 'Not Started',
+          items: [],
+          color: '#ff9800'
+        },
+        'in-progress': {
+          title: 'In Progress',
+          items: [],
+          color: '#2196f3'
+        },
+        'completed': {
+          title: 'Complete',
+          items: [],
+          color: '#4caf50'
+        }
+      };
+
+      // Place the selected todo in the appropriate column
+      const status = selectedTodo.status || 'not-started';
+      initialColumns[status].items = [selectedTodo];
+
+      setColumns(initialColumns);
+    }
+  }, [selectedTodo]);
+
   const fetchTodos = async () => {
     try {
-      setLoading(true)
-      // Get all todos (both active and archived)
-      const q = query(collection(db, 'todos'))
-      const querySnapshot = await getDocs(q)
+      setLoading(true);
+      const q = query(collection(db, 'todos'));
+      const querySnapshot = await getDocs(q);
       
       const fetchedTodos = querySnapshot.docs.map(doc => ({
         id: doc.id,
-        ...doc.data()
-      }))
+        ...doc.data(),
+        status: doc.data().status || 'not-started' // Add default status
+      }));
       
-      // Set active todos to state
-      setTodos(fetchedTodos.filter(todo => !todo.archived))
-      // Store all todos separately
-      setAllTodos(fetchedTodos)
-      setError(null)
+      setTodos(fetchedTodos.filter(todo => !todo.archived));
+      setAllTodos(fetchedTodos);
+      setError(null);
     } catch (error) {
-      console.error("Error fetching todos:", error)
-      setError(error.message)
+      console.error("Error fetching todos:", error);
+      setError(error.message);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   // Handle search
   const handleSearch = (searchValue) => {
@@ -196,40 +223,40 @@ function App() {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
+    e.preventDefault();
     if (inputValue.trim() !== '') {
       try {
-        setLoading(true)
+        setLoading(true);
         
         const newTodo = {
           text: inputValue,
           completed: false,
           archived: false,
           timestamp: new Date().getTime(),
-          archivedAt: null
-        }
+          archivedAt: null,
+          status: 'not-started' // Add default status
+        };
 
-        const docRef = await addDoc(collection(db, 'todos'), newTodo)
+        const docRef = await addDoc(collection(db, 'todos'), newTodo);
         
         const todoWithId = {
           id: docRef.id,
           ...newTodo
-        }
+        };
         
-        // Just add the new todo, useEffect will handle sorting
-        setTodos(prevTodos => [todoWithId, ...prevTodos])
-        setAllTodos(prevAll => [todoWithId, ...prevAll])
+        setTodos(prevTodos => [todoWithId, ...prevTodos]);
+        setAllTodos(prevAll => [todoWithId, ...prevAll]);
         
-        setInputValue('')
-        setError(null)
+        setInputValue('');
+        setError(null);
       } catch (error) {
-        console.error("Error adding todo:", error)
-        setError(error.message)
+        console.error("Error adding todo:", error);
+        setError(error.message);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
     }
-  }
+  };
 
   const handleItemClick = (todo) => {
     setSelectedTodo(todo)
@@ -262,23 +289,47 @@ function App() {
 
   const handleStatusChange = async (todoId, newStatus) => {
     try {
-      const todoRef = doc(db, 'todos', todoId)
+      const todoRef = doc(db, 'todos', todoId);
       await updateDoc(todoRef, {
         status: newStatus
-      })
+      });
       
       // Update local states
+      const updatedTodo = { ...selectedTodo, status: newStatus };
+      
       setAllTodos(prevAll => prevAll.map(todo => 
-        todo.id === todoId ? { ...todo, status: newStatus } : todo
-      ))
+        todo.id === todoId ? updatedTodo : todo
+      ));
       setTodos(prevTodos => prevTodos.map(todo =>
-        todo.id === todoId ? { ...todo, status: newStatus } : todo
-      ))
-      setSelectedTodo(prev => ({...prev, status: newStatus}))
+        todo.id === todoId ? updatedTodo : todo
+      ));
+      setSelectedTodo(updatedTodo);
+
+      // Update columns
+      const newColumns = {
+        'not-started': {
+          title: 'Not Started',
+          items: [],
+          color: '#ff9800'
+        },
+        'in-progress': {
+          title: 'In Progress',
+          items: [],
+          color: '#2196f3'
+        },
+        'completed': {
+          title: 'Complete',
+          items: [],
+          color: '#4caf50'
+        }
+      };
+      newColumns[newStatus].items = [updatedTodo];
+      setColumns(newColumns);
+
     } catch (error) {
-      console.error("Error updating status:", error)
+      console.error("Error updating status:", error);
     }
-  }
+  };
 
   const onDragEnd = async (result) => {
     if (!result.destination) return;
