@@ -151,7 +151,7 @@ function App() {
   return (
     <div style={{ 
       minHeight: '100vh',
-      backgroundColor: '#121212',  // Dark gray almost black base
+      backgroundColor: '#1a1a1a',  // Dark gray background
       background: 'linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(9,9,121,0.11528361344537819) 35%, rgba(0,212,255,1) 100%)',
       display: 'flex',
       justifyContent: 'center',
