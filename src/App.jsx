@@ -124,6 +124,34 @@ function App() {
     }
   }
 
+  const unarchiveTodo = async (id) => {
+    try {
+      setLoading(true)
+      const todoRef = doc(db, 'todos', id)
+      
+      await updateDoc(todoRef, {
+        archived: false,
+        archivedAt: null
+      })
+
+      // Update local states
+      setAllTodos(prevAll => prevAll.map(todo => 
+        todo.id === id ? { ...todo, archived: false, archivedAt: null } : todo
+      ))
+      setTodos(prevTodos => [...prevTodos, allTodos.find(t => t.id === id)])
+      setSearchResults(prevResults => prevResults.map(todo =>
+        todo.id === id ? { ...todo, archived: false, archivedAt: null } : todo
+      ))
+      
+      console.log("Todo unarchived successfully")
+    } catch (error) {
+      console.error("Error unarchiving todo:", error)
+      setError(error.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault()
     if (inputValue.trim() !== '') {
@@ -404,6 +432,25 @@ function App() {
                 }}>
                   Created: {new Date(selectedTodo.timestamp).toLocaleString()}
                 </Typography>
+                
+                {selectedTodo.archived && (
+                  <Button
+                    variant="contained"
+                    onClick={() => {
+                      unarchiveTodo(selectedTodo.id)
+                      setDrawerOpen(false)  // Close drawer after unarchiving
+                    }}
+                    sx={{
+                      mb: 3,
+                      backgroundColor: '#4CAF50',  // Green color
+                      '&:hover': {
+                        backgroundColor: '#45a049'  // Darker green on hover
+                      }
+                    }}
+                  >
+                    Return to List
+                  </Button>
+                )}
                 
                 <Typography variant="h6" sx={{ mb: 1 }}>
                   Notes:
