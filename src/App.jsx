@@ -152,26 +152,23 @@ function App() {
   };
 
   // Handle search
-  const handleSearch = (searchValue) => {
-    setSearchQuery(searchValue)
-    if (!searchValue.trim()) {
-      setSearchResults([])
-      return
+  const handleSearch = (query) => {
+    if (query.trim() === '') {
+      setSearchResults([]);
+      return;
     }
 
-    const filteredResults = allTodos
-      .filter(todo =>
-        todo.text.toLowerCase().includes(searchValue.toLowerCase())
-      )
-      .sort((a, b) => {
-        // Sort archived items to the bottom
-        if (a.archived && !b.archived) return 1
-        if (!a.archived && b.archived) return -1
-        return 0
-      })
+    const searchLower = query.toLowerCase();
+    
+    const results = allTodos.filter(todo => {
+      const matchesText = todo.text.toLowerCase().includes(searchLower);
+      const matchesPhone = todo.phone && todo.phone.includes(query);
+      
+      return (matchesText || matchesPhone) && !todo.archived;
+    });
 
-    setSearchResults(filteredResults)
-  }
+    setSearchResults(results);
+  };
 
   const archiveTodo = async (id) => {
     try {
@@ -457,6 +454,9 @@ function App() {
     setSearchResults([]);
   };
 
+  // Update the todos display logic
+  const displayedTodos = searchQuery ? searchResults : todos;
+
   return (
     <div style={{ 
       minHeight: '100vh',
@@ -653,68 +653,71 @@ function App() {
             <Droppable droppableId="todos">
               {(provided) => (
                 <List {...provided.droppableProps} ref={provided.innerRef}>
-                  {todos.map((todo, index) => (
-                    <Draggable key={todo.id} draggableId={todo.id} index={index}>
-                      {(provided, snapshot) => (
-                        <ListItem
-                          ref={provided.innerRef}
-                          {...provided.draggableProps}
-                          {...provided.dragHandleProps}
+                  {displayedTodos.map((todo) => (
+                    <ListItem
+                      key={todo.id}
+                      sx={{
+                        mb: 1,
+                        backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                        borderRadius: 1,
+                        '&:hover': {
+                          backgroundColor: 'rgba(255, 255, 255, 0.15)'
+                        }
+                      }}
+                    >
+                      <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        flex: 1,
+                        cursor: 'pointer'
+                      }}>
+                        <Checkbox
+                          checked={todo.completed}
+                          onChange={() => toggleTodo(todo.id)}
                           sx={{
-                            mb: 1,
-                            backgroundColor: snapshot.isDragging 
-                              ? 'rgba(255, 255, 255, 0.2)' 
-                              : 'rgba(255, 255, 255, 0.1)',
-                            borderRadius: 1,
-                            transition: 'background-color 0.2s',
-                            '&:hover': {
-                              backgroundColor: 'rgba(255, 255, 255, 0.15)'
+                            color: 'white',
+                            '&.Mui-checked': {
+                              color: 'white'
                             }
                           }}
-                        >
-                          <div style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            flex: 1,
-                            cursor: 'pointer'
-                          }}>
-                            <Checkbox
-                              checked={todo.completed}
-                              onChange={() => toggleTodo(todo.id)}
-                              sx={{
-                                color: 'white',
-                                '&.Mui-checked': {
-                                  color: 'white'
-                                }
-                              }}
-                            />
-                            <ListItemText 
-                              primary={todo.text}
-                              onClick={() => {
-                                setSelectedTodo(todo)
-                                setNoteInput(todo.notes || '')
-                                setDrawerOpen(true)
-                              }}
-                              sx={{
-                                '& .MuiTypography-root': {
-                                  color: 'white',
-                                  textDecoration: todo.completed ? 'line-through' : 'none'
-                                }
-                              }}
-                            />
-                          </div>
-                          <IconButton 
-                            onClick={() => archiveTodo(todo.id)}
-                            sx={{ 
+                        />
+                        <ListItemText 
+                          primary={todo.text}
+                          secondary={
+                            searchQuery && todo.phone && todo.phone.includes(searchQuery) ? (
+                              <Typography
+                                sx={{
+                                  color: 'rgba(255, 255, 255, 0.7)',
+                                  fontSize: '0.875rem'
+                                }}
+                              >
+                                Phone: {todo.phone}
+                              </Typography>
+                            ) : null
+                          }
+                          onClick={() => {
+                            setSelectedTodo(todo)
+                            setNoteInput(todo.notes || '')
+                            setDrawerOpen(true)
+                          }}
+                          sx={{
+                            '& .MuiTypography-root': {
                               color: 'white',
-                              padding: '8px'
-                            }}
-                          >
-                            <DeleteIcon />
-                          </IconButton>
-                        </ListItem>
-                      )}
-                    </Draggable>
+                              textDecoration: todo.completed ? 'line-through' : 'none'
+                            }
+                          }}
+                        />
+                      </div>
+                      <IconButton 
+                        onClick={() => archiveTodo(todo.id)}
+                        sx={{ 
+                          color: 'white',
+                          padding: '8px'
+                        }}
+                      >
+                        <DeleteIcon />
+                      </IconButton>
+                    </ListItem>
                   ))}
                   {provided.placeholder}
                 </List>
