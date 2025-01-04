@@ -118,6 +118,7 @@ import Dialog from '@mui/material/Dialog';
 import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
 import CloseIcon from '@mui/icons-material/Close';
+import Confetti from 'react-confetti';
 
 const fadeIn = keyframes`
   from {
@@ -205,6 +206,11 @@ function App() {
   const [messageInput, setMessageInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef(null);
+  const [showConfetti, setShowConfetti] = useState(false);
+  const [windowSize, setWindowSize] = useState({
+    width: window.innerWidth,
+    height: window.innerHeight,
+  });
 
   const theme = useMemo(
     () =>
@@ -533,6 +539,18 @@ function App() {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setWindowSize({
+        width: window.innerWidth,
+        height: window.innerHeight,
+      });
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -1163,9 +1181,31 @@ function App() {
     await generateAIResponse(userMessage.text);
   };
 
+  const handleNotificationClick = () => {
+    console.log('Notification clicked'); // Debug log
+    setNotificationCount(0);
+    setShowConfetti(true);
+    console.log('Confetti state set to true'); // Debug log
+    setTimeout(() => {
+      setShowConfetti(false);
+      console.log('Confetti state set to false'); // Debug log
+    }, 3000);
+  };
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
+      {showConfetti && (
+        <Confetti
+          width={windowSize.width}
+          height={windowSize.height}
+          recycle={false}
+          numberOfPieces={200}
+          gravity={0.3}
+          initialVelocityY={10}
+          style={{ position: 'fixed', top: 0, left: 0, zIndex: 9999 }}
+        />
+      )}
       <Box sx={{ display: 'flex' }}>
         {/* Updated Sidebar */}
         <SideNav
@@ -1334,10 +1374,7 @@ function App() {
           <Toolbar sx={{ justifyContent: 'flex-end' }}>
             <IconButton 
               color="inherit"
-              onClick={() => {
-                // Handle notification click
-                setNotificationCount(0); // Reset count when clicked
-              }}
+              onClick={handleNotificationClick}  // Make sure this is here
             >
               <Badge badgeContent={notificationCount} color="error">
                 <NotificationsIcon />
