@@ -65,6 +65,7 @@ function App() {
       color: '#4caf50'
     }
   });
+  const [kanbanInput, setKanbanInput] = useState('');
 
   useEffect(() => {
     fetchTodos()
@@ -383,6 +384,47 @@ function App() {
     }
   };
 
+  const handleAddKanbanCard = async (e) => {
+    e.preventDefault();
+    if (kanbanInput.trim() === '') return;
+
+    try {
+      // Create new todo with kanban specific fields
+      const newTodo = {
+        text: kanbanInput,
+        completed: false,
+        archived: false,
+        timestamp: new Date().getTime(),
+        archivedAt: null,
+        status: 'not-started',
+        parentId: selectedTodo.id // Link to parent todo
+      };
+
+      const docRef = await addDoc(collection(db, 'todos'), newTodo);
+      const todoWithId = {
+        id: docRef.id,
+        ...newTodo
+      };
+
+      // Update columns
+      const newColumns = {
+        ...columns,
+        'not-started': {
+          ...columns['not-started'],
+          items: [...columns['not-started'].items, todoWithId]
+        }
+      };
+      setColumns(newColumns);
+
+      // Clear input
+      setKanbanInput('');
+
+    } catch (error) {
+      console.error("Error adding kanban card:", error);
+      setError(error.message);
+    }
+  };
+
   return (
     <div style={{ 
       minHeight: '100vh',
@@ -630,6 +672,60 @@ function App() {
                 }}>
                   Created: {new Date(selectedTodo.timestamp).toLocaleString()}
                 </Typography>
+
+                {/* Add form for new Kanban cards */}
+                <Paper
+                  component="form"
+                  onSubmit={handleAddKanbanCard}
+                  sx={{
+                    p: 2,
+                    mb: 2,
+                    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                    display: 'flex',
+                    gap: 1
+                  }}
+                >
+                  <TextField
+                    size="small"
+                    value={kanbanInput}
+                    onChange={(e) => setKanbanInput(e.target.value)}
+                    placeholder="Add a new task"
+                    fullWidth
+                    sx={{
+                      '& .MuiInputBase-root': {
+                        color: 'white',
+                        backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                      },
+                      '& .MuiInputBase-input::placeholder': {
+                        color: 'rgba(255, 255, 255, 0.5)',
+                        opacity: 1,
+                      },
+                      '& .MuiOutlinedInput-root': {
+                        '& fieldset': {
+                          borderColor: 'rgba(255, 255, 255, 0.2)',
+                        },
+                        '&:hover fieldset': {
+                          borderColor: 'rgba(255, 255, 255, 0.3)',
+                        },
+                        '&.Mui-focused fieldset': {
+                          borderColor: 'white',
+                        },
+                      },
+                    }}
+                  />
+                  <Button
+                    type="submit"
+                    variant="contained"
+                    sx={{
+                      backgroundColor: '#4CAF50',
+                      '&:hover': {
+                        backgroundColor: '#45a049'
+                      }
+                    }}
+                  >
+                    Add
+                  </Button>
+                </Paper>
 
                 {/* Kanban Board */}
                 <DragDropContext onDragEnd={onDragEnd}>
