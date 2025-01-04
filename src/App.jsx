@@ -1310,6 +1310,141 @@ function App() {
                 </CardContent>
               </Card>
             </Grid>
+
+            {/* Active Tasks Gallery Section */}
+            <Grid item xs={12}>
+              <Box sx={{ mt: 4 }}>
+                <Typography variant="h5" sx={{ 
+                  color: 'white', 
+                  mb: 3,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 1
+                }}>
+                  <TaskIcon sx={{ color: '#4CAF50' }} />
+                  Active Tasks Gallery
+                </Typography>
+                
+                <Grid container spacing={2}>
+                  {todos
+                    .filter(todo => todo.isActive !== false) // Show tasks that are active or where isActive is not set
+                    .map(todo => (
+                      <Grid item xs={12} sm={6} md={4} key={todo.id}>
+                        <Paper
+                          sx={{
+                            p: 2,
+                            bgcolor: 'rgba(255, 255, 255, 0.1)',
+                            borderRadius: 2,
+                            cursor: 'pointer',
+                            transition: 'all 0.2s ease',
+                            border: '1px solid rgba(255, 255, 255, 0.12)',
+                            '&:hover': {
+                              transform: 'translateY(-2px)',
+                              bgcolor: 'rgba(255, 255, 255, 0.15)',
+                              boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
+                            }
+                          }}
+                          onClick={() => {
+                            setSelectedTodo(todo);
+                            setNoteInput(todo.notes || '');
+                            setDrawerOpen(true);
+                          }}
+                        >
+                          <Stack spacing={2}>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                              <Avatar 
+                                sx={{ 
+                                  bgcolor: 'transparent',
+                                  border: '2px solid #4CAF50',
+                                  color: '#4CAF50',
+                                  width: 40,
+                                  height: 40
+                                }}
+                              >
+                                {todo.text[0].toUpperCase()}
+                              </Avatar>
+                              <Box sx={{ flex: 1 }}>
+                                <Typography 
+                                  variant="subtitle1" 
+                                  sx={{ 
+                                    color: 'white',
+                                    fontWeight: 500,
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
+                                    display: '-webkit-box',
+                                    WebkitLineClamp: 2,
+                                    WebkitBoxOrient: 'vertical'
+                                  }}
+                                >
+                                  {todo.text}
+                                </Typography>
+                                <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.6)' }}>
+                                  Created {new Date(todo.timestamp).toLocaleDateString()}
+                                </Typography>
+                              </Box>
+                            </Box>
+
+                            {(todo.phone || todo.email || todo.notes) && (
+                              <Stack 
+                                direction="row" 
+                                spacing={1} 
+                                sx={{ 
+                                  mt: 1,
+                                  flexWrap: 'wrap',
+                                  gap: 0.5
+                                }}
+                              >
+                                {todo.phone && (
+                                  <Chip
+                                    icon={<PhoneIcon sx={{ fontSize: '16px' }} />}
+                                    label="Has Phone"
+                                    size="small"
+                                    sx={{
+                                      bgcolor: 'rgba(76, 175, 80, 0.2)',
+                                      color: '#4CAF50',
+                                      '& .MuiChip-icon': {
+                                        color: '#4CAF50'
+                                      }
+                                    }}
+                                  />
+                                )}
+                                {todo.email && (
+                                  <Chip
+                                    icon={<EmailIcon sx={{ fontSize: '16px' }} />}
+                                    label="Has Email"
+                                    size="small"
+                                    sx={{
+                                      bgcolor: 'rgba(33, 150, 243, 0.2)',
+                                      color: '#2196f3',
+                                      '& .MuiChip-icon': {
+                                        color: '#2196f3'
+                                      }
+                                    }}
+                                  />
+                                )}
+                                {todo.notes && (
+                                  <Chip
+                                    icon={<NotesIcon sx={{ fontSize: '16px' }} />}
+                                    label="Has Notes"
+                                    size="small"
+                                    sx={{
+                                      bgcolor: 'rgba(255, 152, 0, 0.2)',
+                                      color: '#ff9800',
+                                      '& .MuiChip-icon': {
+                                        color: '#ff9800'
+                                      }
+                                    }}
+                                  />
+                                )}
+                              </Stack>
+                            )}
+                          </Stack>
+                        </Paper>
+                      </Grid>
+                    ))}
+                </Grid>
+              </Box>
+            </Grid>
           </Grid>
         )}
         {currentPage === 'todos' && (
