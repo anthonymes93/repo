@@ -82,6 +82,7 @@ import {
   Assessment as AssessmentIcon,
   Schedule as ScheduleIcon,
   Task as TaskIcon,
+  CheckCircle as CheckCircleIcon,
 } from '@mui/icons-material'
 
 const fadeIn = keyframes`
@@ -148,6 +149,7 @@ function App() {
   const [progress, setProgress] = useState(0);
   const [currentPage, setCurrentPage] = useState('todos');
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [completedTasksCount, setCompletedTasksCount] = useState(0);
 
   // Define sidebar width constants
   const SIDEBAR_WIDTH = 240;
@@ -204,6 +206,24 @@ function App() {
       setProgress(total > 0 ? (completed / total) * 100 : 0);
     }
   }, [columns, selectedTodo]);
+
+  useEffect(() => {
+    const fetchCompletedCount = async () => {
+      try {
+        const querySnapshot = await getDocs(
+          query(
+            collection(db, 'todos'),
+            where('completed', '==', true)
+          )
+        );
+        setCompletedTasksCount(querySnapshot.size);
+      } catch (error) {
+        console.error("Error fetching completed count:", error);
+      }
+    };
+
+    fetchCompletedCount();
+  }, []);
 
   const fetchTodos = async () => {
     try {
@@ -696,6 +716,28 @@ function App() {
   // Add function to count active tasks
   const getActiveTasks = () => {
     return todos.filter(todo => !todo.completed && !todo.archived).length;
+  };
+
+  const toggleTodo = async (todoId) => {
+    const todoToUpdate = todos.find(todo => todo.id === todoId);
+    if (!todoToUpdate) return;
+
+    try {
+      const todoRef = doc(db, 'todos', todoId);
+      await updateDoc(todoRef, {
+        completed: true,
+        completedAt: new Date().getTime()
+      });
+
+      // Remove from todos list
+      setTodos(prevTodos => prevTodos.filter(todo => todo.id !== todoId));
+      
+      // Increment completed tasks counter
+      setCompletedTasksCount(prev => prev + 1);
+
+    } catch (error) {
+      console.error("Error completing todo:", error);
+    }
   };
 
   return (
@@ -1425,7 +1467,7 @@ function App() {
               </Card>
             </Grid>
 
-            {/* Placeholder: Weekly Progress */}
+            {/* Completed Tasks Widget - Replace Weekly Progress Widget */}
             <Grid item xs={12} sm={6} md={3}>
               <Card sx={{ 
                 bgcolor: '#1E1E1E', 
@@ -1446,23 +1488,13 @@ function App() {
                     width: 56,
                     height: 56
                   }}>
-                    <TrendingUpIcon sx={{ color: '#2196f3', fontSize: 30 }} />
+                    <CheckCircleIcon sx={{ color: '#2196f3', fontSize: 30 }} />
                   </Avatar>
-                  <CircularProgress 
-                    variant="determinate" 
-                    value={75} 
-                    size={80}
-                    thickness={4}
-                    sx={{ 
-                      mb: 2,
-                      color: '#2196f3',
-                      '& .MuiCircularProgress-circle': {
-                        strokeLinecap: 'round',
-                      },
-                    }}
-                  />
+                  <Typography variant="h3" sx={{ mb: 1, fontWeight: 600 }}>
+                    {completedTasksCount}
+                  </Typography>
                   <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
-                    Weekly Progress
+                    Completed Tasks
                   </Typography>
                 </CardContent>
               </Card>
