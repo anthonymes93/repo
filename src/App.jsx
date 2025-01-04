@@ -189,6 +189,77 @@ function App() {
     ]
   };
 
+  // Add this new sample automation
+  const supportTicketAutomation = {
+    name: "Customer Support Ticket Processing",
+    description: "Automatically process and route new support tickets based on priority and type",
+    nodes: [
+      { 
+        id: 1, 
+        type: 'trigger', 
+        label: 'New Zendesk Ticket', 
+        description: 'Triggers when a new support ticket is created',
+        config: {
+          webhook: 'https://api.zendesk.com/webhooks/tickets',
+          interval: '5 minutes'
+        }
+      },
+      { 
+        id: 2, 
+        type: 'function', 
+        label: 'Analyze Sentiment', 
+        description: 'Analyze ticket content for sentiment and urgency',
+        config: {
+          api: 'OpenAI',
+          model: 'gpt-4',
+          maxTokens: 100
+        }
+      },
+      { 
+        id: 3, 
+        type: 'filter', 
+        label: 'Priority Router', 
+        description: 'Route based on sentiment and keywords',
+        config: {
+          conditions: [
+            { field: 'sentiment', operator: 'lessThan', value: -0.5 },
+            { field: 'keywords', operator: 'contains', value: ['urgent', 'broken', 'error'] }
+          ]
+        }
+      },
+      { 
+        id: 4, 
+        type: 'function', 
+        label: 'Ticket Enrichment', 
+        description: 'Add customer data from CRM',
+        config: {
+          source: 'Salesforce',
+          fields: ['customerTier', 'lastPurchase', 'totalSpent']
+        }
+      },
+      { 
+        id: 5, 
+        type: 'action', 
+        label: 'Slack Alert', 
+        description: 'Send alert to support team',
+        config: {
+          channel: '#urgent-support',
+          mention: '@support-team'
+        }
+      },
+      { 
+        id: 6, 
+        type: 'action', 
+        label: 'Update Ticket', 
+        description: 'Update ticket with priority and assignment',
+        config: {
+          priority: 'high',
+          assignTo: 'urgent-queue'
+        }
+      }
+    ]
+  };
+
   useEffect(() => {
     const fetchTodos = async () => {
       try {
@@ -1773,10 +1844,10 @@ function App() {
               }}
             >
               <Typography variant="h5" sx={{ mb: 1 }}>
-                {sampleAutomation.name}
+                {supportTicketAutomation.name}
               </Typography>
               <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
-                {sampleAutomation.description}
+                {supportTicketAutomation.description}
               </Typography>
             </Paper>
 
@@ -1785,7 +1856,9 @@ function App() {
               minHeight: '400px',
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'center'
+              justifyContent: 'center',
+              overflowX: 'auto',
+              py: 4
             }}>
               {/* Workflow Line */}
               <Box
@@ -1794,7 +1867,7 @@ function App() {
                   top: '50%',
                   left: '50%',
                   transform: 'translate(-50%, -50%)',
-                  width: '80%',
+                  width: '90%',
                   height: '2px',
                   bgcolor: 'rgba(255, 255, 255, 0.12)',
                   zIndex: 0
@@ -1808,10 +1881,12 @@ function App() {
                 alignItems="center"
                 sx={{
                   position: 'relative',
-                  zIndex: 1
+                  zIndex: 1,
+                  minWidth: 'min-content',
+                  px: 4
                 }}
               >
-                {sampleAutomation.nodes.map((node, index) => (
+                {supportTicketAutomation.nodes.map((node, index) => (
                   <Box
                     key={node.id}
                     sx={{
@@ -1825,12 +1900,15 @@ function App() {
                         color: 'white',
                         border: `1px solid ${nodeTypes[node.type].color}`,
                         p: 2,
-                        width: 200,
+                        width: 240,
                         cursor: 'pointer',
                         transition: 'all 0.2s',
                         '&:hover': {
                           transform: 'translateY(-4px)',
-                          boxShadow: `0 4px 20px ${alpha(nodeTypes[node.type].color, 0.25)}`
+                          boxShadow: `0 4px 20px ${alpha(nodeTypes[node.type].color, 0.25)}`,
+                          '& .node-config': {
+                            opacity: 1
+                          }
                         }
                       }}
                     >
@@ -1853,11 +1931,35 @@ function App() {
                         <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
                           {node.description}
                         </Typography>
+                        <Box 
+                          className="node-config"
+                          sx={{ 
+                            mt: 1,
+                            p: 1,
+                            bgcolor: 'rgba(0,0,0,0.2)',
+                            borderRadius: 1,
+                            opacity: 0,
+                            transition: 'opacity 0.2s',
+                            fontSize: '0.75rem',
+                            color: 'rgba(255, 255, 255, 0.6)'
+                          }}
+                        >
+                          {Object.entries(node.config).map(([key, value]) => (
+                            <Box key={key} sx={{ mb: 0.5 }}>
+                              <Typography variant="caption" sx={{ color: nodeTypes[node.type].color }}>
+                                {key}:
+                              </Typography>{' '}
+                              <Typography variant="caption">
+                                {typeof value === 'object' ? JSON.stringify(value) : value}
+                              </Typography>
+                            </Box>
+                          ))}
+                        </Box>
                       </Stack>
                     </Paper>
 
                     {/* Connection dots */}
-                    {index < sampleAutomation.nodes.length - 1 && (
+                    {index < supportTicketAutomation.nodes.length - 1 && (
                       <Box sx={{
                         position: 'absolute',
                         right: '-32px',
@@ -1873,22 +1975,6 @@ function App() {
                   </Box>
                 ))}
               </Stack>
-            </Box>
-
-            {/* Add Button */}
-            <Box sx={{ mt: 4, display: 'flex', justifyContent: 'center' }}>
-              <Button
-                variant="contained"
-                startIcon={<AutomationIcon />}
-                sx={{
-                  bgcolor: '#4CAF50',
-                  '&:hover': {
-                    bgcolor: '#45a049'
-                  }
-                }}
-              >
-                Create New Automation
-              </Button>
             </Box>
           </Box>
         )}
