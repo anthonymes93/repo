@@ -649,6 +649,26 @@ function App() {
     { icon: <PriorityHighIcon />, name: 'Set Priority' },
   ];
 
+  const handleActiveToggle = async (todoId, isActive) => {
+    try {
+      const todoRef = doc(db, 'todos', todoId);
+      await updateDoc(todoRef, {
+        isActive: isActive
+      });
+      
+      const updatedTodo = { ...selectedTodo, isActive: isActive };
+      setSelectedTodo(updatedTodo);
+      setTodos(prevTodos => prevTodos.map(todo =>
+        todo.id === todoId ? updatedTodo : todo
+      ));
+      setAllTodos(prevAll => prevAll.map(todo =>
+        todo.id === todoId ? updatedTodo : todo
+      ));
+    } catch (error) {
+      console.error("Error updating active status:", error);
+    }
+  };
+
   return (
     <div style={{ 
       minHeight: '100vh',
@@ -991,6 +1011,32 @@ function App() {
                         </Stack>
                       </Box>
                     </Stack>
+
+                    <FormControlLabel
+                      control={
+                        <Switch
+                          checked={selectedTodo.isActive ?? true}
+                          onChange={(e) => handleActiveToggle(selectedTodo.id, e.target.checked)}
+                          sx={{
+                            '& .MuiSwitch-switchBase.Mui-checked': {
+                              color: '#4CAF50',
+                              '&:hover': {
+                                backgroundColor: alpha('#4CAF50', 0.08),
+                              },
+                            },
+                            '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                              backgroundColor: '#4CAF50',
+                            },
+                          }}
+                        />
+                      }
+                      label={
+                        <Typography sx={{ color: 'rgba(255, 255, 255, 0.9)' }}>
+                          {selectedTodo.isActive ? 'Active' : 'Inactive'}
+                        </Typography>
+                      }
+                      sx={{ mb: 2 }}
+                    />
 
                     <Stack direction="row" spacing={1}>
                       <Chip 
