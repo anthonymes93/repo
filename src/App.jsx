@@ -187,6 +187,7 @@ function App() {
         palette: {
           mode,
           ...(mode === 'dark' ? {
+            // Dark mode colors
             background: {
               default: '#121212',
               paper: '#1E1E1E',
@@ -197,6 +198,7 @@ function App() {
             },
             divider: 'rgba(255, 255, 255, 0.12)',
           } : {
+            // Light mode colors
             background: {
               default: '#f5f5f5',
               paper: '#ffffff',
@@ -217,13 +219,12 @@ function App() {
           MuiPaper: {
             styleOverrides: {
               root: ({ theme }) => ({
-                background: theme.palette.mode === 'dark' 
-                  ? 'linear-gradient(rgb(56 56 56 / 15%), rgba(255, 255, 255, 0.147))'
+                backgroundColor: theme.palette.mode === 'dark' 
+                  ? '#1E1E1E' 
                   : '#ffffff',
-                backdropFilter: 'blur(4px)',
-                border: `1px solid ${theme.palette.mode === 'dark' 
+                borderColor: theme.palette.mode === 'dark'
                   ? 'rgba(255, 255, 255, 0.12)'
-                  : 'rgba(0, 0, 0, 0.12)'}`,
+                  : 'rgba(0, 0, 0, 0.12)',
               }),
             },
           },
