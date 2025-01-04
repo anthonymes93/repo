@@ -2060,7 +2060,7 @@ function App() {
                 PaperProps={{
                   sx: {
                     width: '450px',
-                    backgroundColor: '#1E1E1E', // Darker background
+                    background: 'linear-gradient(rgb(82 82 82 / 15%), rgb(0 0 0 / 15%))',
                     color: 'white',
                     borderLeft: '1px solid rgba(255, 255, 255, 0.08)'
                   }
