@@ -153,17 +153,41 @@ function App() {
 
   // Add phone number normalization function
   const normalizePhoneNumber = (phone) => {
-    if (!phone) return '';
+    if (!phone || phone.trim() === '') return {
+      raw: '',
+      formatted: ''
+    };
+
     // Remove all non-numeric characters
     const numbers = phone.replace(/\D/g, '');
+    
+    // If no numbers, return empty
+    if (!numbers) return {
+      raw: '',
+      formatted: ''
+    };
     
     // Handle different formats (keep only last 10 digits if longer)
     const digits = numbers.slice(-10);
     
-    // Return both formatted and raw versions for searching
+    // Only format if we have at least 1 digit
+    if (digits.length === 0) return {
+      raw: '',
+      formatted: ''
+    };
+
+    // Format the number if it has enough digits
+    if (digits.length === 10) {
+      return {
+        raw: digits,
+        formatted: digits.replace(/(\d{3})(\d{3})(\d{4})/, '($1) $2-$3')
+      };
+    }
+
+    // Return partial number without formatting
     return {
       raw: digits,
-      formatted: digits.replace(/(\d{3})(\d{3})(\d{4})/, '($1) $2-$3')
+      formatted: digits
     };
   };
 
@@ -172,10 +196,14 @@ function App() {
     try {
       let updateValue = value;
       
-      // Normalize phone numbers when saving
       if (field === 'phone') {
         const normalized = normalizePhoneNumber(value);
         updateValue = normalized.formatted;
+        
+        // If empty or only contains formatting characters, set to empty string
+        if (!normalized.raw) {
+          updateValue = '';
+        }
       }
 
       const todoRef = doc(db, 'todos', todoId);
@@ -806,7 +834,13 @@ function App() {
                       label="Phone Number"
                       value={selectedTodo.phone || ''}
                       onChange={(e) => {
-                        const normalized = normalizePhoneNumber(e.target.value);
+                        const value = e.target.value;
+                        // Allow complete clearing of the field
+                        if (!value || value.trim() === '') {
+                          handleContactUpdate(selectedTodo.id, 'phone', '');
+                          return;
+                        }
+                        const normalized = normalizePhoneNumber(value);
                         handleContactUpdate(selectedTodo.id, 'phone', normalized.formatted);
                       }}
                       placeholder="(123) 456-7890"
