@@ -273,8 +273,7 @@ function App() {
       status: "running",
       folder: "Support",
       lastRun: "2024-03-10T15:30:00",
-      executionCount: 1457,
-      nodes: [ /* ... existing nodes ... */ ]
+      executionCount: 1457
     },
     {
       id: 2,
@@ -283,12 +282,7 @@ function App() {
       status: "stopped",
       folder: "Marketing",
       lastRun: "2024-03-09T12:15:00",
-      executionCount: 892,
-      nodes: [
-        { id: 1, type: 'trigger', label: 'New CRM Lead', description: 'Triggers when a new lead is created' },
-        { id: 2, type: 'filter', label: 'Lead Score Check', description: 'Check if lead score > 50' },
-        { id: 3, type: 'action', label: 'Send Email', description: 'Send welcome email' },
-      ]
+      executionCount: 892
     },
     {
       id: 3,
@@ -297,12 +291,7 @@ function App() {
       status: "running",
       folder: "Finance",
       lastRun: "2024-03-10T16:45:00",
-      executionCount: 234,
-      nodes: [
-        { id: 1, type: 'trigger', label: 'New Invoice', description: 'Detect new invoice in email' },
-        { id: 2, type: 'function', label: 'Extract Data', description: 'Extract invoice details' },
-        { id: 3, type: 'action', label: 'Update QB', description: 'Update QuickBooks' },
-      ]
+      executionCount: 234
     }
   ];
 
@@ -1902,70 +1891,6 @@ function App() {
               </Button>
             </Box>
 
-            {/* Search and Filter Bar */}
-            <Paper sx={{ 
-              p: 2, 
-              mb: 3, 
-              bgcolor: '#1E1E1E',
-              border: '1px solid rgba(255, 255, 255, 0.12)'
-            }}>
-              <Grid container spacing={2} alignItems="center">
-                <Grid item xs={12} md={4}>
-                  <TextField
-                    fullWidth
-                    size="small"
-                    placeholder="Search automations..."
-                    InputProps={{
-                      startAdornment: <SearchIcon sx={{ mr: 1, color: 'rgba(255, 255, 255, 0.7)' }} />,
-                    }}
-                    sx={{
-                      '& .MuiOutlinedInput-root': {
-                        color: 'white',
-                        '& fieldset': { borderColor: 'rgba(255, 255, 255, 0.12)' },
-                        '&:hover fieldset': { borderColor: 'rgba(255, 255, 255, 0.2)' },
-                        '&.Mui-focused fieldset': { borderColor: '#4CAF50' },
-                      }
-                    }}
-                  />
-                </Grid>
-                <Grid item xs={12} md={8}>
-                  <Stack direction="row" spacing={2}>
-                    <FormControl size="small" sx={{ minWidth: 120 }}>
-                      <Select
-                        value="all"
-                        sx={{ 
-                          color: 'white',
-                          '& .MuiOutlinedInput-notchedOutline': {
-                            borderColor: 'rgba(255, 255, 255, 0.12)'
-                          }
-                        }}
-                      >
-                        <MenuItem value="all">All Status</MenuItem>
-                        <MenuItem value="running">Running</MenuItem>
-                        <MenuItem value="stopped">Stopped</MenuItem>
-                      </Select>
-                    </FormControl>
-                    <FormControl size="small" sx={{ minWidth: 120 }}>
-                      <Select
-                        value="all"
-                        sx={{ 
-                          color: 'white',
-                          '& .MuiOutlinedInput-notchedOutline': {
-                            borderColor: 'rgba(255, 255, 255, 0.12)'
-                          }
-                        }}
-                      >
-                        <MenuItem value="all">All Folders</MenuItem>
-                        <MenuItem value="support">Support</MenuItem>
-                        <MenuItem value="marketing">Marketing</MenuItem>
-                        <MenuItem value="finance">Finance</MenuItem>
-                      </Select>
-                    </FormControl>
-                  </Stack>
-                </Grid>
-              </Grid>
-            </Paper>
-
             {/* Automations List */}
             <Grid container spacing={3}>
               {automationsList.map((automation) => (
@@ -1980,61 +1905,12 @@ function App() {
                       }
                     }}
                   >
-                    <Grid container spacing={2}>
-                      <Grid item xs={12} sm={6}>
-                        <Stack direction="row" spacing={2} alignItems="center">
-                          <Avatar
-                            sx={{
-                              bgcolor: automation.status === 'running' 
-                                ? 'rgba(76, 175, 80, 0.2)' 
-                                : 'rgba(158, 158, 158, 0.2)',
-                              color: automation.status === 'running' ? '#4CAF50' : '#9E9E9E'
-                            }}
-                          >
-                            {automation.status === 'running' ? <RunningIcon /> : <StoppedIcon />}
-                          </Avatar>
-                          <Box>
-                            <Typography variant="h6" sx={{ color: 'white' }}>
-                              {automation.name}
-                            </Typography>
-                            <Stack direction="row" spacing={1} alignItems="center">
-                              <FolderIcon sx={{ fontSize: 16, color: 'rgba(255, 255, 255, 0.7)' }} />
-                              <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
-                                {automation.folder}
-                              </Typography>
-                            </Stack>
-                          </Box>
-                        </Stack>
-                      </Grid>
-                      <Grid item xs={12} sm={6}>
-                        <Stack 
-                          direction="row" 
-                          spacing={3} 
-                          alignItems="center" 
-                          justifyContent="flex-end"
-                        >
-                          <Box textAlign="right">
-                            <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
-                              Last Run
-                            </Typography>
-                            <Typography variant="body2" sx={{ color: 'white' }}>
-                              {new Date(automation.lastRun).toLocaleString()}
-                            </Typography>
-                          </Box>
-                          <Box textAlign="right">
-                            <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
-                              Executions
-                            </Typography>
-                            <Typography variant="body2" sx={{ color: 'white' }}>
-                              {automation.executionCount.toLocaleString()}
-                            </Typography>
-                          </Box>
-                          <IconButton sx={{ color: 'white' }}>
-                            <MoreVertIcon />
-                          </IconButton>
-                        </Stack>
-                      </Grid>
-                    </Grid>
+                    <Typography variant="h6" sx={{ color: 'white' }}>
+                      {automation.name}
+                    </Typography>
+                    <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
+                      {automation.description}
+                    </Typography>
                   </Paper>
                 </Grid>
               ))}
