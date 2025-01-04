@@ -331,6 +331,10 @@ function App() {
                   mb: 1,
                   backgroundColor: 'rgba(255, 255, 255, 0.1)',
                   borderRadius: 1,
+                  cursor: 'pointer',
+                  '&:hover': {
+                    backgroundColor: 'rgba(255, 255, 255, 0.15)'
+                  }
                 }}
               >
                 <div style={{
@@ -351,10 +355,12 @@ function App() {
                   />
                   <ListItemText 
                     primary={todo.text}
+                    onClick={() => handleItemClick(todo)}
                     sx={{
                       textDecoration: todo.completed ? 'line-through' : 'none',
                       color: 'white',
                       margin: 0,
+                      cursor: 'pointer',
                       '& .MuiTypography-root': {
                         color: 'white'
                       }
