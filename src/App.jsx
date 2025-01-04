@@ -8,7 +8,8 @@ import {
   doc, 
   updateDoc,
   query,
-  where
+  where,
+  writeBatch
 } from 'firebase/firestore'
 import { 
   Container,
@@ -257,7 +258,7 @@ function App() {
           archived: false,
           timestamp: new Date().getTime(),
           archivedAt: null,
-          status: 'not-started' // Add default status
+          priority: todos.length  // Add priority based on position
         };
 
         const docRef = await addDoc(collection(db, 'todos'), newTodo);
@@ -353,39 +354,34 @@ function App() {
     }
   };
 
-  const handleDragEnd = (result) => {
+  const handleDragEnd = async (result) => {
     if (!result.destination) return;
-    
-    console.log('Drag ended:', result); // Debug log
-    
-    const { source, destination } = result;
-    
-    const sourceCol = columns[source.droppableId];
-    const destCol = columns[destination.droppableId];
-    
-    const sourceItems = [...sourceCol.items];
-    const destItems = [...destCol.items];
-    
-    const [removed] = sourceItems.splice(source.index, 1);
-    destItems.splice(destination.index, 0, removed);
-    
-    setColumns({
-      ...columns,
-      [source.droppableId]: {
-        ...sourceCol,
-        items: sourceItems
-      },
-      [destination.droppableId]: {
-        ...destCol,
-        items: destItems
-      }
-    });
 
-    // Update Firebase
-    const todoRef = doc(db, 'todos', removed.id);
-    updateDoc(todoRef, {
-      status: destination.droppableId
-    }).catch(error => console.error("Error updating status:", error));
+    try {
+      const items = Array.from(todos);
+      const [reorderedItem] = items.splice(result.source.index, 1);
+      items.splice(result.destination.index, 0, reorderedItem);
+
+      // Update priorities for all affected items
+      const updatedItems = items.map((item, index) => ({
+        ...item,
+        priority: index
+      }));
+
+      setTodos(updatedItems);
+
+      // Update priorities in Firebase
+      const batch = writeBatch(db);
+      updatedItems.forEach((item) => {
+        const todoRef = doc(db, 'todos', item.id);
+        batch.update(todoRef, { priority: item.priority });
+      });
+      await batch.commit();
+
+    } catch (error) {
+      console.error("Error updating priorities:", error);
+      setError(error.message);
+    }
   };
 
   const handleAddKanbanCard = async (e) => {
@@ -615,62 +611,78 @@ function App() {
             </div>
           )}
 
-          <List>
-            {todos.map(todo => (
-              <ListItem 
-                key={todo.id}
-                sx={{
-                  mb: 1,
-                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                  borderRadius: 1,
-                  cursor: 'pointer',
-                  '&:hover': {
-                    backgroundColor: 'rgba(255, 255, 255, 0.15)'
-                  }
-                }}
-              >
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  flex: 1,
-                  gap: '8px'
-                }}>
-                  <Checkbox
-                    checked={todo.completed}
-                    onChange={() => toggleTodo(todo.id)}
-                    sx={{ 
-                      color: 'white',
-                      '&.Mui-checked': {
-                        color: 'white',
-                      }
-                    }}
-                  />
-                  <ListItemText 
-                    primary={todo.text}
-                    onClick={() => handleItemClick(todo)}
-                    sx={{
-                      textDecoration: todo.completed ? 'line-through' : 'none',
-                      color: 'white',
-                      margin: 0,
-                      cursor: 'pointer',
-                      '& .MuiTypography-root': {
-                        color: 'white'
-                      }
-                    }}
-                  />
-                </div>
-                <IconButton 
-                  onClick={() => archiveTodo(todo.id)}
-                  sx={{ 
-                    color: 'white',
-                    padding: '8px'
-                  }}
-                >
-                  <DeleteIcon />
-                </IconButton>
-              </ListItem>
-            ))}
-          </List>
+          <DragDropContext onDragEnd={handleDragEnd}>
+            <Droppable droppableId="todos">
+              {(provided) => (
+                <List {...provided.droppableProps} ref={provided.innerRef}>
+                  {todos.map((todo, index) => (
+                    <Draggable key={todo.id} draggableId={todo.id} index={index}>
+                      {(provided, snapshot) => (
+                        <ListItem
+                          ref={provided.innerRef}
+                          {...provided.draggableProps}
+                          {...provided.dragHandleProps}
+                          sx={{
+                            mb: 1,
+                            backgroundColor: snapshot.isDragging 
+                              ? 'rgba(255, 255, 255, 0.2)' 
+                              : 'rgba(255, 255, 255, 0.1)',
+                            borderRadius: 1,
+                            transition: 'background-color 0.2s',
+                            '&:hover': {
+                              backgroundColor: 'rgba(255, 255, 255, 0.15)'
+                            }
+                          }}
+                        >
+                          <div style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            flex: 1,
+                            cursor: 'pointer'
+                          }}>
+                            <Checkbox
+                              checked={todo.completed}
+                              onChange={() => toggleTodo(todo.id)}
+                              sx={{
+                                color: 'white',
+                                '&.Mui-checked': {
+                                  color: 'white'
+                                }
+                              }}
+                            />
+                            <ListItemText 
+                              primary={todo.text}
+                              onClick={() => {
+                                setSelectedTodo(todo)
+                                setNoteInput(todo.notes || '')
+                                setDrawerOpen(true)
+                              }}
+                              sx={{
+                                '& .MuiTypography-root': {
+                                  color: 'white',
+                                  textDecoration: todo.completed ? 'line-through' : 'none'
+                                }
+                              }}
+                            />
+                          </div>
+                          <IconButton 
+                            onClick={() => archiveTodo(todo.id)}
+                            sx={{ 
+                              color: 'white',
+                              padding: '8px'
+                            }}
+                          >
+                            <DeleteIcon />
+                          </IconButton>
+                        </ListItem>
+                      )}
+                    </Draggable>
+                  ))}
+                  {provided.placeholder}
+                </List>
+              )}
+            </Droppable>
+          </DragDropContext>
 
           <Drawer
             anchor="right"
