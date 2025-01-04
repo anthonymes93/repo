@@ -122,7 +122,7 @@ function App() {
   const [allTodos, setAllTodos] = useState([])  // New state for all todos
   const [inputValue, setInputValue] = useState('')
   const [searchQuery, setSearchQuery] = useState('')
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
   const [searchResults, setSearchResults] = useState([])
   const [selectedTodo, setSelectedTodo] = useState(null)
@@ -1091,15 +1091,9 @@ function App() {
                   }
                 }}
               >
-                {loading ? 'Adding...' : 'Add'}
+                Add
               </Button>
             </Paper>
-
-            {loading && (
-              <div style={{ textAlign: 'center', marginTop: '20px' }}>
-                <CircularProgress sx={{ color: 'white' }} />
-              </div>
-            )}
 
             <DragDropContext onDragEnd={handleDragEnd}>
               <Droppable droppableId="todos">
