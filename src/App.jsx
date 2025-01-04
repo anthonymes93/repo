@@ -38,6 +38,7 @@ function App() {
   const [searchResults, setSearchResults] = useState([])
   const [selectedTodo, setSelectedTodo] = useState(null)
   const [drawerOpen, setDrawerOpen] = useState(false)
+  const [noteInput, setNoteInput] = useState('')
 
   useEffect(() => {
     fetchTodos()
@@ -161,7 +162,31 @@ function App() {
 
   const handleItemClick = (todo) => {
     setSelectedTodo(todo)
+    setNoteInput(todo.notes || '')
     setDrawerOpen(true)
+  }
+
+  const handleNoteUpdate = async (todoId, newNote) => {
+    try {
+      const todoRef = doc(db, 'todos', todoId)
+      await updateDoc(todoRef, {
+        notes: newNote
+      })
+      
+      // Update local state
+      setAllTodos(prevTodos => 
+        prevTodos.map(todo => 
+          todo.id === todoId ? { ...todo, notes: newNote } : todo
+        )
+      )
+      setSearchResults(prevResults => 
+        prevResults.map(todo => 
+          todo.id === todoId ? { ...todo, notes: newNote } : todo
+        )
+      )
+    } catch (error) {
+      console.error("Error updating note:", error)
+    }
   }
 
   return (
@@ -367,9 +392,44 @@ function App() {
                 <Typography variant="h5" sx={{ mb: 2 }}>
                   {selectedTodo.text}
                 </Typography>
-                <Typography variant="body1" sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
+                <Typography variant="body1" sx={{ 
+                  color: 'rgba(255, 255, 255, 0.7)',
+                  mb: 3 
+                }}>
                   Created: {new Date(selectedTodo.timestamp).toLocaleString()}
                 </Typography>
+                
+                <Typography variant="h6" sx={{ mb: 1 }}>
+                  Notes:
+                </Typography>
+                <TextField
+                  multiline
+                  rows={10}
+                  fullWidth
+                  value={noteInput}
+                  onChange={(e) => setNoteInput(e.target.value)}
+                  onBlur={() => handleNoteUpdate(selectedTodo.id, noteInput)}
+                  sx={{
+                    '& .MuiInputBase-root': {
+                      color: 'white',
+                      backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                    },
+                    '& .MuiInputBase-input': {
+                      color: 'white',
+                    },
+                    '& .MuiOutlinedInput-root': {
+                      '& fieldset': {
+                        borderColor: 'rgba(255, 255, 255, 0.3)',
+                      },
+                      '&:hover fieldset': {
+                        borderColor: 'rgba(255, 255, 255, 0.5)',
+                      },
+                      '&.Mui-focused fieldset': {
+                        borderColor: 'white',
+                      },
+                    },
+                  }}
+                />
               </div>
             )}
           </Drawer>
