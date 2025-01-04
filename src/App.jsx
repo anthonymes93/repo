@@ -1067,7 +1067,7 @@ function App() {
             '& .MuiDrawer-paper': {
               width: sidebarOpen ? SIDEBAR_WIDTH : SIDEBAR_WIDTH_COLLAPSED,
               boxSizing: 'border-box',
-              backgroundColor: theme.palette.background.paper,
+              background: 'linear-gradient(rgb(82 82 82 / 15%), rgb(0 0 0 / 15%))',
               color: theme.palette.text.primary,
               borderRight: `1px solid ${theme.palette.divider}`
             },
