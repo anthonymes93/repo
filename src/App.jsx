@@ -38,6 +38,7 @@ import SearchIcon from '@mui/icons-material/Search'
 import SortIcon from '@mui/icons-material/Sort'
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd'
 import { StrictMode } from 'react'
+import ClearIcon from '@mui/icons-material/Clear'
 
 function App() {
   const [todos, setTodos] = useState([])
@@ -450,6 +451,12 @@ function App() {
     }
   };
 
+  // Add function to clear search
+  const handleClearSearch = () => {
+    setSearchQuery('');
+    setSearchResults([]);
+  };
+
   return (
     <div style={{ 
       minHeight: '100vh',
@@ -473,23 +480,54 @@ function App() {
               alignItems: 'center',
               width: '100%',
               mb: 3,
-              backgroundColor: 'rgba(255, 255, 255, 0.1)'
+              backgroundColor: 'rgba(255, 255, 255, 0.1)',
+              border: '1px solid rgba(255, 255, 255, 0.2)'
             }}
           >
-            <SearchIcon sx={{ p: '10px', color: 'white' }} />
             <InputBase
-              sx={{ 
-                ml: 1, 
-                flex: 1, 
+              sx={{
+                ml: 1,
+                flex: 1,
                 color: 'white',
-                '&::placeholder': {
-                  color: 'rgba(255, 255, 255, 0.7)'
+                '& ::placeholder': {
+                  color: 'rgba(255, 255, 255, 0.5)'
                 }
               }}
               placeholder="Search todos..."
               value={searchQuery}
-              onChange={(e) => handleSearch(e.target.value)}
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+                handleSearch(e.target.value);
+              }}
             />
+            {searchQuery && (
+              <IconButton 
+                sx={{ 
+                  p: '10px',
+                  color: 'rgba(255, 255, 255, 0.7)',
+                  '&:hover': {
+                    color: 'white'
+                  }
+                }} 
+                aria-label="clear search"
+                onClick={handleClearSearch}
+              >
+                <ClearIcon />
+              </IconButton>
+            )}
+            <IconButton 
+              type="submit" 
+              sx={{ 
+                p: '10px',
+                color: 'rgba(255, 255, 255, 0.7)',
+                '&:hover': {
+                  color: 'white'
+                }
+              }} 
+              aria-label="search"
+            >
+              <SearchIcon />
+            </IconButton>
           </Paper>
 
           {/* Search Results */}
