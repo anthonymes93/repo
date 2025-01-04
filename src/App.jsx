@@ -529,6 +529,60 @@ function App() {
   // Update the todos display logic
   const displayedTodos = searchQuery ? searchResults : todos;
 
+  const renderKanbanBoard = () => (
+    <DragDropContext onDragEnd={handleDragEnd}>
+      <div style={{ display: 'flex', gap: '16px' }}>
+        {Object.entries(columns).map(([columnId, column]) => (
+          <div key={columnId} style={{ flex: 1 }}>
+            <Typography variant="subtitle2" sx={{ color: column.color, mb: 1 }}>
+              {column.title}
+            </Typography>
+            <Droppable droppableId={columnId}>
+              {(provided, snapshot) => (
+                <div
+                  {...provided.droppableProps}
+                  ref={provided.innerRef}
+                  style={{
+                    minHeight: 100,
+                    padding: 8,
+                    backgroundColor: snapshot.isDraggingOver 
+                      ? 'rgba(255, 255, 255, 0.1)' 
+                      : 'rgba(255, 255, 255, 0.05)',
+                    borderRadius: 4
+                  }}
+                >
+                  {column.items.map((item, index) => (
+                    <Draggable key={item.id} draggableId={item.id} index={index}>
+                      {(provided, snapshot) => (
+                        <div
+                          ref={provided.innerRef}
+                          {...provided.draggableProps}
+                          {...provided.dragHandleProps}
+                          style={{
+                            padding: 8,
+                            marginBottom: 8,
+                            backgroundColor: snapshot.isDragging 
+                              ? 'rgba(255, 255, 255, 0.2)' 
+                              : 'rgba(255, 255, 255, 0.1)',
+                            borderRadius: 4,
+                            ...provided.draggableProps.style
+                          }}
+                        >
+                          {item.text}
+                        </div>
+                      )}
+                    </Draggable>
+                  ))}
+                  {provided.placeholder}
+                </div>
+              )}
+            </Droppable>
+          </div>
+        ))}
+      </div>
+    </DragDropContext>
+  );
+
   return (
     <div style={{ 
       minHeight: '100vh',
@@ -908,22 +962,6 @@ function App() {
                       }}
                     />
                   </Stack>
-
-                  {/* Kanban Board */}
-                  <Typography variant="h6" sx={{ mb: 2, fontWeight: 500 }}>
-                    Task Board
-                  </Typography>
-                  <Card sx={{ 
-                    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                    mb: 4,
-                    boxShadow: 'none',
-                    border: '1px solid rgba(255, 255, 255, 0.12)'
-                  }}>
-                    <CardContent>
-                      {/* Your existing Kanban board code */}
-                      {renderKanbanBoard()}
-                    </CardContent>
-                  </Card>
 
                   {/* Notes Section */}
                   <Typography variant="h6" sx={{ mb: 2, fontWeight: 500 }}>
