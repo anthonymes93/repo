@@ -51,6 +51,7 @@ import {
   ListItemText as NavItemText,
   ListItemButton,
   Tooltip,
+  Grid,
 } from '@mui/material'
 import DeleteIcon from '@mui/icons-material/Delete'
 import SearchIcon from '@mui/icons-material/Search'
@@ -77,6 +78,10 @@ import {
   Person as ProfileIcon,
   MenuOpen as MenuOpenIcon,
   ChevronLeft as ChevronLeftIcon,
+  TrendingUp as TrendingUpIcon,
+  Assessment as AssessmentIcon,
+  Schedule as ScheduleIcon,
+  Task as TaskIcon,
 } from '@mui/icons-material'
 
 const fadeIn = keyframes`
@@ -686,6 +691,11 @@ function App() {
     } catch (error) {
       console.error("Error updating active status:", error);
     }
+  };
+
+  // Add function to count active tasks
+  const getActiveTasks = () => {
+    return todos.filter(todo => !todo.completed && !todo.archived).length;
   };
 
   return (
@@ -1381,9 +1391,164 @@ function App() {
           </Container>
         )}
         {currentPage === 'dashboard' && (
-          <Typography variant="h4" sx={{ color: 'white' }}>
-            Dashboard (Coming Soon)
-          </Typography>
+          <Grid container spacing={3}>
+            {/* Active Tasks Widget */}
+            <Grid item xs={12} sm={6} md={3}>
+              <Card sx={{ 
+                bgcolor: '#1E1E1E', 
+                color: 'white',
+                border: '1px solid rgba(255, 255, 255, 0.12)',
+                height: '100%'
+              }}>
+                <CardContent sx={{ 
+                  display: 'flex', 
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  textAlign: 'center',
+                  py: 3
+                }}>
+                  <Avatar sx={{ 
+                    bgcolor: 'rgba(76, 175, 80, 0.2)', 
+                    mb: 2,
+                    width: 56,
+                    height: 56
+                  }}>
+                    <TaskIcon sx={{ color: '#4CAF50', fontSize: 30 }} />
+                  </Avatar>
+                  <Typography variant="h3" sx={{ mb: 1, fontWeight: 600 }}>
+                    {getActiveTasks()}
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
+                    Active Tasks
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+
+            {/* Placeholder: Weekly Progress */}
+            <Grid item xs={12} sm={6} md={3}>
+              <Card sx={{ 
+                bgcolor: '#1E1E1E', 
+                color: 'white',
+                border: '1px solid rgba(255, 255, 255, 0.12)',
+                height: '100%'
+              }}>
+                <CardContent sx={{ 
+                  display: 'flex', 
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  textAlign: 'center',
+                  py: 3
+                }}>
+                  <Avatar sx={{ 
+                    bgcolor: 'rgba(33, 150, 243, 0.2)', 
+                    mb: 2,
+                    width: 56,
+                    height: 56
+                  }}>
+                    <TrendingUpIcon sx={{ color: '#2196f3', fontSize: 30 }} />
+                  </Avatar>
+                  <CircularProgress 
+                    variant="determinate" 
+                    value={75} 
+                    size={80}
+                    thickness={4}
+                    sx={{ 
+                      mb: 2,
+                      color: '#2196f3',
+                      '& .MuiCircularProgress-circle': {
+                        strokeLinecap: 'round',
+                      },
+                    }}
+                  />
+                  <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
+                    Weekly Progress
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+
+            {/* Placeholder: Monthly Stats */}
+            <Grid item xs={12} sm={6} md={3}>
+              <Card sx={{ 
+                bgcolor: '#1E1E1E', 
+                color: 'white',
+                border: '1px solid rgba(255, 255, 255, 0.12)',
+                height: '100%'
+              }}>
+                <CardContent sx={{ 
+                  display: 'flex', 
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  textAlign: 'center',
+                  py: 3
+                }}>
+                  <Avatar sx={{ 
+                    bgcolor: 'rgba(255, 152, 0, 0.2)', 
+                    mb: 2,
+                    width: 56,
+                    height: 56
+                  }}>
+                    <AssessmentIcon sx={{ color: '#ff9800', fontSize: 30 }} />
+                  </Avatar>
+                  <Typography variant="h4" sx={{ mb: 1, fontWeight: 600 }}>
+                    87%
+                  </Typography>
+                  <LinearProgress 
+                    variant="determinate" 
+                    value={87}
+                    sx={{ 
+                      width: '80%', 
+                      mb: 2,
+                      height: 8,
+                      borderRadius: 4,
+                      backgroundColor: 'rgba(255, 152, 0, 0.2)',
+                      '& .MuiLinearProgress-bar': {
+                        backgroundColor: '#ff9800',
+                        borderRadius: 4,
+                      }
+                    }}
+                  />
+                  <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
+                    Monthly Completion Rate
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+
+            {/* Placeholder: Time Tracking */}
+            <Grid item xs={12} sm={6} md={3}>
+              <Card sx={{ 
+                bgcolor: '#1E1E1E', 
+                color: 'white',
+                border: '1px solid rgba(255, 255, 255, 0.12)',
+                height: '100%'
+              }}>
+                <CardContent sx={{ 
+                  display: 'flex', 
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  textAlign: 'center',
+                  py: 3
+                }}>
+                  <Avatar sx={{ 
+                    bgcolor: 'rgba(233, 30, 99, 0.2)', 
+                    mb: 2,
+                    width: 56,
+                    height: 56
+                  }}>
+                    <ScheduleIcon sx={{ color: '#e91e63', fontSize: 30 }} />
+                  </Avatar>
+                  <Typography variant="h4" sx={{ mb: 1, fontWeight: 600 }}>
+                    24.5h
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
+                    Time Spent This Week
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+          </Grid>
         )}
         {currentPage === 'profile' && (
           <Typography variant="h4" sx={{ color: 'white' }}>
