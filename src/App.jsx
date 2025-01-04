@@ -333,28 +333,51 @@ function App() {
 
   const onDragEnd = async (result) => {
     if (!result.destination) return;
-    
-    const { source, destination } = result;
-    
-    // Get the task that was moved
-    const sourceColumn = columns[source.droppableId];
-    const destColumn = columns[destination.droppableId];
-    const [movedTask] = sourceColumn.items.splice(source.index, 1);
-    destColumn.items.splice(destination.index, 0, movedTask);
-    
-    // Update state
-    setColumns({
-      ...columns,
-      [source.droppableId]: sourceColumn,
-      [destination.droppableId]: destColumn
-    });
 
-    // Update Firebase
+    const { source, destination } = result;
+
     try {
-      const todoRef = doc(db, 'todos', movedTask.id);
+      // Update Firebase first
+      const todoRef = doc(db, 'todos', selectedTodo.id);
       await updateDoc(todoRef, {
         status: destination.droppableId
       });
+
+      // Update local states
+      const updatedTodo = { ...selectedTodo, status: destination.droppableId };
+      setSelectedTodo(updatedTodo);
+      
+      // Update columns
+      const newColumns = {
+        'not-started': {
+          title: 'Not Started',
+          items: [],
+          color: '#ff9800'
+        },
+        'in-progress': {
+          title: 'In Progress',
+          items: [],
+          color: '#2196f3'
+        },
+        'completed': {
+          title: 'Complete',
+          items: [],
+          color: '#4caf50'
+        }
+      };
+
+      // Place the todo in the new column
+      newColumns[destination.droppableId].items = [updatedTodo];
+      setColumns(newColumns);
+
+      // Update other states
+      setAllTodos(prevAll => prevAll.map(todo => 
+        todo.id === selectedTodo.id ? updatedTodo : todo
+      ));
+      setTodos(prevTodos => prevTodos.map(todo =>
+        todo.id === selectedTodo.id ? updatedTodo : todo
+      ));
+
     } catch (error) {
       console.error("Error updating task status:", error);
     }
@@ -662,6 +685,7 @@ function App() {
                                         backgroundColor: snapshot.isDragging
                                           ? 'rgba(255, 255, 255, 0.2)'
                                           : 'rgba(255, 255, 255, 0.1)',
+                                        color: 'white',
                                         borderRadius: '4px',
                                         ...provided.draggableProps.style
                                       }}
