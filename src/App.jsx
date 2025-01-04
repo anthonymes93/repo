@@ -73,9 +73,17 @@ function App() {
       return
     }
 
-    const filteredResults = allTodos.filter(todo =>
-      todo.text.toLowerCase().includes(searchValue.toLowerCase())
-    )
+    const filteredResults = allTodos
+      .filter(todo =>
+        todo.text.toLowerCase().includes(searchValue.toLowerCase())
+      )
+      .sort((a, b) => {
+        // Sort archived items to the bottom
+        if (a.archived && !b.archived) return 1
+        if (!a.archived && b.archived) return -1
+        return 0
+      })
+
     setSearchResults(filteredResults)
   }
 
