@@ -66,6 +66,7 @@ function App() {
     }
   });
   const [kanbanInput, setKanbanInput] = useState('');
+  const [subtasks, setSubtasks] = useState({});
 
   useEffect(() => {
     fetchTodos()
@@ -77,32 +78,30 @@ function App() {
 
   useEffect(() => {
     if (selectedTodo) {
-      // Initialize columns with the selected todo in the correct column
+      const todoSubtasks = subtasks[selectedTodo.id] || [];
+      
+      // Initialize columns with existing subtasks
       const initialColumns = {
         'not-started': {
           title: 'Not Started',
-          items: [],
+          items: todoSubtasks.filter(task => task.status === 'not-started'),
           color: '#ff9800'
         },
         'in-progress': {
           title: 'In Progress',
-          items: [],
+          items: todoSubtasks.filter(task => task.status === 'in-progress'),
           color: '#2196f3'
         },
         'completed': {
           title: 'Complete',
-          items: [],
+          items: todoSubtasks.filter(task => task.status === 'completed'),
           color: '#4caf50'
         }
       };
 
-      // Place the selected todo in the appropriate column
-      const status = selectedTodo.status || 'not-started';
-      initialColumns[status].items = [selectedTodo];
-
       setColumns(initialColumns);
     }
-  }, [selectedTodo]);
+  }, [selectedTodo, subtasks]);
 
   const fetchTodos = async () => {
     try {
@@ -113,11 +112,25 @@ function App() {
       const fetchedTodos = querySnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data(),
-        status: doc.data().status || 'not-started' // Add default status
+        status: doc.data().status || 'not-started'
       }));
+
+      // Separate main todos and subtasks
+      const mainTodos = fetchedTodos.filter(todo => !todo.parentId);
+      const fetchedSubtasks = fetchedTodos.filter(todo => todo.parentId);
       
-      setTodos(fetchedTodos.filter(todo => !todo.archived));
-      setAllTodos(fetchedTodos);
+      // Organize subtasks by parent ID
+      const subtasksByParent = fetchedSubtasks.reduce((acc, task) => {
+        if (!acc[task.parentId]) {
+          acc[task.parentId] = [];
+        }
+        acc[task.parentId].push(task);
+        return acc;
+      }, {});
+      
+      setTodos(mainTodos.filter(todo => !todo.archived));
+      setAllTodos(mainTodos);
+      setSubtasks(subtasksByParent);
       setError(null);
     } catch (error) {
       console.error("Error fetching todos:", error);
@@ -338,46 +351,31 @@ function App() {
     const { source, destination } = result;
 
     try {
-      // Update Firebase first
-      const todoRef = doc(db, 'todos', selectedTodo.id);
+      // Find the moved task
+      const sourceColumn = columns[source.droppableId];
+      const destColumn = columns[destination.droppableId];
+      const [movedTask] = sourceColumn.items.splice(source.index, 1);
+      destColumn.items.splice(destination.index, 0, movedTask);
+
+      // Update columns state
+      const newColumns = {
+        ...columns,
+        [source.droppableId]: sourceColumn,
+        [destination.droppableId]: destColumn
+      };
+      setColumns(newColumns);
+
+      // Update Firebase
+      const todoRef = doc(db, 'todos', movedTask.id);
       await updateDoc(todoRef, {
         status: destination.droppableId
       });
 
-      // Update local states
-      const updatedTodo = { ...selectedTodo, status: destination.droppableId };
-      setSelectedTodo(updatedTodo);
-      
-      // Update columns
-      const newColumns = {
-        'not-started': {
-          title: 'Not Started',
-          items: [],
-          color: '#ff9800'
-        },
-        'in-progress': {
-          title: 'In Progress',
-          items: [],
-          color: '#2196f3'
-        },
-        'completed': {
-          title: 'Complete',
-          items: [],
-          color: '#4caf50'
-        }
-      };
-
-      // Place the todo in the new column
-      newColumns[destination.droppableId].items = [updatedTodo];
-      setColumns(newColumns);
-
-      // Update other states
-      setAllTodos(prevAll => prevAll.map(todo => 
-        todo.id === selectedTodo.id ? updatedTodo : todo
-      ));
-      setTodos(prevTodos => prevTodos.map(todo =>
-        todo.id === selectedTodo.id ? updatedTodo : todo
-      ));
+      // Update subtasks state
+      setSubtasks(prev => ({
+        ...prev,
+        [selectedTodo.id]: Object.values(newColumns).flatMap(col => col.items)
+      }));
 
     } catch (error) {
       console.error("Error updating task status:", error);
@@ -389,7 +387,6 @@ function App() {
     if (kanbanInput.trim() === '') return;
 
     try {
-      // Create new todo with kanban specific fields
       const newTodo = {
         text: kanbanInput,
         completed: false,
@@ -397,7 +394,7 @@ function App() {
         timestamp: new Date().getTime(),
         archivedAt: null,
         status: 'not-started',
-        parentId: selectedTodo.id // Link to parent todo
+        parentId: selectedTodo.id
       };
 
       const docRef = await addDoc(collection(db, 'todos'), newTodo);
@@ -416,7 +413,12 @@ function App() {
       };
       setColumns(newColumns);
 
-      // Clear input
+      // Update subtasks state
+      setSubtasks(prev => ({
+        ...prev,
+        [selectedTodo.id]: [...(prev[selectedTodo.id] || []), todoWithId]
+      }));
+
       setKanbanInput('');
 
     } catch (error) {
