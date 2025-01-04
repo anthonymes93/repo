@@ -2472,17 +2472,15 @@ function App() {
           )}
         </Box>
 
-        {/* Add Snackbar component at the end of the return statement, before the closing Box tag */}
+        {/* Original Snackbar */}
         <Snackbar
           open={notification.open}
-          autoHideDuration={3000}
+          autoHideDuration={6000}
           onClose={handleCloseNotification}
-          anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
         >
-          <Alert
-            onClose={handleCloseNotification}
+          <Alert 
+            onClose={handleCloseNotification} 
             severity={notification.severity}
-            variant="filled"
             sx={{ width: '100%' }}
           >
             {notification.message}
