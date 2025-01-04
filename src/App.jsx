@@ -1046,7 +1046,8 @@ function App() {
                         sx={{
                           borderRadius: '6px',
                           '& .MuiChip-label': {
-                            fontWeight: 500
+                            fontWeight: 500,
+                            color: 'white'
                           }
                         }}
                       />
@@ -1057,7 +1058,8 @@ function App() {
                         sx={{
                           borderRadius: '6px',
                           '& .MuiChip-label': {
-                            fontWeight: 500
+                            fontWeight: 500,
+                            color: 'white'
                           }
                         }}
                       />
