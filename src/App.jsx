@@ -358,13 +358,13 @@ function App() {
     const { source, destination } = result;
 
     try {
-      // Find the moved task
+      // Get the task that was moved
       const sourceColumn = columns[source.droppableId];
       const destColumn = columns[destination.droppableId];
       const [movedTask] = sourceColumn.items.splice(source.index, 1);
       destColumn.items.splice(destination.index, 0, movedTask);
 
-      // Update columns state
+      // Update local state first
       const newColumns = {
         ...columns,
         [source.droppableId]: sourceColumn,
@@ -851,77 +851,94 @@ function App() {
                 </Paper>
 
                 {/* Kanban Board */}
-                <DragDropContext onDragEnd={onDragEnd}>
-                  <div style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
-                    {Object.entries(columns).map(([columnId, column]) => (
-                      <div
-                        key={columnId}
-                        style={{
-                          display: 'flex',
-                          flexDirection: 'column',
-                          flex: 1,
-                        }}
-                      >
-                        <Typography
-                          variant="subtitle1"
-                          sx={{
-                            color: column.color,
-                            mb: 1,
-                            fontWeight: 'bold'
-                          }}
-                        >
-                          {column.title}
-                        </Typography>
-                        <Droppable droppableId={columnId}>
-                          {(provided, snapshot) => (
-                            <div
-                              ref={provided.innerRef}
-                              {...provided.droppableProps}
-                              style={{
-                                background: snapshot.isDraggingOver
-                                  ? 'rgba(255, 255, 255, 0.1)'
-                                  : 'rgba(255, 255, 255, 0.05)',
-                                padding: '8px',
-                                borderRadius: '4px',
-                                minHeight: '100px'
+                <Card sx={{ 
+                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                  mb: 3,
+                  border: '1px solid rgba(255, 255, 255, 0.2)'
+                }}>
+                  <CardContent>
+                    <Typography variant="h6" sx={{ mb: 2 }}>
+                      Task Board
+                    </Typography>
+                    
+                    <DragDropContext onDragEnd={onDragEnd}>
+                      <div style={{ 
+                        display: 'flex', 
+                        gap: '16px',
+                        minHeight: '200px'
+                      }}>
+                        {Object.entries(columns).map(([columnId, column]) => (
+                          <div
+                            key={columnId}
+                            style={{
+                              display: 'flex',
+                              flexDirection: 'column',
+                              flex: 1,
+                            }}
+                          >
+                            <Typography
+                              variant="subtitle2"
+                              sx={{
+                                color: column.color,
+                                mb: 1,
+                                fontWeight: 'bold'
                               }}
                             >
-                              {column.items.map((item, index) => (
-                                <Draggable
-                                  key={item.id}
-                                  draggableId={item.id}
-                                  index={index}
+                              {column.title}
+                            </Typography>
+                            <Droppable droppableId={columnId}>
+                              {(provided, snapshot) => (
+                                <div
+                                  ref={provided.innerRef}
+                                  {...provided.droppableProps}
+                                  style={{
+                                    background: snapshot.isDraggingOver
+                                      ? 'rgba(255, 255, 255, 0.15)'
+                                      : 'rgba(255, 255, 255, 0.05)',
+                                    padding: '8px',
+                                    borderRadius: '4px',
+                                    minHeight: '150px',
+                                    flex: 1
+                                  }}
                                 >
-                                  {(provided, snapshot) => (
-                                    <div
-                                      ref={provided.innerRef}
-                                      {...provided.draggableProps}
-                                      {...provided.dragHandleProps}
-                                      style={{
-                                        userSelect: 'none',
-                                        padding: '8px',
-                                        margin: '0 0 8px 0',
-                                        backgroundColor: snapshot.isDragging
-                                          ? 'rgba(255, 255, 255, 0.2)'
-                                          : 'rgba(255, 255, 255, 0.1)',
-                                        color: 'white',
-                                        borderRadius: '4px',
-                                        ...provided.draggableProps.style
-                                      }}
+                                  {column.items.map((item, index) => (
+                                    <Draggable
+                                      key={item.id}
+                                      draggableId={item.id}
+                                      index={index}
                                     >
-                                      {item.text}
-                                    </div>
-                                  )}
-                                </Draggable>
-                              ))}
-                              {provided.placeholder}
-                            </div>
-                          )}
-                        </Droppable>
+                                      {(provided, snapshot) => (
+                                        <div
+                                          ref={provided.innerRef}
+                                          {...provided.draggableProps}
+                                          {...provided.dragHandleProps}
+                                          style={{
+                                            userSelect: 'none',
+                                            padding: '8px',
+                                            margin: '0 0 8px 0',
+                                            backgroundColor: snapshot.isDragging
+                                              ? 'rgba(255, 255, 255, 0.2)'
+                                              : 'rgba(255, 255, 255, 0.1)',
+                                            color: 'white',
+                                            borderRadius: '4px',
+                                            ...provided.draggableProps.style
+                                          }}
+                                        >
+                                          {item.text}
+                                        </div>
+                                      )}
+                                    </Draggable>
+                                  ))}
+                                  {provided.placeholder}
+                                </div>
+                              )}
+                            </Droppable>
+                          </div>
+                        ))}
                       </div>
-                    ))}
-                  </div>
-                </DragDropContext>
+                    </DragDropContext>
+                  </CardContent>
+                </Card>
 
                 {/* Return to List button (if archived) */}
                 {selectedTodo.archived === true && (
