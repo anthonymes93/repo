@@ -50,6 +50,7 @@ import {
   ListItemIcon as NavItemIcon,
   ListItemText as NavItemText,
   ListItemButton,
+  Tooltip,
 } from '@mui/material'
 import DeleteIcon from '@mui/icons-material/Delete'
 import SearchIcon from '@mui/icons-material/Search'
@@ -74,6 +75,8 @@ import {
   Dashboard as DashboardIcon,
   Settings as SettingsIcon,
   Person as ProfileIcon,
+  MenuOpen as MenuOpenIcon,
+  ChevronLeft as ChevronLeftIcon,
 } from '@mui/icons-material'
 
 const fadeIn = keyframes`
@@ -139,6 +142,11 @@ function App() {
   const [showSpeedDial, setShowSpeedDial] = useState(false);
   const [progress, setProgress] = useState(0);
   const [currentPage, setCurrentPage] = useState('todos');
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+
+  // Define sidebar width constants
+  const SIDEBAR_WIDTH = 240;
+  const SIDEBAR_WIDTH_COLLAPSED = 65;
 
   useEffect(() => {
     fetchTodos()
@@ -682,160 +690,123 @@ function App() {
 
   return (
     <Box sx={{ display: 'flex' }}>
-      {/* Sidebar */}
+      {/* Updated Sidebar */}
       <SideNav
         variant="permanent"
         sx={{
-          width: 240,
+          width: sidebarOpen ? SIDEBAR_WIDTH : SIDEBAR_WIDTH_COLLAPSED,
           flexShrink: 0,
           '& .MuiDrawer-paper': {
-            width: 240,
+            width: sidebarOpen ? SIDEBAR_WIDTH : SIDEBAR_WIDTH_COLLAPSED,
             boxSizing: 'border-box',
             backgroundColor: '#1A1A1A',
             borderRight: '1px solid rgba(255, 255, 255, 0.12)',
+            overflowX: 'hidden',
+            transition: 'width 225ms cubic-bezier(0.4, 0, 0.6, 1)',
           },
         }}
       >
-        {/* App Title/Logo */}
+        {/* App Title/Logo with Toggle */}
         <Box sx={{ 
           p: 2, 
           borderBottom: '1px solid rgba(255, 255, 255, 0.12)',
           display: 'flex',
           alignItems: 'center',
-          gap: 1
+          justifyContent: sidebarOpen ? 'space-between' : 'center',
+          minHeight: '64px',
         }}>
-          <TodoIcon sx={{ color: '#4CAF50' }} />
-          <Typography variant="h6" sx={{ color: 'white', fontWeight: 600 }}>
-            Task Manager
-          </Typography>
+          {sidebarOpen ? (
+            <>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <TodoIcon sx={{ color: '#4CAF50' }} />
+                <Typography variant="h6" sx={{ color: 'white', fontWeight: 600 }}>
+                  Task Manager
+                </Typography>
+              </Box>
+              <IconButton 
+                onClick={() => setSidebarOpen(false)}
+                sx={{ color: 'rgba(255, 255, 255, 0.7)' }}
+              >
+                <ChevronLeftIcon />
+              </IconButton>
+            </>
+          ) : (
+            <Tooltip title="Expand Sidebar" placement="right">
+              <IconButton 
+                onClick={() => setSidebarOpen(true)}
+                sx={{ color: 'rgba(255, 255, 255, 0.7)' }}
+              >
+                <MenuOpenIcon />
+              </IconButton>
+            </Tooltip>
+          )}
         </Box>
 
-        {/* Navigation Links */}
+        {/* Updated Navigation Links */}
         <NavList>
-          <NavItem disablePadding>
-            <ListItemButton
-              selected={currentPage === 'dashboard'}
-              onClick={() => setCurrentPage('dashboard')}
-              sx={{
-                '&.Mui-selected': {
-                  backgroundColor: 'rgba(76, 175, 80, 0.1)',
-                  '&:hover': {
-                    backgroundColor: 'rgba(76, 175, 80, 0.2)',
-                  },
-                },
-                '&:hover': {
-                  backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                },
-              }}
-            >
-              <NavItemIcon>
-                <DashboardIcon sx={{ color: currentPage === 'dashboard' ? '#4CAF50' : 'rgba(255, 255, 255, 0.7)' }} />
-              </NavItemIcon>
-              <NavItemText 
-                primary="Dashboard" 
-                sx={{
-                  '& .MuiListItemText-primary': {
-                    color: currentPage === 'dashboard' ? '#4CAF50' : 'white',
-                  },
-                }}
-              />
-            </ListItemButton>
-          </NavItem>
-
-          <NavItem disablePadding>
-            <ListItemButton
-              selected={currentPage === 'todos'}
-              onClick={() => setCurrentPage('todos')}
-              sx={{
-                '&.Mui-selected': {
-                  backgroundColor: 'rgba(76, 175, 80, 0.1)',
-                  '&:hover': {
-                    backgroundColor: 'rgba(76, 175, 80, 0.2)',
-                  },
-                },
-                '&:hover': {
-                  backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                },
-              }}
-            >
-              <NavItemIcon>
-                <TodoIcon sx={{ color: currentPage === 'todos' ? '#4CAF50' : 'rgba(255, 255, 255, 0.7)' }} />
-              </NavItemIcon>
-              <NavItemText 
-                primary="Tasks" 
-                sx={{
-                  '& .MuiListItemText-primary': {
-                    color: currentPage === 'todos' ? '#4CAF50' : 'white',
-                  },
-                }}
-              />
-            </ListItemButton>
-          </NavItem>
-
-          <NavItem disablePadding>
-            <ListItemButton
-              selected={currentPage === 'profile'}
-              onClick={() => setCurrentPage('profile')}
-              sx={{
-                '&.Mui-selected': {
-                  backgroundColor: 'rgba(76, 175, 80, 0.1)',
-                  '&:hover': {
-                    backgroundColor: 'rgba(76, 175, 80, 0.2)',
-                  },
-                },
-                '&:hover': {
-                  backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                },
-              }}
-            >
-              <NavItemIcon>
-                <ProfileIcon sx={{ color: currentPage === 'profile' ? '#4CAF50' : 'rgba(255, 255, 255, 0.7)' }} />
-              </NavItemIcon>
-              <NavItemText 
-                primary="Profile" 
-                sx={{
-                  '& .MuiListItemText-primary': {
-                    color: currentPage === 'profile' ? '#4CAF50' : 'white',
-                  },
-                }}
-              />
-            </ListItemButton>
-          </NavItem>
-
-          <NavItem disablePadding>
-            <ListItemButton
-              selected={currentPage === 'settings'}
-              onClick={() => setCurrentPage('settings')}
-              sx={{
-                '&.Mui-selected': {
-                  backgroundColor: 'rgba(76, 175, 80, 0.1)',
-                  '&:hover': {
-                    backgroundColor: 'rgba(76, 175, 80, 0.2)',
-                  },
-                },
-                '&:hover': {
-                  backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                },
-              }}
-            >
-              <NavItemIcon>
-                <SettingsIcon sx={{ color: currentPage === 'settings' ? '#4CAF50' : 'rgba(255, 255, 255, 0.7)' }} />
-              </NavItemIcon>
-              <NavItemText 
-                primary="Settings" 
-                sx={{
-                  '& .MuiListItemText-primary': {
-                    color: currentPage === 'settings' ? '#4CAF50' : 'white',
-                  },
-                }}
-              />
-            </ListItemButton>
-          </NavItem>
+          {[
+            { text: 'Dashboard', icon: <DashboardIcon />, page: 'dashboard' },
+            { text: 'Tasks', icon: <TodoIcon />, page: 'todos' },
+            { text: 'Profile', icon: <ProfileIcon />, page: 'profile' },
+            { text: 'Settings', icon: <SettingsIcon />, page: 'settings' },
+          ].map((item) => (
+            <NavItem key={item.page} disablePadding>
+              <Tooltip 
+                title={!sidebarOpen ? item.text : ''} 
+                placement="right"
+                disableHoverListener={sidebarOpen}
+              >
+                <ListItemButton
+                  selected={currentPage === item.page}
+                  onClick={() => setCurrentPage(item.page)}
+                  sx={{
+                    minHeight: 48,
+                    justifyContent: sidebarOpen ? 'initial' : 'center',
+                    px: 2.5,
+                    '&.Mui-selected': {
+                      backgroundColor: 'rgba(76, 175, 80, 0.1)',
+                      '&:hover': {
+                        backgroundColor: 'rgba(76, 175, 80, 0.2)',
+                      },
+                    },
+                    '&:hover': {
+                      backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                    },
+                  }}
+                >
+                  <NavItemIcon
+                    sx={{
+                      minWidth: 0,
+                      mr: sidebarOpen ? 2 : 'auto',
+                      justifyContent: 'center',
+                      color: currentPage === item.page ? '#4CAF50' : 'rgba(255, 255, 255, 0.7)',
+                    }}
+                  >
+                    {item.icon}
+                  </NavItemIcon>
+                  <NavItemText 
+                    primary={item.text}
+                    sx={{
+                      opacity: sidebarOpen ? 1 : 0,
+                      '& .MuiListItemText-primary': {
+                        color: currentPage === item.page ? '#4CAF50' : 'white',
+                      },
+                    }}
+                  />
+                </ListItemButton>
+              </Tooltip>
+            </NavItem>
+          ))}
         </NavList>
       </SideNav>
 
-      {/* Main Content */}
-      <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
+      {/* Updated Main Content */}
+      <Box component="main" sx={{ 
+        flexGrow: 1, 
+        p: 3,
+        transition: 'margin 225ms cubic-bezier(0.4, 0, 0.6, 1)',
+        marginLeft: `${sidebarOpen ? 0 : -175}px`, // Adjust main content when sidebar collapses
+      }}>
         {currentPage === 'todos' && (
           <Container>
             {/* Search field */}
