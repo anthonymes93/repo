@@ -134,14 +134,17 @@ function App() {
         archivedAt: null
       })
 
-      // Update local states
+      // Update all states including selectedTodo
+      const updatedTodo = { ...allTodos.find(t => t.id === id), archived: false, archivedAt: null }
+      
       setAllTodos(prevAll => prevAll.map(todo => 
-        todo.id === id ? { ...todo, archived: false, archivedAt: null } : todo
+        todo.id === id ? updatedTodo : todo
       ))
-      setTodos(prevTodos => [...prevTodos, allTodos.find(t => t.id === id)])
+      setTodos(prevTodos => [...prevTodos, updatedTodo])
       setSearchResults(prevResults => prevResults.map(todo =>
-        todo.id === id ? { ...todo, archived: false, archivedAt: null } : todo
+        todo.id === id ? updatedTodo : todo
       ))
+      setSelectedTodo(updatedTodo)  // Update the selected todo
       
       console.log("Todo unarchived successfully")
     } catch (error) {
@@ -411,7 +414,10 @@ function App() {
           <Drawer
             anchor="right"
             open={drawerOpen}
-            onClose={() => setDrawerOpen(false)}
+            onClose={() => {
+              setDrawerOpen(false)
+              setSelectedTodo(null)  // Clear selected todo when closing drawer
+            }}
             PaperProps={{
               sx: {
                 width: '33%',
@@ -433,18 +439,17 @@ function App() {
                   Created: {new Date(selectedTodo.timestamp).toLocaleString()}
                 </Typography>
                 
-                {selectedTodo.archived && (
+                {selectedTodo.archived === true && (
                   <Button
                     variant="contained"
                     onClick={() => {
                       unarchiveTodo(selectedTodo.id)
-                      setDrawerOpen(false)  // Close drawer after unarchiving
                     }}
                     sx={{
                       mb: 3,
-                      backgroundColor: '#4CAF50',  // Green color
+                      backgroundColor: '#4CAF50',
                       '&:hover': {
-                        backgroundColor: '#45a049'  // Darker green on hover
+                        backgroundColor: '#45a049'
                       }
                     }}
                   >
