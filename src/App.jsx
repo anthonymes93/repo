@@ -27,6 +27,7 @@ import {
 } from '@mui/material'
 import DeleteIcon from '@mui/icons-material/Delete'
 import SearchIcon from '@mui/icons-material/Search'
+import SortIcon from '@mui/icons-material/Sort'
 
 function App() {
   const [todos, setTodos] = useState([])
@@ -39,6 +40,7 @@ function App() {
   const [selectedTodo, setSelectedTodo] = useState(null)
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [noteInput, setNoteInput] = useState('')
+  const [sortDirection, setSortDirection] = useState('asc')
 
   useEffect(() => {
     fetchTodos()
@@ -155,6 +157,16 @@ function App() {
     }
   }
 
+  const sortTodos = (todosToSort) => {
+    return [...todosToSort].sort((a, b) => {
+      if (sortDirection === 'asc') {
+        return a.timestamp - b.timestamp;
+      } else {
+        return b.timestamp - a.timestamp;
+      }
+    });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault()
     if (inputValue.trim() !== '') {
@@ -176,9 +188,9 @@ function App() {
           ...newTodo
         }
         
-        // Update both todos and allTodos
-        setTodos(prevTodos => [todoWithId, ...prevTodos])
-        setAllTodos(prevAll => [todoWithId, ...prevAll])
+        // Update and sort todos
+        setTodos(prevTodos => sortTodos([todoWithId, ...prevTodos]))
+        setAllTodos(prevAll => sortTodos([todoWithId, ...prevAll]))
         
         setInputValue('')
         setError(null)
@@ -304,9 +316,36 @@ function App() {
             </Paper>
           )}
 
-          <Typography variant="h4" component="h1" gutterBottom sx={{ color: 'white', textAlign: 'center' }}>
-            Todo List
-          </Typography>
+          <div style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'space-between',
+            marginBottom: '20px'
+          }}>
+            <Typography variant="h4" component="h1" sx={{ color: 'white' }}>
+              Todo List
+            </Typography>
+            
+            <IconButton 
+              onClick={() => {
+                const newDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+                setSortDirection(newDirection);
+                setTodos(prevTodos => sortTodos(prevTodos));
+              }}
+              sx={{ 
+                color: 'white',
+                backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                '&:hover': {
+                  backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                }
+              }}
+            >
+              <SortIcon sx={{ 
+                transform: sortDirection === 'desc' ? 'rotate(180deg)' : 'none',
+                transition: 'transform 0.3s'
+              }} />
+            </IconButton>
+          </div>
 
           {error && (
             <Typography color="error" sx={{ mb: 2 }}>
