@@ -1,6 +1,7 @@
 // Test auto-commit - this comment should be saved automatically
 // Testing auto-commit again - [current time]
 //it works
+//broooooooooo
 import { useState, useEffect } from 'react'
 import { db } from './firebase'
 import { 
@@ -184,15 +185,14 @@ function App() {
   }
 
   return (
-    <>
-      <div style={{ 
-        position: 'absolute',
-        top: '50%',
-        left: '50%',
-        transform: 'translate(-50%, -50%)',
-        width: '100%',
-        maxWidth: '500px'
-      }}>
+    <div style={{ 
+      minHeight: '100vh',
+      background: 'linear-gradient(to right, #0f2027, #203a43, #2c5364)',
+      position: 'relative'
+    }}>
+      <Container maxWidth="sm">
+        <h2 style={{ color: 'yellow', textAlign: 'center', marginTop: '20px' }}>Test Change - Auto Update</h2>
+        
         <Container 
           maxWidth="sm" 
           sx={{ 
@@ -384,7 +384,7 @@ function App() {
             </List>
           )}
         </Container>
-      </div>
+      </Container>
 
       {/* Side Peek Drawer */}
       <Drawer
@@ -462,7 +462,7 @@ function App() {
           </Box>
         )}
       </Drawer>
-    </>
+    </div>
   )
 }
 
