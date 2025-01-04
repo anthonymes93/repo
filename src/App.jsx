@@ -192,8 +192,16 @@ function App() {
   const [mode, setMode] = useState('dark');
   const [notificationCount, setNotificationCount] = useState(0);
   const [chatOpen, setChatOpen] = useState(false);
-  const [messages, setMessages] = useState([]);
+  const [messages, setMessages] = useState([
+    {
+      id: 1,
+      text: "Hello! I'm your AI assistant. How can I help you today?",
+      timestamp: new Date(),
+      isAI: true
+    }
+  ]);
   const [messageInput, setMessageInput] = useState('');
+  const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef(null);
 
   const theme = useMemo(
@@ -1089,20 +1097,49 @@ function App() {
     setNotificationCount(prev => prev + 1);
   };
 
+  // Simulate AI response
+  const generateAIResponse = async (userMessage) => {
+    setIsTyping(true);
+    
+    // Simulate thinking time
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    const responses = [
+      "I understand what you're saying. Can you tell me more?",
+      "That's interesting! How can I help you with that?",
+      "I'm here to assist you. What would you like to know?",
+      "Let me help you with that. Could you provide more details?",
+      "I'm processing your request. Is there anything specific you're looking for?"
+    ];
+    
+    const aiMessage = {
+      id: Date.now(),
+      text: responses[Math.floor(Math.random() * responses.length)],
+      timestamp: new Date(),
+      isAI: true
+    };
+    
+    setIsTyping(false);
+    setMessages(prev => [...prev, aiMessage]);
+  };
+
   // Handle sending a message
-  const handleSendMessage = (e) => {
+  const handleSendMessage = async (e) => {
     e.preventDefault();
     if (messageInput.trim() === '') return;
 
-    const newMessage = {
+    const userMessage = {
       id: Date.now(),
       text: messageInput,
       timestamp: new Date(),
-      isMe: true // to differentiate between sent/received
+      isAI: false
     };
 
-    setMessages(prev => [...prev, newMessage]);
+    setMessages(prev => [...prev, userMessage]);
     setMessageInput('');
+
+    // Generate AI response
+    await generateAIResponse(userMessage.text);
   };
 
   return (
@@ -2637,16 +2674,29 @@ function App() {
                   key={message.id}
                   sx={{
                     display: 'flex',
-                    justifyContent: message.isMe ? 'flex-end' : 'flex-start',
+                    justifyContent: message.isAI ? 'flex-start' : 'flex-end',
                     mb: 1,
                   }}
                 >
+                  {message.isAI && (
+                    <Avatar
+                      sx={{
+                        width: 32,
+                        height: 32,
+                        mr: 1,
+                        bgcolor: '#4CAF50',
+                        fontSize: '0.875rem'
+                      }}
+                    >
+                      AI
+                    </Avatar>
+                  )}
                   <Paper
                     sx={{
                       p: 1,
                       px: 2,
-                      maxWidth: '80%',
-                      backgroundColor: message.isMe ? '#4CAF50' : 'rgba(255, 255, 255, 0.1)',
+                      maxWidth: '70%',
+                      backgroundColor: message.isAI ? 'rgba(255, 255, 255, 0.1)' : '#4CAF50',
                       borderRadius: 2,
                     }}
                   >
@@ -2664,6 +2714,28 @@ function App() {
                   </Paper>
                 </Box>
               ))}
+              {isTyping && (
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, ml: 1 }}>
+                  <Avatar
+                    sx={{
+                      width: 32,
+                      height: 32,
+                      bgcolor: '#4CAF50',
+                      fontSize: '0.875rem'
+                    }}
+                  >
+                    AI
+                  </Avatar>
+                  <Typography
+                    sx={{
+                      color: 'rgba(255, 255, 255, 0.7)',
+                      fontStyle: 'italic'
+                    }}
+                  >
+                    AI is typing...
+                  </Typography>
+                </Box>
+              )}
               <div ref={messagesEndRef} />
             </Box>
 
@@ -2683,7 +2755,7 @@ function App() {
                 fullWidth
                 value={messageInput}
                 onChange={(e) => setMessageInput(e.target.value)}
-                placeholder="Type a message..."
+                placeholder="Message AI..."
                 variant="standard"
                 sx={{
                   mx: 1,
