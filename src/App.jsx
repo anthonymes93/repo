@@ -28,7 +28,9 @@ import {
   CardContent,
   FormControl,
   Select,
-  MenuItem
+  MenuItem,
+  Switch,
+  FormControlLabel
 } from '@mui/material'
 import DeleteIcon from '@mui/icons-material/Delete'
 import SearchIcon from '@mui/icons-material/Search'
@@ -427,6 +429,27 @@ function App() {
     }
   };
 
+  const handleContactUpdate = async (todoId, field, value) => {
+    try {
+      const todoRef = doc(db, 'todos', todoId);
+      await updateDoc(todoRef, {
+        [field]: value
+      });
+      
+      // Update local states
+      const updatedTodo = { ...selectedTodo, [field]: value };
+      setSelectedTodo(updatedTodo);
+      setAllTodos(prevAll => prevAll.map(todo => 
+        todo.id === todoId ? updatedTodo : todo
+      ));
+      setTodos(prevTodos => prevTodos.map(todo =>
+        todo.id === todoId ? updatedTodo : todo
+      ));
+    } catch (error) {
+      console.error(`Error updating ${field}:`, error);
+    }
+  };
+
   return (
     <div style={{ 
       minHeight: '100vh',
@@ -674,6 +697,99 @@ function App() {
                 }}>
                   Created: {new Date(selectedTodo.timestamp).toLocaleString()}
                 </Typography>
+
+                {/* Contact Information Card */}
+                <Card sx={{ 
+                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                  mb: 3,
+                  border: '1px solid rgba(255, 255, 255, 0.2)'
+                }}>
+                  <CardContent>
+                    <Typography variant="h6" sx={{ mb: 2 }}>
+                      Contact Information
+                    </Typography>
+                    
+                    {/* Phone Number */}
+                    <TextField
+                      fullWidth
+                      label="Phone Number"
+                      value={selectedTodo.phone || ''}
+                      onChange={(e) => handleContactUpdate(selectedTodo.id, 'phone', e.target.value)}
+                      sx={{
+                        mb: 2,
+                        '& .MuiInputBase-root': {
+                          color: 'white',
+                        },
+                        '& .MuiInputLabel-root': {
+                          color: 'rgba(255, 255, 255, 0.7)',
+                        },
+                        '& .MuiOutlinedInput-root': {
+                          '& fieldset': {
+                            borderColor: 'rgba(255, 255, 255, 0.3)',
+                          },
+                          '&:hover fieldset': {
+                            borderColor: 'rgba(255, 255, 255, 0.5)',
+                          },
+                          '&.Mui-focused fieldset': {
+                            borderColor: 'white',
+                          },
+                        },
+                      }}
+                    />
+
+                    {/* Email */}
+                    <TextField
+                      fullWidth
+                      label="Email"
+                      type="email"
+                      value={selectedTodo.email || ''}
+                      onChange={(e) => handleContactUpdate(selectedTodo.id, 'email', e.target.value)}
+                      sx={{
+                        mb: 2,
+                        '& .MuiInputBase-root': {
+                          color: 'white',
+                        },
+                        '& .MuiInputLabel-root': {
+                          color: 'rgba(255, 255, 255, 0.7)',
+                        },
+                        '& .MuiOutlinedInput-root': {
+                          '& fieldset': {
+                            borderColor: 'rgba(255, 255, 255, 0.3)',
+                          },
+                          '&:hover fieldset': {
+                            borderColor: 'rgba(255, 255, 255, 0.5)',
+                          },
+                          '&.Mui-focused fieldset': {
+                            borderColor: 'white',
+                          },
+                        },
+                      }}
+                    />
+
+                    {/* Status Switch */}
+                    <FormControlLabel
+                      control={
+                        <Switch
+                          checked={selectedTodo.isActive || false}
+                          onChange={(e) => handleContactUpdate(selectedTodo.id, 'isActive', e.target.checked)}
+                          sx={{
+                            '& .MuiSwitch-switchBase.Mui-checked': {
+                              color: '#4CAF50',
+                            },
+                            '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                              backgroundColor: '#4CAF50',
+                            },
+                          }}
+                        />
+                      }
+                      label={
+                        <Typography sx={{ color: 'white' }}>
+                          Status: {selectedTodo.isActive ? 'On' : 'Off'}
+                        </Typography>
+                      }
+                    />
+                  </CardContent>
+                </Card>
 
                 {/* Add form for new Kanban cards */}
                 <Paper
