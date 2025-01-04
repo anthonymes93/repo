@@ -23,7 +23,12 @@ import {
   Typography,
   CircularProgress,
   InputBase,
-  Drawer
+  Drawer,
+  Card,
+  CardContent,
+  FormControl,
+  Select,
+  MenuItem
 } from '@mui/material'
 import DeleteIcon from '@mui/icons-material/Delete'
 import SearchIcon from '@mui/icons-material/Search'
@@ -41,6 +46,7 @@ function App() {
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [noteInput, setNoteInput] = useState('')
   const [sortDirection, setSortDirection] = useState('asc')
+  const [taskStatus, setTaskStatus] = useState('not-started')
 
   useEffect(() => {
     fetchTodos()
@@ -233,6 +239,26 @@ function App() {
       )
     } catch (error) {
       console.error("Error updating note:", error)
+    }
+  }
+
+  const handleStatusChange = async (todoId, newStatus) => {
+    try {
+      const todoRef = doc(db, 'todos', todoId)
+      await updateDoc(todoRef, {
+        status: newStatus
+      })
+      
+      // Update local states
+      setAllTodos(prevAll => prevAll.map(todo => 
+        todo.id === todoId ? { ...todo, status: newStatus } : todo
+      ))
+      setTodos(prevTodos => prevTodos.map(todo =>
+        todo.id === todoId ? { ...todo, status: newStatus } : todo
+      ))
+      setSelectedTodo(prev => ({...prev, status: newStatus}))
+    } catch (error) {
+      console.error("Error updating status:", error)
     }
   }
 
@@ -459,14 +485,15 @@ function App() {
             open={drawerOpen}
             onClose={() => {
               setDrawerOpen(false)
-              setSelectedTodo(null)  // Clear selected todo when closing drawer
+              setSelectedTodo(null)
             }}
             PaperProps={{
               sx: {
                 width: '33%',
                 backgroundColor: '#1a1a1a',
                 color: 'white',
-                padding: '20px'
+                padding: '20px',
+                overflowY: 'auto'
               }
             }}
           >
@@ -475,13 +502,98 @@ function App() {
                 <Typography variant="h5" sx={{ mb: 2 }}>
                   {selectedTodo.text}
                 </Typography>
+                
                 <Typography variant="body1" sx={{ 
                   color: 'rgba(255, 255, 255, 0.7)',
                   mb: 3 
                 }}>
                   Created: {new Date(selectedTodo.timestamp).toLocaleString()}
                 </Typography>
-                
+
+                {/* Kanban Board */}
+                <Card sx={{ 
+                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                  mb: 3,
+                  border: '1px solid rgba(255, 255, 255, 0.2)'
+                }}>
+                  <CardContent>
+                    <Typography variant="h6" sx={{ mb: 2 }}>
+                      Task Status
+                    </Typography>
+                    <FormControl fullWidth>
+                      <Select
+                        value={selectedTodo.status || 'not-started'}
+                        onChange={(e) => handleStatusChange(selectedTodo.id, e.target.value)}
+                        sx={{
+                          color: 'white',
+                          '.MuiOutlinedInput-notchedOutline': {
+                            borderColor: 'rgba(255, 255, 255, 0.3)',
+                          },
+                          '&:hover .MuiOutlinedInput-notchedOutline': {
+                            borderColor: 'rgba(255, 255, 255, 0.5)',
+                          },
+                          '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                            borderColor: 'white',
+                          },
+                          '.MuiSvgIcon-root': {
+                            color: 'white',
+                          }
+                        }}
+                      >
+                        <MenuItem value="not-started">Not Yet Started</MenuItem>
+                        <MenuItem value="in-progress">Work in Progress</MenuItem>
+                        <MenuItem value="completed">Complete</MenuItem>
+                      </Select>
+                    </FormControl>
+
+                    {/* Status Indicators */}
+                    <div style={{ 
+                      display: 'flex', 
+                      justifyContent: 'space-between',
+                      marginTop: '20px',
+                      padding: '10px'
+                    }}>
+                      <div style={{ textAlign: 'center' }}>
+                        <div style={{
+                          width: '20px',
+                          height: '20px',
+                          borderRadius: '50%',
+                          backgroundColor: selectedTodo.status === 'not-started' ? '#ff9800' : 'rgba(255, 152, 0, 0.3)',
+                          margin: '0 auto 5px'
+                        }} />
+                        <Typography variant="caption">
+                          Not Started
+                        </Typography>
+                      </div>
+                      <div style={{ textAlign: 'center' }}>
+                        <div style={{
+                          width: '20px',
+                          height: '20px',
+                          borderRadius: '50%',
+                          backgroundColor: selectedTodo.status === 'in-progress' ? '#2196f3' : 'rgba(33, 150, 243, 0.3)',
+                          margin: '0 auto 5px'
+                        }} />
+                        <Typography variant="caption">
+                          In Progress
+                        </Typography>
+                      </div>
+                      <div style={{ textAlign: 'center' }}>
+                        <div style={{
+                          width: '20px',
+                          height: '20px',
+                          borderRadius: '50%',
+                          backgroundColor: selectedTodo.status === 'completed' ? '#4caf50' : 'rgba(76, 175, 80, 0.3)',
+                          margin: '0 auto 5px'
+                        }} />
+                        <Typography variant="caption">
+                          Complete
+                        </Typography>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Return to List button (if archived) */}
                 {selectedTodo.archived === true && (
                   <Button
                     variant="contained"
@@ -500,6 +612,7 @@ function App() {
                   </Button>
                 )}
                 
+                {/* Notes section */}
                 <Typography variant="h6" sx={{ mb: 1 }}>
                   Notes:
                 </Typography>
