@@ -152,17 +152,16 @@ function App() {
     <div style={{ 
       minHeight: '100vh',
       background: 'linear-gradient(to right, #0f2027, #203a43, #2c5364)',
-      position: 'relative'
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      padding: '20px'
     }}>
       <div style={{ 
-        position: 'absolute',
-        top: '50%',
-        left: '50%',
-        transform: 'translate(-50%, -50%)',
         width: '100%',
         maxWidth: '500px'
       }}>
-        <Container>
+        <Container style={{ padding: 0 }}>
           {/* Search field */}
           <Paper
             component="form"
