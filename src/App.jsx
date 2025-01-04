@@ -908,6 +908,11 @@ function App() {
     }
   };
 
+  const handlePageChange = (page) => {
+    console.log('Changing page to:', page);
+    setCurrentPage(page);
+  };
+
   return (
     <Box sx={{ display: 'flex' }}>
       {/* Updated Sidebar */}
@@ -919,10 +924,9 @@ function App() {
           '& .MuiDrawer-paper': {
             width: sidebarOpen ? SIDEBAR_WIDTH : SIDEBAR_WIDTH_COLLAPSED,
             boxSizing: 'border-box',
-            backgroundColor: '#1A1A1A',
-            borderRight: '1px solid rgba(255, 255, 255, 0.12)',
-            overflowX: 'hidden',
-            transition: 'width 225ms cubic-bezier(0.4, 0, 0.6, 1)',
+            backgroundColor: '#1E1E1E',
+            color: 'white',
+            borderRight: '1px solid rgba(255, 255, 255, 0.12)'
           },
         }}
       >
@@ -965,11 +969,11 @@ function App() {
         {/* Updated Navigation Links */}
         <NavList>
           {[
-            { text: 'Dashboard', icon: <DashboardIcon />, page: 'dashboard' },
-            { text: 'Tasks', icon: <TodoIcon />, page: 'todos' },
+            { text: 'Dashboard', icon: <DashboardIcon />, onClick: () => handlePageChange('dashboard' ) },
+            { text: 'Tasks', icon: <TodoIcon />, onClick: () => handlePageChange('todos' ) },
+            { text: 'Automations', icon: <AutomationIcon />, onClick: () => handlePageChange('automations' ) },
             { text: 'Profile', icon: <ProfileIcon />, page: 'profile' },
             { text: 'Settings', icon: <SettingsIcon />, page: 'settings' },
-            { text: 'Automations', icon: <AutomationIcon />, page: 'the automations' },
           ].map((item) => (
             <NavItem key={item.page} disablePadding>
               <Tooltip 
@@ -979,7 +983,7 @@ function App() {
               >
                 <ListItemButton
                   selected={currentPage === item.page}
-                  onClick={() => setCurrentPage(item.page)}
+                  onClick={item.onClick}
                   sx={{
                     minHeight: 48,
                     justifyContent: sidebarOpen ? 'initial' : 'center',
@@ -1860,11 +1864,10 @@ function App() {
           </Container>
         )}
         {currentPage === 'automations' && (
-          <Box>
-            <Typography variant="h4" sx={{ color: 'white', mb: 3 }}>
-              Test - Automations Page
-            </Typography>
-          </Box>
+          <div style={{ color: 'white' }}>
+            <h1>Automations Page</h1>
+            <p>This is a test to see if the page renders</p>
+          </div>
         )}
       </Box>
     </Box>
