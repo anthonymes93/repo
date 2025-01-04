@@ -31,7 +31,13 @@ import {
   Select,
   MenuItem,
   Switch,
-  FormControlLabel
+  FormControlLabel,
+  Divider,
+  Avatar,
+  Box,
+  Chip,
+  Stack,
+  InputAdornment
 } from '@mui/material'
 import DeleteIcon from '@mui/icons-material/Delete'
 import SearchIcon from '@mui/icons-material/Search'
@@ -39,6 +45,9 @@ import SortIcon from '@mui/icons-material/Sort'
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd'
 import { StrictMode } from 'react'
 import ClearIcon from '@mui/icons-material/Clear'
+import PhoneIcon from '@mui/icons-material/Phone'
+import EmailIcon from '@mui/icons-material/Email'
+import AccessTimeIcon from '@mui/icons-material/AccessTime'
 
 function App() {
   const [todos, setTodos] = useState([])
@@ -792,321 +801,153 @@ function App() {
             anchor="right"
             open={drawerOpen}
             onClose={() => {
-              setDrawerOpen(false)
-              setSelectedTodo(null)
+              setDrawerOpen(false);
+              setSelectedTodo(null);
             }}
             PaperProps={{
               sx: {
-                width: '33%',
+                width: '400px',
                 backgroundColor: '#1a1a1a',
                 color: 'white',
-                padding: '20px'
+                borderLeft: '1px solid rgba(255, 255, 255, 0.12)'
               }
             }}
           >
             {selectedTodo && (
-              <div>
-                <Typography variant="h5" sx={{ mb: 2 }}>
-                  {selectedTodo.text}
-                </Typography>
-                
-                <Typography variant="body1" sx={{ 
-                  color: 'rgba(255, 255, 255, 0.7)',
-                  mb: 3 
+              <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+                {/* Header */}
+                <Box sx={{ 
+                  p: 3, 
+                  backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                  borderBottom: '1px solid rgba(255, 255, 255, 0.12)'
                 }}>
-                  Created: {new Date(selectedTodo.timestamp).toLocaleString()}
-                </Typography>
+                  <Stack direction="row" spacing={2} alignItems="center" sx={{ mb: 2 }}>
+                    <Avatar 
+                      sx={{ 
+                        bgcolor: '#4CAF50',
+                        width: 56,
+                        height: 56
+                      }}
+                    >
+                      {selectedTodo.text[0].toUpperCase()}
+                    </Avatar>
+                    <Box>
+                      <Typography variant="h5" sx={{ fontWeight: 500 }}>
+                        {selectedTodo.text}
+                      </Typography>
+                      <Stack direction="row" spacing={1} alignItems="center" sx={{ mt: 1 }}>
+                        <AccessTimeIcon sx={{ fontSize: 16, color: 'rgba(255, 255, 255, 0.7)' }} />
+                        <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
+                          Created {new Date(selectedTodo.timestamp).toLocaleDateString()}
+                        </Typography>
+                      </Stack>
+                    </Box>
+                  </Stack>
 
-                {/* Contact Information Card */}
-                <Card sx={{ 
-                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                  mb: 3,
-                  border: '1px solid rgba(255, 255, 255, 0.2)'
-                }}>
-                  <CardContent>
-                    <Typography variant="h6" sx={{ mb: 2 }}>
-                      Contact Information
-                    </Typography>
-                    
-                    {/* Phone Number */}
+                  <Stack direction="row" spacing={1}>
+                    <Chip 
+                      label={selectedTodo.isActive ? "Active" : "Inactive"}
+                      color={selectedTodo.isActive ? "success" : "default"}
+                      size="small"
+                    />
+                    <Chip 
+                      label={selectedTodo.completed ? "Completed" : "In Progress"}
+                      color={selectedTodo.completed ? "primary" : "warning"}
+                      size="small"
+                    />
+                  </Stack>
+                </Box>
+
+                {/* Content */}
+                <Box sx={{ p: 3, flex: 1, overflowY: 'auto' }}>
+                  {/* Contact Section */}
+                  <Typography variant="h6" sx={{ mb: 2, fontWeight: 500 }}>
+                    Contact Information
+                  </Typography>
+                  <Stack spacing={2} sx={{ mb: 4 }}>
                     <TextField
                       fullWidth
                       label="Phone Number"
                       value={selectedTodo.phone || ''}
-                      onChange={(e) => {
-                        const value = e.target.value;
-                        // Allow complete clearing of the field
-                        if (!value || value.trim() === '') {
-                          handleContactUpdate(selectedTodo.id, 'phone', '');
-                          return;
-                        }
-                        const normalized = normalizePhoneNumber(value);
-                        handleContactUpdate(selectedTodo.id, 'phone', normalized.formatted);
+                      onChange={(e) => handleContactUpdate(selectedTodo.id, 'phone', e.target.value)}
+                      InputProps={{
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <PhoneIcon sx={{ color: 'rgba(255, 255, 255, 0.7)' }} />
+                          </InputAdornment>
+                        ),
                       }}
-                      placeholder="(123) 456-7890"
                       sx={{
-                        mb: 2,
-                        '& .MuiInputBase-root': {
-                          color: 'white',
-                        },
-                        '& .MuiInputLabel-root': {
-                          color: 'rgba(255, 255, 255, 0.7)',
-                        },
                         '& .MuiOutlinedInput-root': {
-                          '& fieldset': {
-                            borderColor: 'rgba(255, 255, 255, 0.3)',
+                          backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                          '&:hover': {
+                            backgroundColor: 'rgba(255, 255, 255, 0.08)',
                           },
-                          '&:hover fieldset': {
-                            borderColor: 'rgba(255, 255, 255, 0.5)',
-                          },
-                          '&.Mui-focused fieldset': {
-                            borderColor: 'white',
-                          },
-                        },
+                        }
                       }}
                     />
-
-                    {/* Email */}
                     <TextField
                       fullWidth
                       label="Email"
-                      type="email"
                       value={selectedTodo.email || ''}
                       onChange={(e) => handleContactUpdate(selectedTodo.id, 'email', e.target.value)}
+                      InputProps={{
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <EmailIcon sx={{ color: 'rgba(255, 255, 255, 0.7)' }} />
+                          </InputAdornment>
+                        ),
+                      }}
                       sx={{
-                        mb: 2,
-                        '& .MuiInputBase-root': {
-                          color: 'white',
-                        },
-                        '& .MuiInputLabel-root': {
-                          color: 'rgba(255, 255, 255, 0.7)',
-                        },
                         '& .MuiOutlinedInput-root': {
-                          '& fieldset': {
-                            borderColor: 'rgba(255, 255, 255, 0.3)',
+                          backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                          '&:hover': {
+                            backgroundColor: 'rgba(255, 255, 255, 0.08)',
                           },
-                          '&:hover fieldset': {
-                            borderColor: 'rgba(255, 255, 255, 0.5)',
-                          },
-                          '&.Mui-focused fieldset': {
-                            borderColor: 'white',
-                          },
-                        },
+                        }
                       }}
                     />
+                  </Stack>
 
-                    {/* Status Switch */}
-                    <FormControlLabel
-                      control={
-                        <Switch
-                          checked={selectedTodo.isActive || false}
-                          onChange={(e) => handleContactUpdate(selectedTodo.id, 'isActive', e.target.checked)}
-                          sx={{
-                            '& .MuiSwitch-switchBase.Mui-checked': {
-                              color: '#4CAF50',
-                            },
-                            '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
-                              backgroundColor: '#4CAF50',
-                            },
-                          }}
-                        />
-                      }
-                      label={
-                        <Typography sx={{ color: 'white' }}>
-                          Status: {selectedTodo.isActive ? 'On' : 'Off'}
-                        </Typography>
-                      }
-                    />
-                  </CardContent>
-                </Card>
+                  {/* Kanban Board */}
+                  <Typography variant="h6" sx={{ mb: 2, fontWeight: 500 }}>
+                    Task Board
+                  </Typography>
+                  <Card sx={{ 
+                    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                    mb: 4,
+                    boxShadow: 'none',
+                    border: '1px solid rgba(255, 255, 255, 0.12)'
+                  }}>
+                    <CardContent>
+                      {/* Your existing Kanban board code */}
+                      {renderKanbanBoard()}
+                    </CardContent>
+                  </Card>
 
-                {/* Add form for new Kanban cards */}
-                <Paper
-                  component="form"
-                  onSubmit={handleAddKanbanCard}
-                  sx={{
-                    p: 2,
-                    mb: 2,
-                    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                    display: 'flex',
-                    gap: 1
-                  }}
-                >
+                  {/* Notes Section */}
+                  <Typography variant="h6" sx={{ mb: 2, fontWeight: 500 }}>
+                    Notes
+                  </Typography>
                   <TextField
-                    size="small"
-                    value={kanbanInput}
-                    onChange={(e) => setKanbanInput(e.target.value)}
-                    placeholder="Add a new task"
+                    multiline
+                    rows={6}
                     fullWidth
+                    value={noteInput}
+                    onChange={(e) => setNoteInput(e.target.value)}
+                    onBlur={() => handleNoteUpdate(selectedTodo.id, noteInput)}
+                    placeholder="Add your notes here..."
                     sx={{
-                      '& .MuiInputBase-root': {
-                        color: 'white',
-                        backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                      },
-                      '& .MuiInputBase-input::placeholder': {
-                        color: 'rgba(255, 255, 255, 0.5)',
-                        opacity: 1,
-                      },
                       '& .MuiOutlinedInput-root': {
-                        '& fieldset': {
-                          borderColor: 'rgba(255, 255, 255, 0.2)',
+                        backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                        '&:hover': {
+                          backgroundColor: 'rgba(255, 255, 255, 0.08)',
                         },
-                        '&:hover fieldset': {
-                          borderColor: 'rgba(255, 255, 255, 0.3)',
-                        },
-                        '&.Mui-focused fieldset': {
-                          borderColor: 'white',
-                        },
-                      },
+                      }
                     }}
                   />
-                  <Button
-                    type="submit"
-                    variant="contained"
-                    sx={{
-                      backgroundColor: '#4CAF50',
-                      '&:hover': {
-                        backgroundColor: '#45a049'
-                      }
-                    }}
-                  >
-                    Add
-                  </Button>
-                </Paper>
-
-                {/* Kanban Board */}
-                <Card sx={{ 
-                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                  mb: 3,
-                  border: '1px solid rgba(255, 255, 255, 0.2)'
-                }}>
-                  <CardContent>
-                    <Typography variant="h6" sx={{ mb: 2 }}>
-                      Task Board
-                    </Typography>
-                    
-                    <DragDropContext onDragEnd={handleDragEnd}>
-                      <div style={{ display: 'flex', gap: '16px' }}>
-                        {Object.entries(columns).map(([columnId, column]) => (
-                          <div 
-                            key={columnId}
-                            style={{
-                              display: 'flex',
-                              flexDirection: 'column',
-                              flex: 1,
-                            }}
-                          >
-                            <h3 style={{ color: column.color, margin: '0 0 8px' }}>
-                              {column.title}
-                            </h3>
-                            <Droppable droppableId={columnId}>
-                              {(provided, snapshot) => (
-                                <div
-                                  {...provided.droppableProps}
-                                  ref={provided.innerRef}
-                                  style={{
-                                    background: snapshot.isDraggingOver ? 'rgba(255, 255, 255, 0.1)' : 'rgba(255, 255, 255, 0.05)',
-                                    padding: 8,
-                                    minHeight: 200,
-                                    borderRadius: 4,
-                                  }}
-                                >
-                                  {column.items.map((item, index) => (
-                                    <Draggable
-                                      key={item.id}
-                                      draggableId={item.id}
-                                      index={index}
-                                    >
-                                      {(provided, snapshot) => (
-                                        <div
-                                          ref={provided.innerRef}
-                                          {...provided.draggableProps}
-                                          {...provided.dragHandleProps}
-                                          style={{
-                                            padding: 16,
-                                            margin: '0 0 8px 0',
-                                            backgroundColor: snapshot.isDragging ? 'rgba(255, 255, 255, 0.2)' : 'rgba(255, 255, 255, 0.1)',
-                                            color: 'white',
-                                            borderRadius: 4,
-                                            ...provided.draggableProps.style,
-                                          }}
-                                        >
-                                          {item.text}
-                                        </div>
-                                      )}
-                                    </Draggable>
-                                  ))}
-                                  {provided.placeholder}
-                                </div>
-                              )}
-                            </Droppable>
-                          </div>
-                        ))}
-                      </div>
-                    </DragDropContext>
-                  </CardContent>
-                </Card>
-
-                {/* Return to List button (if archived) */}
-                {selectedTodo.archived === true && (
-                  <Button
-                    variant="contained"
-                    onClick={() => {
-                      unarchiveTodo(selectedTodo.id)
-                    }}
-                    sx={{
-                      mb: 3,
-                      backgroundColor: '#4CAF50',
-                      '&:hover': {
-                        backgroundColor: '#45a049'
-                      }
-                    }}
-                  >
-                    Return to List
-                  </Button>
-                )}
-                
-                {/* Notes section */}
-                <Card sx={{ 
-                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                  mb: 3,
-                  border: '1px solid rgba(255, 255, 255, 0.2)'
-                }}>
-                  <CardContent>
-                    <Typography variant="h6" sx={{ mb: 2 }}>
-                      Notes
-                    </Typography>
-                    <TextField
-                      multiline
-                      rows={10}
-                      fullWidth
-                      value={noteInput}
-                      onChange={(e) => setNoteInput(e.target.value)}
-                      onBlur={() => handleNoteUpdate(selectedTodo.id, noteInput)}
-                      sx={{
-                        '& .MuiInputBase-root': {
-                          color: 'white',
-                          backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                        },
-                        '& .MuiInputBase-input': {
-                          color: 'white',
-                        },
-                        '& .MuiOutlinedInput-root': {
-                          '& fieldset': {
-                            borderColor: 'rgba(255, 255, 255, 0.3)',
-                          },
-                          '&:hover fieldset': {
-                            borderColor: 'rgba(255, 255, 255, 0.5)',
-                          },
-                          '&.Mui-focused fieldset': {
-                            borderColor: 'white',
-                          },
-                        },
-                      }}
-                    />
-                  </CardContent>
-                </Card>
-              </div>
+                </Box>
+              </Box>
             )}
           </Drawer>
         </Container>
