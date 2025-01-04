@@ -55,6 +55,8 @@ import {
   Grid,
   Snackbar,
   Alert,
+  ToggleButton,
+  ToggleButtonGroup,
 } from '@mui/material'
 import DeleteIcon from '@mui/icons-material/Delete'
 import SearchIcon from '@mui/icons-material/Search'
@@ -103,6 +105,8 @@ import {
   Stop as StoppedIcon,
   Folder as FolderIcon,
   MoreVert as MoreVertIcon,
+  AllInbox as AllInboxIcon,
+  MarkEmailUnread as MarkEmailUnreadIcon,
 } from '@mui/icons-material'
 import Brightness4Icon from '@mui/icons-material/Brightness4';
 import Brightness7Icon from '@mui/icons-material/Brightness7';
@@ -119,6 +123,9 @@ import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
 import CloseIcon from '@mui/icons-material/Close';
 import Confetti from 'react-confetti';
+import MailIcon from '@mui/icons-material/Mail';
+import ReplyIcon from '@mui/icons-material/Reply';
+import ForwardIcon from '@mui/icons-material/Forward';
 
 const fadeIn = keyframes`
   from {
@@ -211,6 +218,9 @@ function App() {
     width: window.innerWidth,
     height: window.innerHeight,
   });
+  const [selectedEmail, setSelectedEmail] = useState(null);
+  const [emailDrawerOpen, setEmailDrawerOpen] = useState(false);
+  const [emailFilter, setEmailFilter] = useState('all');
 
   const theme = useMemo(
     () =>
@@ -1264,6 +1274,7 @@ function App() {
               { text: 'Dashboard', icon: <DashboardIcon />, onClick: () => handlePageChange('dashboard' ) },
               { text: 'Tasks', icon: <TodoIcon />, onClick: () => handlePageChange('todos' ) },
               { text: 'Automations', icon: <AutomationIcon />, onClick: () => handlePageChange('automations' ) },
+              { text: 'Emails', icon: <MailIcon />, onClick: () => handlePageChange('emails' ) },
               { text: 'Profile', icon: <ProfileIcon />, page: 'profile' },
               { text: 'Settings', icon: <SettingsIcon />, page: 'settings' },
             ].map((item) => (
@@ -2641,6 +2652,416 @@ function App() {
                   </Grid>
                 ))}
               </Grid>
+            </Box>
+          )}
+          {currentPage === 'emails' && (
+            <Box sx={{ p: 3 }}>
+              {/* Header and Filter Section */}
+              <Box sx={{ 
+                display: 'flex', 
+                justifyContent: 'space-between', 
+                alignItems: 'center',
+                mb: 4 
+              }}>
+                <Typography 
+                  variant="h4" 
+                  sx={{ 
+                    color: 'white',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 1
+                  }}
+                >
+                  <MailIcon sx={{ color: '#4CAF50' }} />
+                  Emails
+                </Typography>
+
+                {/* Filter Controls */}
+                <Box sx={{ display: 'flex', gap: 2 }}>
+                  <ToggleButtonGroup
+                    value={emailFilter}
+                    exclusive
+                    onChange={(e, newFilter) => {
+                      if (newFilter !== null) {
+                        setEmailFilter(newFilter);
+                      }
+                    }}
+                    sx={{
+                      bgcolor: 'rgba(255, 255, 255, 0.05)',
+                      '& .MuiToggleButton-root': {
+                        color: 'rgba(255, 255, 255, 0.7)',
+                        borderColor: 'rgba(255, 255, 255, 0.12)',
+                        '&.Mui-selected': {
+                          bgcolor: 'rgba(76, 175, 80, 0.2)',
+                          color: '#4CAF50',
+                          '&:hover': {
+                            bgcolor: 'rgba(76, 175, 80, 0.25)',
+                          },
+                        },
+                        '&:hover': {
+                          bgcolor: 'rgba(255, 255, 255, 0.08)',
+                        },
+                      },
+                    }}
+                  >
+                    <ToggleButton value="all">
+                      <Tooltip title="All Emails">
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <AllInboxIcon />
+                          <Typography>All</Typography>
+                        </Box>
+                      </Tooltip>
+                    </ToggleButton>
+                    <ToggleButton value="high">
+                      <Tooltip title="High Priority">
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <PriorityHighIcon />
+                          <Typography>Priority</Typography>
+                        </Box>
+                      </Tooltip>
+                    </ToggleButton>
+                    <ToggleButton value="unread">
+                      <Tooltip title="Unread">
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <MarkEmailUnreadIcon />
+                          <Typography>Unread</Typography>
+                        </Box>
+                      </Tooltip>
+                    </ToggleButton>
+                  </ToggleButtonGroup>
+                </Box>
+              </Box>
+
+              {/* Email List */}
+              <Grid container spacing={3}>
+                {[
+                  {
+                    id: 1,
+                    subject: "Project Update: Q1 Goals",
+                    sender: "john.doe@company.com",
+                    preview: "Hi team, I wanted to share our progress on Q1 objectives. We've made significant strides in our key initiatives and I'm pleased to report that we're tracking well against our targets. Here's a detailed breakdown of our achievements and areas that need attention...",
+                    timestamp: "2024-03-15T10:30:00",
+                    unread: true,
+                    attachments: 2,
+                    priority: "high",
+                    body: `Dear Team,
+
+I wanted to share our progress on Q1 objectives. We've made significant strides in our key initiatives and I'm pleased to report that we're tracking well against our targets.
+
+Key Achievements:
+• Launched new product feature ahead of schedule
+• Increased customer satisfaction score by 15%
+• Reduced operational costs by 22%
+
+Next Steps:
+1. Review feedback from beta testing
+2. Prepare presentation for stakeholders
+3. Schedule team retrospective
+
+Please review the attached documents for detailed metrics and upcoming milestones.
+
+Best regards,
+John`
+                  },
+                  {
+                    id: 2,
+                    subject: "Client Meeting Notes",
+                    sender: "sarah.smith@company.com",
+                    preview: "Following up on our discussion with the client yesterday. They were very impressed with our proposal and had some valuable feedback to share...",
+                    timestamp: "2024-03-15T09:15:00",
+                    unread: false,
+                    attachments: 1,
+                    priority: "medium",
+                    body: `Hi everyone,
+
+Following up on our discussion with the client yesterday. They were very impressed with our proposal and had some valuable feedback to share.
+
+Key Points Discussed:
+• Timeline expectations
+• Budget considerations
+• Technical requirements
+
+Action Items:
+1. Update project scope document
+2. Schedule follow-up meeting
+3. Prepare revised estimates
+
+Let me know if you have any questions.
+
+Best,
+Sarah`
+                  },
+                  {
+                    id: 3,
+                    subject: "Weekly Team Sync",
+                    sender: "team.lead@company.com",
+                    preview: "Here's the agenda for our upcoming team sync meeting. We'll be discussing project milestones, resource allocation, and upcoming deadlines. Please come prepared with your updates.",
+                    timestamp: "2024-03-14T16:45:00",
+                    unread: true,
+                    attachments: 0,
+                    priority: "normal",
+                    body: `Team,
+
+Here's our agenda for tomorrow's sync:
+
+1. Project Updates
+   - Current sprint progress
+   - Blockers and challenges
+   - Success stories
+
+2. Resource Planning
+   - Upcoming project needs
+   - Team capacity
+   - Training requirements
+
+3. Open Discussion
+   - Team suggestions
+   - Process improvements
+   - Questions & concerns
+
+Please review and come prepared with your updates.
+
+Regards,
+Team Lead`
+                  }
+                ]
+                  .filter(email => {
+                    switch (emailFilter) {
+                      case 'high':
+                        return email.priority === 'high';
+                      case 'unread':
+                        return email.unread;
+                      default:
+                        return true;
+                    }
+                  })
+                  .map((email) => (
+                    <Grid item xs={12} key={email.id}>
+                      <Paper
+                        onClick={() => {
+                          setSelectedEmail(email);
+                          setEmailDrawerOpen(true);
+                        }}
+                        sx={{
+                          p: 2,
+                          bgcolor: email.unread ? 'rgba(76, 175, 80, 0.1)' : '#1E1E1E',
+                          border: '1px solid rgba(255, 255, 255, 0.12)',
+                          cursor: 'pointer',
+                          transition: 'all 0.2s ease',
+                          '&:hover': {
+                            bgcolor: 'rgba(255, 255, 255, 0.05)',
+                            transform: 'translateY(-1px)'
+                          }
+                        }}
+                      >
+                        <Grid container spacing={2} alignItems="center">
+                          {/* Sender Avatar */}
+                          <Grid item>
+                            <Avatar sx={{ 
+                              bgcolor: email.unread ? '#4CAF50' : 'rgba(255, 255, 255, 0.1)',
+                              color: email.unread ? 'white' : 'rgba(255, 255, 255, 0.7)'
+                            }}>
+                              {email.sender[0].toUpperCase()}
+                            </Avatar>
+                          </Grid>
+
+                          {/* Email Content */}
+                          <Grid item xs>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
+                              <Typography 
+                                variant="subtitle1" 
+                                sx={{ 
+                                  color: 'white',
+                                  fontWeight: email.unread ? 600 : 400
+                                }}
+                              >
+                                {email.subject}
+                              </Typography>
+                              {email.priority === 'high' && (
+                                <Chip 
+                                  label="High Priority" 
+                                  size="small"
+                                  sx={{ 
+                                    bgcolor: 'rgba(244, 67, 54, 0.2)',
+                                    color: '#f44336',
+                                    height: '20px'
+                                  }}
+                                />
+                              )}
+                            </Box>
+                            <Typography 
+                              variant="body2" 
+                              sx={{ 
+                                color: 'rgba(255, 255, 255, 0.7)',
+                                mb: 0.5
+                              }}
+                            >
+                              {email.sender}
+                            </Typography>
+                            <Typography 
+                              variant="body2" 
+                              sx={{ 
+                                color: 'rgba(255, 255, 255, 0.5)',
+                                display: '-webkit-box',
+                                WebkitLineClamp: 2,
+                                WebkitBoxOrient: 'vertical',
+                                overflow: 'hidden'
+                              }}
+                            >
+                              {email.preview}
+                            </Typography>
+                          </Grid>
+
+                          {/* Email Metadata */}
+                          <Grid item>
+                            <Stack spacing={1} alignItems="flex-end">
+                              <Typography 
+                                variant="caption" 
+                                sx={{ color: 'rgba(255, 255, 255, 0.5)' }}
+                              >
+                                {new Date(email.timestamp).toLocaleTimeString([], { 
+                                  hour: '2-digit', 
+                                  minute: '2-digit' 
+                                })}
+                              </Typography>
+                              {email.attachments > 0 && (
+                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                                  <AttachFileIcon sx={{ 
+                                    fontSize: '16px',
+                                    color: 'rgba(255, 255, 255, 0.5)'
+                                  }} />
+                                  <Typography 
+                                    variant="caption" 
+                                    sx={{ color: 'rgba(255, 255, 255, 0.5)' }}
+                                  >
+                                    {email.attachments}
+                                  </Typography>
+                                </Box>
+                              )}
+                            </Stack>
+                          </Grid>
+                        </Grid>
+                      </Paper>
+                    </Grid>
+                  ))}
+              </Grid>
+
+              {/* Email Drawer */}
+              <Drawer
+                anchor="right"
+                open={emailDrawerOpen}
+                onClose={() => {
+                  setEmailDrawerOpen(false);
+                  setSelectedEmail(null);
+                }}
+                PaperProps={{
+                  sx: {
+                    width: '500px',
+                    background: '#1E1E1E',
+                    color: 'white',
+                    borderLeft: '1px solid rgba(255, 255, 255, 0.12)'
+                  }
+                }}
+              >
+                {selectedEmail && (
+                  <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+                    {/* Email Header */}
+                    <Box sx={{ 
+                      p: 3, 
+                      borderBottom: '1px solid rgba(255, 255, 255, 0.12)',
+                      background: 'linear-gradient(rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02))'
+                    }}>
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
+                        <Typography variant="h6">{selectedEmail.subject}</Typography>
+                        <IconButton 
+                          onClick={() => setEmailDrawerOpen(false)}
+                          sx={{ color: 'rgba(255, 255, 255, 0.7)' }}
+                        >
+                          <CloseIcon />
+                        </IconButton>
+                      </Box>
+                      
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
+                        <Avatar sx={{ bgcolor: '#4CAF50' }}>
+                          {selectedEmail.sender[0].toUpperCase()}
+                        </Avatar>
+                        <Box>
+                          <Typography variant="subtitle1">{selectedEmail.sender}</Typography>
+                          <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
+                            {new Date(selectedEmail.timestamp).toLocaleString()}
+                          </Typography>
+                        </Box>
+                      </Box>
+
+                      {selectedEmail.priority === 'high' && (
+                        <Chip 
+                          label="High Priority"
+                          size="small"
+                          sx={{ 
+                            bgcolor: 'rgba(244, 67, 54, 0.2)',
+                            color: '#f44336'
+                          }}
+                        />
+                      )}
+                    </Box>
+
+                    {/* Email Body */}
+                    <Box sx={{ 
+                      p: 3, 
+                      flex: 1, 
+                      overflowY: 'auto',
+                      whiteSpace: 'pre-wrap'
+                    }}>
+                      <Typography variant="body1" sx={{ mb: 2 }}>
+                        {selectedEmail.body}
+                      </Typography>
+                    </Box>
+
+                    {/* Email Actions */}
+                    <Box sx={{ 
+                      p: 2, 
+                      borderTop: '1px solid rgba(255, 255, 255, 0.12)',
+                      display: 'flex',
+                      gap: 1
+                    }}>
+                      <Button
+                        startIcon={<ReplyIcon />}
+                        variant="contained"
+                        sx={{ 
+                          bgcolor: '#4CAF50',
+                          '&:hover': { bgcolor: '#45a049' }
+                        }}
+                      >
+                        Reply
+                      </Button>
+                      <Button
+                        startIcon={<ForwardIcon />}
+                        variant="outlined"
+                        sx={{ 
+                          color: 'white',
+                          borderColor: 'rgba(255, 255, 255, 0.3)',
+                          '&:hover': { borderColor: 'white' }
+                        }}
+                      >
+                        Forward
+                      </Button>
+                      {selectedEmail.attachments > 0 && (
+                        <Button
+                          startIcon={<AttachFileIcon />}
+                          variant="outlined"
+                          sx={{ 
+                            color: 'white',
+                            borderColor: 'rgba(255, 255, 255, 0.3)',
+                            '&:hover': { borderColor: 'white' }
+                          }}
+                        >
+                          Attachments ({selectedEmail.attachments})
+                        </Button>
+                      )}
+                    </Box>
+                  </Box>
+                )}
+              </Drawer>
             </Box>
           )}
         </Box>
