@@ -1719,11 +1719,24 @@ function App() {
                 Active Tasks Gallery
               </Typography>
               
-              <Grid container spacing={2} sx={{ mt: 5 }}> {/* Added 40px margin top to the container */}
+              <Grid container spacing={2}>
                 {displayedTodos
                   .filter(todo => todo.isActive !== false)
-                  .map(todo => (
-                    <Grid item xs={12} sm={6} md={4} key={todo.id} sx={{ mt: 5 }}> {/* Added 40px margin top to each item */}
+                  .map((todo, index) => (
+                    <Grid 
+                      item 
+                      xs={12} 
+                      sm={6} 
+                      md={4} 
+                      key={todo.id} 
+                      sx={{ 
+                        mt: { 
+                          xs: index >= 1 ? 5 : 0,  // On mobile, apply after first item
+                          sm: index >= 2 ? 5 : 0,  // On tablet, apply after second item
+                          md: index >= 3 ? 5 : 0   // On desktop, apply after third item
+                        }
+                      }}
+                    >
                       <Paper
                         sx={{
                           p: 2,
