@@ -187,16 +187,100 @@ function App() {
         palette: {
           mode,
           ...(mode === 'dark' ? {
+            // Dark mode colors
             background: {
               default: '#121212',
               paper: '#1E1E1E',
             },
+            text: {
+              primary: '#ffffff',
+              secondary: 'rgba(255, 255, 255, 0.7)',
+            },
+            divider: 'rgba(255, 255, 255, 0.12)',
           } : {
+            // Light mode colors
             background: {
               default: '#f5f5f5',
               paper: '#ffffff',
             },
+            text: {
+              primary: '#2c2c2c',
+              secondary: 'rgba(0, 0, 0, 0.7)',
+            },
+            divider: 'rgba(0, 0, 0, 0.12)',
           }),
+          primary: {
+            main: '#4CAF50',
+            light: '#81C784',
+            dark: '#388E3C',
+          },
+        },
+        components: {
+          MuiPaper: {
+            styleOverrides: {
+              root: ({ theme }) => ({
+                backgroundColor: theme.palette.mode === 'dark' 
+                  ? '#1E1E1E' 
+                  : '#ffffff',
+                borderColor: theme.palette.mode === 'dark'
+                  ? 'rgba(255, 255, 255, 0.12)'
+                  : 'rgba(0, 0, 0, 0.12)',
+              }),
+            },
+          },
+          MuiCard: {
+            styleOverrides: {
+              root: ({ theme }) => ({
+                backgroundColor: theme.palette.mode === 'dark' 
+                  ? '#1E1E1E' 
+                  : '#ffffff',
+                borderColor: theme.palette.mode === 'dark'
+                  ? 'rgba(255, 255, 255, 0.12)'
+                  : 'rgba(0, 0, 0, 0.12)',
+              }),
+            },
+          },
+          MuiListItem: {
+            styleOverrides: {
+              root: ({ theme }) => ({
+                '&:hover': {
+                  backgroundColor: theme.palette.mode === 'dark'
+                    ? 'rgba(255, 255, 255, 0.05)'
+                    : 'rgba(0, 0, 0, 0.04)',
+                },
+              }),
+            },
+          },
+          MuiListItemButton: {
+            styleOverrides: {
+              root: ({ theme }) => ({
+                '&.Mui-selected': {
+                  backgroundColor: theme.palette.mode === 'dark'
+                    ? 'rgba(76, 175, 80, 0.1)'
+                    : 'rgba(76, 175, 80, 0.15)',
+                  '&:hover': {
+                    backgroundColor: theme.palette.mode === 'dark'
+                      ? 'rgba(76, 175, 80, 0.2)'
+                      : 'rgba(76, 175, 80, 0.25)',
+                  },
+                },
+              }),
+            },
+          },
+          MuiInputBase: {
+            styleOverrides: {
+              root: ({ theme }) => ({
+                backgroundColor: theme.palette.mode === 'dark'
+                  ? 'rgba(255, 255, 255, 0.05)'
+                  : 'rgba(0, 0, 0, 0.03)',
+                '&:hover': {
+                  backgroundColor: theme.palette.mode === 'dark'
+                    ? 'rgba(255, 255, 255, 0.1)'
+                    : 'rgba(0, 0, 0, 0.06)',
+                },
+              }),
+            },
+          },
         },
       }),
     [mode],
