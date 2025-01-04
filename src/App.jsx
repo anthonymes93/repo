@@ -151,7 +151,52 @@ function App() {
     }
   };
 
-  // Handle search
+  // Add phone number normalization function
+  const normalizePhoneNumber = (phone) => {
+    if (!phone) return '';
+    // Remove all non-numeric characters
+    const numbers = phone.replace(/\D/g, '');
+    
+    // Handle different formats (keep only last 10 digits if longer)
+    const digits = numbers.slice(-10);
+    
+    // Return both formatted and raw versions for searching
+    return {
+      raw: digits,
+      formatted: digits.replace(/(\d{3})(\d{3})(\d{4})/, '($1) $2-$3')
+    };
+  };
+
+  // Update handleContactUpdate to normalize phone numbers
+  const handleContactUpdate = async (todoId, field, value) => {
+    try {
+      let updateValue = value;
+      
+      // Normalize phone numbers when saving
+      if (field === 'phone') {
+        const normalized = normalizePhoneNumber(value);
+        updateValue = normalized.formatted;
+      }
+
+      const todoRef = doc(db, 'todos', todoId);
+      await updateDoc(todoRef, {
+        [field]: updateValue
+      });
+      
+      const updatedTodo = { ...selectedTodo, [field]: updateValue };
+      setSelectedTodo(updatedTodo);
+      setAllTodos(prevAll => prevAll.map(todo => 
+        todo.id === todoId ? updatedTodo : todo
+      ));
+      setTodos(prevTodos => prevTodos.map(todo =>
+        todo.id === todoId ? updatedTodo : todo
+      ));
+    } catch (error) {
+      console.error(`Error updating ${field}:`, error);
+    }
+  };
+
+  // Update handleSearch to handle phone number formats
   const handleSearch = (query) => {
     if (query.trim() === '') {
       setSearchResults([]);
@@ -159,12 +204,23 @@ function App() {
     }
 
     const searchLower = query.toLowerCase();
+    // Normalize the search query if it looks like a phone number
+    const normalizedQuery = query.replace(/\D/g, '');
     
     const results = allTodos.filter(todo => {
       const matchesText = todo.text.toLowerCase().includes(searchLower);
-      const matchesPhone = todo.phone && todo.phone.includes(query);
       
-      return (matchesText || matchesPhone) && !todo.archived;
+      // Check multiple phone number formats
+      const phoneMatches = todo.phone && (
+        // Check original format
+        todo.phone.includes(query) ||
+        // Check normalized format
+        normalizePhoneNumber(todo.phone).raw.includes(normalizedQuery) ||
+        // Check formatted version
+        normalizePhoneNumber(todo.phone).formatted.includes(query)
+      );
+      
+      return (matchesText || phoneMatches) && !todo.archived;
     });
 
     setSearchResults(results);
@@ -424,27 +480,6 @@ function App() {
     } catch (error) {
       console.error("Error adding kanban card:", error);
       setError(error.message);
-    }
-  };
-
-  const handleContactUpdate = async (todoId, field, value) => {
-    try {
-      const todoRef = doc(db, 'todos', todoId);
-      await updateDoc(todoRef, {
-        [field]: value
-      });
-      
-      // Update local states
-      const updatedTodo = { ...selectedTodo, [field]: value };
-      setSelectedTodo(updatedTodo);
-      setAllTodos(prevAll => prevAll.map(todo => 
-        todo.id === todoId ? updatedTodo : todo
-      ));
-      setTodos(prevTodos => prevTodos.map(todo =>
-        todo.id === todoId ? updatedTodo : todo
-      ));
-    } catch (error) {
-      console.error(`Error updating ${field}:`, error);
     }
   };
 
@@ -770,7 +805,11 @@ function App() {
                       fullWidth
                       label="Phone Number"
                       value={selectedTodo.phone || ''}
-                      onChange={(e) => handleContactUpdate(selectedTodo.id, 'phone', e.target.value)}
+                      onChange={(e) => {
+                        const normalized = normalizePhoneNumber(e.target.value);
+                        handleContactUpdate(selectedTodo.id, 'phone', normalized.formatted);
+                      }}
+                      placeholder="(123) 456-7890"
                       sx={{
                         mb: 2,
                         '& .MuiInputBase-root': {
