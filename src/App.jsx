@@ -994,12 +994,14 @@ function App() {
         todo.id === todoId ? updatedTodo : todo
       ));
 
-      // Show notification
+      // Update notification and increment counter
       setNotification({
         open: true,
         message: `${updatedTodo.text} is now ${isActive ? 'active' : 'inactive'}`,
         severity: 'success'
       });
+      setNotificationCount(prev => prev + 1); // Add this line
+      
     } catch (error) {
       console.error("Error updating active status:", error);
       setNotification({
@@ -1007,6 +1009,7 @@ function App() {
         message: 'Failed to update task status',
         severity: 'error'
       });
+      setNotificationCount(prev => prev + 1); // Add this line for error notifications too
     }
   };
 
