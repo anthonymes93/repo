@@ -112,6 +112,12 @@ import NotificationsIcon from '@mui/icons-material/Notifications';
 import Badge from '@mui/material/Badge';
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
+import ChatIcon from '@mui/icons-material/Chat';
+import Fab from '@mui/material/Fab';
+import Dialog from '@mui/material/Dialog';
+import DialogTitle from '@mui/material/DialogTitle';
+import DialogContent from '@mui/material/DialogContent';
+import CloseIcon from '@mui/icons-material/Close';
 
 const fadeIn = keyframes`
   from {
@@ -185,6 +191,7 @@ function App() {
   });
   const [mode, setMode] = useState('dark');
   const [notificationCount, setNotificationCount] = useState(0);
+  const [chatOpen, setChatOpen] = useState(false);
 
   const theme = useMemo(
     () =>
@@ -2530,6 +2537,70 @@ function App() {
             {notification.message}
           </Alert>
         </Snackbar>
+
+        {/* Chat Bubble */}
+        <Fab 
+          color="primary"
+          aria-label="chat"
+          onClick={() => setChatOpen(true)}
+          sx={{ 
+            position: 'fixed',
+            bottom: 24,
+            right: 24,
+            backgroundColor: '#4CAF50',
+            '&:hover': {
+              backgroundColor: '#388E3C'
+            }
+          }}
+        >
+          <ChatIcon />
+        </Fab>
+
+        {/* Chat Dialog */}
+        <Dialog
+          open={chatOpen}
+          onClose={() => setChatOpen(false)}
+          PaperProps={{
+            sx: {
+              width: '400px',
+              height: '500px',
+              maxHeight: '80vh',
+              position: 'fixed',
+              bottom: 24,
+              right: 24,
+              m: 0,
+              background: '#1E1E1E linear-gradient(rgb(82 82 82 / 15%), rgb(0 0 0 / 15%))',
+              color: 'white',
+              borderRadius: 2,
+            }
+          }}
+          BackdropProps={{
+            sx: {
+              backgroundColor: 'transparent'
+            }
+          }}
+        >
+          <DialogTitle sx={{ 
+            borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center'
+          }}>
+            Chat
+            <IconButton 
+              onClick={() => setChatOpen(false)}
+              sx={{ color: 'rgba(255, 255, 255, 0.7)' }}
+            >
+              <CloseIcon />
+            </IconButton>
+          </DialogTitle>
+          <DialogContent sx={{ p: 2 }}>
+            {/* Add your chat content here */}
+            <Typography variant="body1" color="text.primary">
+              Chat content goes here...
+            </Typography>
+          </DialogContent>
+        </Dialog>
       </Box>
     </ThemeProvider>
   )
