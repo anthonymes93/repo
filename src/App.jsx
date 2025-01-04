@@ -1053,39 +1053,47 @@ function App() {
               </Typography>
             )}
 
-            <form onSubmit={handleSubmit}>
-              <TextField
-                fullWidth
+            <Paper
+              component="form"
+              onSubmit={handleSubmit}
+              sx={{
+                p: '2px 4px',
+                display: 'flex',
+                alignItems: 'center',
+                width: '100%',
+                mb: 2,
+                backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                border: '1px solid rgba(255, 255, 255, 0.2)'
+              }}
+            >
+              <InputBase
+                sx={{
+                  ml: 1,
+                  flex: 1,
+                  color: 'white',
+                  '& ::placeholder': {
+                    color: 'rgba(255, 255, 255, 0.5)'
+                  }
+                }}
+                placeholder="Add a new todo..."
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
-                placeholder="Add a new todo"
-                sx={{
-                  mb: 2,
-                  '& .MuiInputBase-root': {
-                    color: 'white',
-                    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                  },
-                  '& .MuiInputBase-input::placeholder': {
-                    color: 'rgba(255, 255, 255, 0.7)',
-                    opacity: 1,
-                  },
-                }}
               />
               <Button 
                 type="submit" 
-                variant="contained" 
-                fullWidth
-                sx={{
-                  mb: 2,
-                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                disabled={loading}
+                sx={{ 
+                  color: 'white',
+                  px: 3,
+                  py: 1,
                   '&:hover': {
-                    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-                  },
+                    backgroundColor: 'rgba(255, 255, 255, 0.1)'
+                  }
                 }}
               >
-                Add Todo
+                {loading ? 'Adding...' : 'Add'}
               </Button>
-            </form>
+            </Paper>
 
             {loading && (
               <div style={{ textAlign: 'center', marginTop: '20px' }}>
