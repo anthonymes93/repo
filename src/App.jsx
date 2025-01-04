@@ -454,70 +454,6 @@ function App() {
     }
   };
 
-  const renderKanbanBoard = () => (
-    <DragDropContext onDragEnd={handleDragEnd}>
-      <div style={{ padding: '20px' }}>
-        <div style={{ display: 'flex', gap: '16px' }}>
-          {Object.entries(columns).map(([columnId, column]) => (
-            <div 
-              key={columnId}
-              style={{
-                display: 'flex',
-                flexDirection: 'column',
-                flex: 1,
-              }}
-            >
-              <h3 style={{ color: column.color, margin: '0 0 8px' }}>
-                {column.title}
-              </h3>
-              <Droppable droppableId={columnId}>
-                {(provided, snapshot) => (
-                  <div
-                    {...provided.droppableProps}
-                    ref={provided.innerRef}
-                    style={{
-                      background: snapshot.isDraggingOver ? 'rgba(255, 255, 255, 0.1)' : 'rgba(255, 255, 255, 0.05)',
-                      padding: 8,
-                      minHeight: 200,
-                      borderRadius: 4,
-                    }}
-                  >
-                    {column.items.map((item, index) => (
-                      <Draggable
-                        key={item.id}
-                        draggableId={item.id}
-                        index={index}
-                      >
-                        {(provided, snapshot) => (
-                          <div
-                            ref={provided.innerRef}
-                            {...provided.draggableProps}
-                            {...provided.dragHandleProps}
-                            style={{
-                              padding: 16,
-                              margin: '0 0 8px 0',
-                              backgroundColor: snapshot.isDragging ? 'rgba(255, 255, 255, 0.2)' : 'rgba(255, 255, 255, 0.1)',
-                              color: 'white',
-                              borderRadius: 4,
-                              ...provided.draggableProps.style,
-                            }}
-                          >
-                            {item.text}
-                          </div>
-                        )}
-                      </Draggable>
-                    ))}
-                    {provided.placeholder}
-                  </div>
-                )}
-              </Droppable>
-            </div>
-          ))}
-        </div>
-      </DragDropContext>
-    </div>
-  );
-
   return (
     <div style={{ 
       minHeight: '100vh',
@@ -748,8 +684,7 @@ function App() {
                 width: '33%',
                 backgroundColor: '#1a1a1a',
                 color: 'white',
-                padding: '20px',
-                overflowY: 'auto'
+                padding: '20px'
               }
             }}
           >
@@ -923,7 +858,66 @@ function App() {
                     <Typography variant="h6" sx={{ mb: 2 }}>
                       Task Board
                     </Typography>
-                    {renderKanbanBoard()}
+                    
+                    <DragDropContext onDragEnd={handleDragEnd}>
+                      <div style={{ display: 'flex', gap: '16px' }}>
+                        {Object.entries(columns).map(([columnId, column]) => (
+                          <div 
+                            key={columnId}
+                            style={{
+                              display: 'flex',
+                              flexDirection: 'column',
+                              flex: 1,
+                            }}
+                          >
+                            <h3 style={{ color: column.color, margin: '0 0 8px' }}>
+                              {column.title}
+                            </h3>
+                            <Droppable droppableId={columnId}>
+                              {(provided, snapshot) => (
+                                <div
+                                  {...provided.droppableProps}
+                                  ref={provided.innerRef}
+                                  style={{
+                                    background: snapshot.isDraggingOver ? 'rgba(255, 255, 255, 0.1)' : 'rgba(255, 255, 255, 0.05)',
+                                    padding: 8,
+                                    minHeight: 200,
+                                    borderRadius: 4,
+                                  }}
+                                >
+                                  {column.items.map((item, index) => (
+                                    <Draggable
+                                      key={item.id}
+                                      draggableId={item.id}
+                                      index={index}
+                                    >
+                                      {(provided, snapshot) => (
+                                        <div
+                                          ref={provided.innerRef}
+                                          {...provided.draggableProps}
+                                          {...provided.dragHandleProps}
+                                          style={{
+                                            padding: 16,
+                                            margin: '0 0 8px 0',
+                                            backgroundColor: snapshot.isDragging ? 'rgba(255, 255, 255, 0.2)' : 'rgba(255, 255, 255, 0.1)',
+                                            color: 'white',
+                                            borderRadius: 4,
+                                            ...provided.draggableProps.style,
+                                          }}
+                                        >
+                                          {item.text}
+                                        </div>
+                                      )}
+                                    </Draggable>
+                                  ))}
+                                  {provided.placeholder}
+                                </div>
+                              )}
+                            </Droppable>
+                          </div>
+                        ))}
+                      </div>
+                    </DragDropContext>
                   </CardContent>
                 </Card>
 
