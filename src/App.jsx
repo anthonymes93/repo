@@ -46,6 +46,10 @@ function App() {
     fetchTodos()
   }, [])
 
+  useEffect(() => {
+    setTodos(prevTodos => sortTodos([...prevTodos]))
+  }, [sortDirection])
+
   const fetchTodos = async () => {
     try {
       setLoading(true)
@@ -159,11 +163,11 @@ function App() {
 
   const sortTodos = (todosToSort) => {
     return [...todosToSort].sort((a, b) => {
-      if (sortDirection === 'asc') {
-        return a.timestamp - b.timestamp;
-      } else {
-        return b.timestamp - a.timestamp;
-      }
+      const timeA = a.timestamp || 0;
+      const timeB = b.timestamp || 0;
+      return sortDirection === 'asc' 
+        ? timeA - timeB 
+        : timeB - timeA;
     });
   };
 
@@ -188,9 +192,9 @@ function App() {
           ...newTodo
         }
         
-        // Update and sort todos
-        setTodos(prevTodos => sortTodos([todoWithId, ...prevTodos]))
-        setAllTodos(prevAll => sortTodos([todoWithId, ...prevAll]))
+        // Just add the new todo, useEffect will handle sorting
+        setTodos(prevTodos => [todoWithId, ...prevTodos])
+        setAllTodos(prevAll => [todoWithId, ...prevAll])
         
         setInputValue('')
         setError(null)
