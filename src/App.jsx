@@ -1,6 +1,6 @@
 // Test auto-commit - this comment should be saved automatically
 //works bru
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useRef } from 'react'
 import { db } from './firebase'
 import { 
   collection, 
@@ -192,6 +192,9 @@ function App() {
   const [mode, setMode] = useState('dark');
   const [notificationCount, setNotificationCount] = useState(0);
   const [chatOpen, setChatOpen] = useState(false);
+  const [messages, setMessages] = useState([]);
+  const [messageInput, setMessageInput] = useState('');
+  const messagesEndRef = useRef(null);
 
   const theme = useMemo(
     () =>
@@ -516,6 +519,14 @@ function App() {
 
     fetchCompletedCount();
   }, []);
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
 
   const fetchTodos = async () => {
     try {
@@ -1076,6 +1087,22 @@ function App() {
       severity,
     });
     setNotificationCount(prev => prev + 1);
+  };
+
+  // Handle sending a message
+  const handleSendMessage = (e) => {
+    e.preventDefault();
+    if (messageInput.trim() === '') return;
+
+    const newMessage = {
+      id: Date.now(),
+      text: messageInput,
+      timestamp: new Date(),
+      isMe: true // to differentiate between sent/received
+    };
+
+    setMessages(prev => [...prev, newMessage]);
+    setMessageInput('');
   };
 
   return (
@@ -2594,11 +2621,97 @@ function App() {
               <CloseIcon />
             </IconButton>
           </DialogTitle>
-          <DialogContent sx={{ p: 2 }}>
-            {/* Add your chat content here */}
-            <Typography variant="body1" color="text.primary">
-              Chat content goes here...
-            </Typography>
+          <DialogContent 
+            sx={{ 
+              p: 2,
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 2,
+              overflowY: 'auto'
+            }}
+          >
+            {/* Messages Container */}
+            <Box sx={{ flexGrow: 1, overflowY: 'auto', mb: 2 }}>
+              {messages.map((message) => (
+                <Box
+                  key={message.id}
+                  sx={{
+                    display: 'flex',
+                    justifyContent: message.isMe ? 'flex-end' : 'flex-start',
+                    mb: 1,
+                  }}
+                >
+                  <Paper
+                    sx={{
+                      p: 1,
+                      px: 2,
+                      maxWidth: '80%',
+                      backgroundColor: message.isMe ? '#4CAF50' : 'rgba(255, 255, 255, 0.1)',
+                      borderRadius: 2,
+                    }}
+                  >
+                    <Typography variant="body1">{message.text}</Typography>
+                    <Typography 
+                      variant="caption" 
+                      sx={{ 
+                        display: 'block', 
+                        mt: 0.5,
+                        opacity: 0.7 
+                      }}
+                    >
+                      {new Date(message.timestamp).toLocaleTimeString()}
+                    </Typography>
+                  </Paper>
+                </Box>
+              ))}
+              <div ref={messagesEndRef} />
+            </Box>
+
+            {/* Message Input */}
+            <Paper
+              component="form"
+              onSubmit={handleSendMessage}
+              sx={{
+                p: '2px 4px',
+                display: 'flex',
+                alignItems: 'center',
+                backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                borderTop: '1px solid rgba(255, 255, 255, 0.08)'
+              }}
+            >
+              <TextField
+                fullWidth
+                value={messageInput}
+                onChange={(e) => setMessageInput(e.target.value)}
+                placeholder="Type a message..."
+                variant="standard"
+                sx={{
+                  mx: 1,
+                  '& .MuiInputBase-input': {
+                    color: 'white',
+                  },
+                  '& .MuiInput-underline:before': {
+                    borderBottomColor: 'transparent',
+                  },
+                  '& .MuiInput-underline:hover:before': {
+                    borderBottomColor: 'transparent',
+                  },
+                  '& .MuiInput-underline:after': {
+                    borderBottomColor: 'transparent',
+                  },
+                }}
+              />
+              <IconButton 
+                type="submit" 
+                sx={{ 
+                  p: '10px',
+                  color: messageInput.trim() ? '#4CAF50' : 'rgba(255, 255, 255, 0.3)',
+                }}
+                disabled={!messageInput.trim()}
+              >
+                <SendIcon />
+              </IconButton>
+            </Paper>
           </DialogContent>
         </Dialog>
       </Box>
