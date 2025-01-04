@@ -181,8 +181,31 @@ function App() {
   };
 
   useEffect(() => {
-    fetchTodos()
-  }, [])
+    const fetchTodos = async () => {
+      try {
+        const querySnapshot = await getDocs(
+          query(
+            collection(db, 'todos'),
+            where('completed', '==', false),
+            where('archived', '==', false)
+          )
+        );
+        
+        const fetchedTodos = querySnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }));
+        
+        setTodos(fetchedTodos);
+        setAllTodos(fetchedTodos);
+      } catch (error) {
+        console.error("Error fetching todos:", error);
+        setError("Failed to fetch todos");
+      }
+    };
+
+    fetchTodos();
+  }, []);
 
   useEffect(() => {
     setTodos(prevTodos => sortTodos([...prevTodos]))
@@ -749,19 +772,24 @@ function App() {
 
     try {
       const todoRef = doc(db, 'todos', todoId);
+      
+      // First update Firebase
       await updateDoc(todoRef, {
         completed: true,
         completedAt: new Date().getTime()
       });
 
-      // Remove from todos list
+      // Then update local state
       setTodos(prevTodos => prevTodos.filter(todo => todo.id !== todoId));
+      setAllTodos(prevAll => prevAll.map(todo =>
+        todo.id === todoId ? { ...todo, completed: true, completedAt: new Date().getTime() } : todo
+      ));
       
-      // Increment completed tasks counter
+      // Increment completed counter
       setCompletedTasksCount(prev => prev + 1);
 
     } catch (error) {
-      console.error("Error completing todo:", error);
+      console.error("Error toggling todo:", error);
     }
   };
 
